@@ -9,8 +9,8 @@ make build
 make run
 ```
 
-This should bring you within the Docker container. Then run inside the container:
+This should bring you within the Docker container. Then inside the container, you can:
 
 ```bash
-python cli.py
+python cli.py fetch  # Fetch data and upload
 ```
