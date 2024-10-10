@@ -1,0 +1,18 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[packages]
+chromadb = "*"
+click = "*"
+FlagEmbedding = "*"
+numpy = "*"
+pandas = "*"
+
+[dev-packages]
+black = "*"
+ruff = "*"
+
+[requires]
+python_version = "3.11"
