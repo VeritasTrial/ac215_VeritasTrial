@@ -1,6 +1,4 @@
-"""
-This files wraps the subcommands into a single CLI entry point.
-"""
+"""The CLI entrypoint."""
 
 import click
 
@@ -9,22 +7,22 @@ from fetch import main as cli_fetch
 from upload import main as cli_upload
 
 
-@click.group()
+@click.group(help="Data pipeline CLI for VeritasTrial.")
 def cli():
     pass
 
 
-@cli.command()
+@cli.command(help="Fetch data from API.")
 def fetch():
     cli_fetch()
 
 
-@cli.command()
+@cli.command(help="Clean fetched data.")
 def clean():
     cli_clean()
 
 
-@cli.command()
+@cli.command(help="Upload cleaned data.")
 def upload():
     cli_upload()
 

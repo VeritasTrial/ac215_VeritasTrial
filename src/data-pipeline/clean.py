@@ -1,3 +1,7 @@
+"""
+The clean subcommand.
+"""
+
 import json
 import re
 
@@ -260,9 +264,10 @@ def clean_one_study(study):
 
 def main():
     if not RAW_JSONL_PATH.exists():
-        raise RuntimeError(
-            f"Raw data missing at: {RAW_JSONL_PATH}; run the fetch subcommand first"
+        rich.print(
+            f"[bold red]ERROR[/] Raw data missing at: {RAW_JSONL_PATH}; run the fetch subcommand first"
         )
+        return
 
     # Load metadata if it exists
     n_cleaned_studies = 0

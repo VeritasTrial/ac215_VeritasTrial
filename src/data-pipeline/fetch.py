@@ -1,3 +1,5 @@
+"""The fetch subcommand."""
+
 import json
 
 import jsonlines

@@ -1,3 +1,5 @@
+"""Shared constants and utility functions."""
+
 from pathlib import Path
 
 from rich.progress import (
