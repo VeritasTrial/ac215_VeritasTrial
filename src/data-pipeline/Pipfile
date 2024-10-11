@@ -5,6 +5,7 @@ verify_ssl = true
 
 [packages]
 click = "*"
+jsonlines = "*"
 requests = "*"
 rich = "*"
 

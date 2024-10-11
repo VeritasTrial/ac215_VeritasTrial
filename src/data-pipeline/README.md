@@ -12,5 +12,7 @@ make run
 This should bring you within the Docker container. Then inside the container, you can:
 
 ```bash
-python cli.py fetch  # Fetch data and upload
+python cli.py fetch   # Fetch data from API
+python cli.py clean   # Clean fetched data
+python cli.py upload  # Upload cleaned data to GCP
 ```
