@@ -127,7 +127,11 @@ def get_inclusion_exclusion_criteria(criteria_text):
 def get_document_url(id, doc_info):
     """Helper function to get the URL of a large document attachment."""
     filename = doc_info.get("filename")
-    return f"https://cdn.clinicaltrials.gov/large-docs/{id[-2:]}/{id}/{filename}" if filename is not None else None
+    return (
+        f"https://cdn.clinicaltrials.gov/large-docs/{id[-2:]}/{id}/{filename}"
+        if filename is not None
+        else None
+    )
 
 
 def clean_one_study(study):
@@ -165,7 +169,9 @@ def clean_one_study(study):
     collab_module = protocols.get("sponsorCollaboratorsModule", {})
     cleaned_data["sponsor"] = collab_module.get("leadSponsor", {}).get("name")
     cleaned_data["collaborators"] = [
-        name for item in collab_module.get("collaborators", []) if (name := item.get("name")) is not None
+        name
+        for item in collab_module.get("collaborators", [])
+        if (name := item.get("name")) is not None
     ]
 
     # Description module
