@@ -1,7 +1,5 @@
 """The upload subcommand."""
 
-from pathlib import Path
-
 import rich
 from google.cloud import storage
 

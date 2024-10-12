@@ -20,6 +20,7 @@ run:
 devlock:
 	pipenv lock
 	pipenv sync -d
+	pipenv clean
 
 # [DEV] Format the codebase
 devlint:
