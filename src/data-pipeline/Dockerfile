@@ -13,7 +13,7 @@ RUN set -ex; \
   apt-get install -y build-essential curl && \
   rm -rf /var/lib/apt/lists/* && \
   pip install --no-cache-dir --upgrade pip && \
-  pip install pipenv
+  pip install --no-cache-dir pipenv
 
 # Set up user and working directory
 RUN set -ex; \
@@ -26,8 +26,10 @@ WORKDIR /veritastrial
 # Copy Pipfile and Pipfile.lock
 COPY --chown=veritastrial:veritastrial Pipfile Pipfile.lock /veritastrial/
 
-# Install Python dependencies
-RUN pipenv sync
+# Install Python dependencies and clear cache
+RUN pipenv sync --clear && \
+  rm -rf /home/veritastrial/.cache/pip && \
+  rm -rf /home/veritastrial/.cache/pipenv
 
 # Add the rest of the source code; this is done last to take advantage of
 # Docker's layer caching mechanism
