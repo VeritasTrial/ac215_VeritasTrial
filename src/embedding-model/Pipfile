@@ -4,14 +4,13 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [packages]
-chromadb = "*"
+chromadb-client = "*"
 click = "*"
 jsonlines = "*"
-google-cloud-storage = "*"
 FlagEmbedding = "*"
 numpy = "*"
 pandas = "*"
-peft = "*"  # Required by FlagEmbedding, but not in setup.py before 1.0.6
+peft = "*"  # XXX: required by FlagEmbedding, but not in setup.py before 1.0.6
 
 [dev-packages]
 black = "*"

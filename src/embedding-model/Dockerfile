@@ -28,8 +28,8 @@ COPY --chown=veritastrial:veritastrial Pipfile Pipfile.lock /veritastrial/
 
 # Install Python dependencies and clear cache
 RUN pipenv sync --clear && \
-  rm -rf /home/veritastrial/.cache/pip && \
-  rm -rf /home/veritastrial/.cache/pipenv
+  rm -rf /home/veritastrial/.cache/pip/* && \
+  rm -rf /home/veritastrial/.cache/pipenv/*
 
 # Add the rest of the source code; this is done last to take advantage of
 # Docker's layer caching mechanism
