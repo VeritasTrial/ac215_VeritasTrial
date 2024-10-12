@@ -265,7 +265,8 @@ def clean_one_study(study):
 def main():
     if not RAW_JSONL_PATH.exists():
         rich.print(
-            f"[bold red]ERROR[/] Raw data missing at: {RAW_JSONL_PATH}; run the fetch subcommand first"
+            f"[bold red]ERROR[/] Raw data missing at: {RAW_JSONL_PATH}; run the fetch "
+            "subcommand first"
         )
         return
 
@@ -289,5 +290,6 @@ def main():
                     n_cleaned_studies += 1
 
     rich.print(
-        f"[bold green]->[/] {n_cleaned_studies} cleaned studies saved to {CLEANED_JSONL_PATH}"
+        f"[bold green]->[/] {n_cleaned_studies} cleaned studies saved to "
+        f"{CLEANED_JSONL_PATH}"
     )

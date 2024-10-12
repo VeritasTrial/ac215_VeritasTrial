@@ -5,8 +5,8 @@ verify_ssl = true
 
 [packages]
 click = "*"
-jsonlines = "*"
 google-cloud-storage = "*"
+jsonlines = "*"
 requests = "*"
 rich = "*"
 

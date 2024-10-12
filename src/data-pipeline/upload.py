@@ -11,7 +11,8 @@ BUCKET_NAME = "veritas-trial"
 def main():
     if not CLEANED_JSONL_PATH.exists():
         rich.print(
-            f"[bold red]ERROR[/] Cleaned data missing at: {CLEANED_JSONL_PATH}; run the clean subcommand first"
+            f"[bold red]ERROR[/] Cleaned data missing at: {CLEANED_JSONL_PATH}; run "
+            "the clean subcommand first"
         )
         return
 
