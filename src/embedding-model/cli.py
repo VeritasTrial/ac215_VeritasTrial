@@ -10,7 +10,7 @@ def cli():
     pass
 
 
-@cli.command(help="Construct vector embeddings.")
+@cli.command(help="Create vector embeddings.")
 def embed():
     cli_embed()
 

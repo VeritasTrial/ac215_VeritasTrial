@@ -1,6 +1,6 @@
 """Shared constants and utility functions."""
 
-from pathlib import Path
+import os
 
 from rich.progress import (
     MofNCompleteColumn,
@@ -10,11 +10,9 @@ from rich.progress import (
     TimeElapsedColumn,
 )
 
-DATA_DIR = Path(__file__).parent / "data"
-CHROMADB_DIR = DATA_DIR / "chromadb"
-
-if not DATA_DIR.exists():
-    DATA_DIR.mkdir()
+CHROMADB_HOST = os.environ.get("CHROMADB_HOST", "localhost")
+CHROMADB_PORT = os.environ.get("CHROMADB_PORT", 8000)
+CHROMADB_COLLECTION_NAME = "veritas-trial-embeddings"
 
 
 def default_progress():

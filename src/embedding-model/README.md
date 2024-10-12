@@ -7,8 +7,12 @@ make build
 make run
 ```
 
-This should bring you within the Docker container. Then inside the container, run:
+This should start a Docker network (`make network`) if it does not already exist, start the ChromaDB server (`make chromadb`) if it is not running, and bring you within the Docker container. Then inside the container, run:
 
 ```bash
-python cli.py
+python cli.py embed
 ```
+
+> [!NOTE]
+> - Use `make info` to check the Docker network and the ChromaDB server.
+> - Use `--help` on `cli.py` to get an overview of what each subcommand does.
