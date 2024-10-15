@@ -2,7 +2,7 @@
 
 import click
 
-# from embed import main as cli_embed
+from embed import main as cli_embed
 from store import main as cli_store
 from upload import main as cli_upload
 
@@ -12,17 +12,19 @@ def cli():
     pass
 
 
-@cli.command(help="Create vector embeddings and upload to GCP bucket")
+@cli.command(help="Create vector embeddings.")
 def embed():
     cli_embed()
 
-@cli.command(help="Fetch embeddings from GCP bucket")
-def store():
-    cli_store()
 
-@cli.command(help="Upload embeddings into GCP bucket")
+@cli.command(help="Upload embeddings to GCS.")
 def upload():
     cli_upload()
+
+
+@cli.command(help="Store embeddings in ChromaDB.")
+def store():
+    cli_store()
 
 
 if __name__ == "__main__":

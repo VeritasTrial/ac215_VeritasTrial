@@ -1,55 +1,37 @@
 """The embed subcommand."""
 
+from io import StringIO
+
+import numpy as np
+import pandas as pd
 import rich
+from FlagEmbedding import FlagModel
 from google.cloud import storage
 
-import pandas as pd
-import numpy as np
-from io import StringIO
-from FlagEmbedding import FlagModel
-
-
 from shared import (
-    CHROMADB_COLLECTION_NAME,
-    EMBED_NPY_PATH
+    BUCKET_CLEANED_JSONL_PATH,
+    BUCKET_NAME,
+    EMBEDDINGS_NPY_PATH,
+    default_progress,
 )
-
-BUCKET_NAME = "veritas-trial"
-BUCKET_CLEANED_JSONL_PATH = "data-pipeline/cleaned_data.jsonl"
-
-def fetch_summary_from_bucket():
-    # Connect to the GCS bucket
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(BUCKET_NAME)
-
-    # Fetch data from the bucket and convert to DataFrame
-    blob = bucket.get_blob(BUCKET_CLEANED_JSONL_PATH)
-    jsonl_data_string = blob.download_as_bytes().decode('utf-8')
-    jsonl_io = StringIO(jsonl_data_string)
-    trials_df = pd.read_json(jsonl_io, lines=True)
-
-    # Retrieve the summary column for embedding
-    summaries = trials_df['summary'].to_list()
-    # ids = trials_df['id'].to_list()
-    # titles = trials_df['long_title']
-
-    return summaries
-
-
 
 
 def main():
-    # Fetch data from bucket and extract the summaries
-    summaries= fetch_summary_from_bucket()
-    # Create embeddings with BGE-small-en-v1.5
-    model = FlagModel('BAAI/bge-small-en-v1.5',use_fp16=True)
-    embeddings = model.encode(summaries)
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(BUCKET_NAME)
 
-    # Save embeddings to a .npy file
-    np.save(EMBED_NPY_PATH, embeddings)
-    
+    # Fetch cleaned data from the bucket
+    with default_progress() as progress:
+        task = progress.add_task("Fetching cleaned data...", total=1)
+        blob = bucket.get_blob(BUCKET_CLEANED_JSONL_PATH)
+        data_io = StringIO(blob.download_as_text(encoding="utf-8"))
+        studies_df = pd.read_json(data_io, lines=True)
+        progress.update(task, advance=1)
 
-    rich.print(
-        "[bold green]->[/] Embeddings stored in collection "
-        f"{CHROMADB_COLLECTION_NAME!r} in ChromaDB."
-    )
+    # Load the model and encode the summaries, then save the embeddings as binary
+    rich.print("[bold green]->[/] Creating vector embeddings...")
+    model = FlagModel("BAAI/bge-small-en-v1.5", use_fp16=True)
+    embeddings = model.encode(studies_df["summary"].to_list())
+    np.save(EMBEDDINGS_NPY_PATH, embeddings)
+
+    rich.print(f"[bold green]->[/] Embeddings saved to {EMBEDDINGS_NPY_PATH}")

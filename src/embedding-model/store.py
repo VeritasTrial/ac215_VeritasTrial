@@ -1,78 +1,62 @@
-import chromadb
-import rich
-from google.cloud import storage
-
-import pandas as pd
-import numpy as np
 import io
 from io import StringIO
 
+import chromadb
+import numpy as np
+import pandas as pd
+import rich
+from google.cloud import storage
+
 from shared import (
+    BUCKET_CLEANED_JSONL_PATH,
+    BUCKET_EMBEDDINGS_NPY_PATH,
+    BUCKET_NAME,
     CHROMADB_COLLECTION_NAME,
     CHROMADB_HOST,
     CHROMADB_PORT,
     default_progress,
-    EMBED_NPY_PATH
 )
-
-BUCKET_NAME = 'veritas-trial'
-BUCKET_CLEANED_JSONL_PATH = "data-pipeline/cleaned_data.jsonl"
-BUCKET_EMB_NPY_PATH = 'embeddings/trial_embedding.npy'
-
-
-def fetch_data_from_bucket():
-    # Connect to the GCS bucket
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(BUCKET_NAME)
-
-    # Fetch data from the bucket and convert to DataFrame
-    blob_json = bucket.get_blob(BUCKET_CLEANED_JSONL_PATH)
-    jsonl_data_string = blob_json.download_as_bytes().decode('utf-8')
-    jsonl_io = StringIO(jsonl_data_string)
-    trials_df = pd.read_json(jsonl_io, lines=True)
-
-    # Fetch the embedding from GCP Bucket
-    blob_emb = bucket.get_blob(BUCKET_EMB_NPY_PATH)
-    if blob_emb:
-        byte_stream = io.BytesIO()
-        blob_emb.download_to_file(byte_stream)
-        byte_stream.seek(0) 
-        embeddings = np.load(byte_stream)
-    else:
-        print("No blob found for the given path.")
-
-    # Retrieve the meta data column for embedding
-    ids = trials_df['id'].to_list()
-    titles = trials_df['long_title'].to_list()
-
-    return ids, titles, embeddings
-
-
-def query_data():
-    client = chromadb.HttpClient(host=CHROMADB_HOST, port=CHROMADB_PORT)
-    collection = client.get_collection(CHROMADB_COLLECTION_NAME)
-    
-    # Example of querying by ID (adjust according to your API/client capabilities)
-    sample_id = 'NCT02371889'
-    document = collection.get(ids=[sample_id],include=['embeddings', 'documents', 'metadatas'])
-    print("Retrieved Document:", document)
-
 
 
 def main():
-    try:
-        ids, titles, embeddings = fetch_data_from_bucket()
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(BUCKET_NAME)
 
+    with default_progress() as progress:
+        task = progress.add_task("", total=4)
+
+        # Fetch metadata from the cleaned data in the bucket
+        progress.update(task, description="Fetching metadata...")
+        data_blob = bucket.get_blob(BUCKET_CLEANED_JSONL_PATH)
+        data_io = StringIO(data_blob.download_as_text(encoding="utf-8"))
+        studies_df = pd.read_json(data_io, lines=True)
+        study_ids = studies_df["id"].to_list()
+        study_titles = studies_df["long_title"].to_list()
+        progress.update(task, advance=1)
+
+        # Fetch embeddings from the bucket
+        progress.update(task, description="Fetching embeddings...")
+        embeddings_blob = bucket.get_blob(BUCKET_EMBEDDINGS_NPY_PATH)
+        embeddings_stream = io.BytesIO()
+        embeddings_blob.download_to_file(embeddings_stream)
+        embeddings_stream.seek(0)
+        embeddings = np.load(embeddings_stream)
+        progress.update(task, advance=1)
+
+        # Connect to ChromaDB
+        progress.update(task, description="Connecting to ChromaDB...")
         client = chromadb.HttpClient(host=CHROMADB_HOST, port=CHROMADB_PORT)
         collection = client.get_or_create_collection(CHROMADB_COLLECTION_NAME)
-        
-        # Upsert embeddings to the database
+        progress.update(task, advance=1)
+
+        # Upsert embeddings and the corresponding metadata to the vector database
+        progress.update(task, description="Upserting data...")
         collection.upsert(
-            ids=ids,
-            embeddings=embeddings.tolist(),  
-            documents=titles
+            ids=study_ids, embeddings=embeddings.tolist(), documents=study_titles
         )
-        print("Data upserted successfully.")
-        query_data()
-    except Exception as e:
-        print(f"An error occurred: {e}")
+        progress.update(task, advance=1)
+
+    rich.print(
+        f"[bold green]->[/] Data upserted to collection {CHROMADB_COLLECTION_NAME!r} "
+        "in ChromaDB."
+    )

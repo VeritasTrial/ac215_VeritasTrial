@@ -1,8 +1,7 @@
 """Shared constants and utility functions."""
 
-from pathlib import Path
 import os
-
+from pathlib import Path
 
 from rich.progress import (
     MofNCompleteColumn,
@@ -13,11 +12,15 @@ from rich.progress import (
 )
 
 DATA_DIR = Path(__file__).parent / "data"
-EMBED_NPY_PATH = DATA_DIR / "summary_embeddings.npy"
+EMBEDDINGS_NPY_PATH = DATA_DIR / "summary_embeddings.npy"
 
 CHROMADB_HOST = os.environ.get("CHROMADB_HOST", "localhost")
 CHROMADB_PORT = os.environ.get("CHROMADB_PORT", 8000)
 CHROMADB_COLLECTION_NAME = "veritas-trial-embeddings"
+
+BUCKET_NAME = "veritas-trial"
+BUCKET_CLEANED_JSONL_PATH = "data-pipeline/cleaned_data.jsonl"
+BUCKET_EMBEDDINGS_NPY_PATH = f"embedding-model/{EMBEDDINGS_NPY_PATH.name}"
 
 
 def default_progress():
