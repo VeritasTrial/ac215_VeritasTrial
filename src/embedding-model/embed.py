@@ -1,6 +1,5 @@
 """The embed subcommand."""
 
-import chromadb
 import rich
 from google.cloud import storage
 
@@ -12,9 +11,6 @@ from FlagEmbedding import FlagModel
 
 from shared import (
     CHROMADB_COLLECTION_NAME,
-    CHROMADB_HOST,
-    CHROMADB_PORT,
-    default_progress,
     EMBED_NPY_PATH
 )
 
