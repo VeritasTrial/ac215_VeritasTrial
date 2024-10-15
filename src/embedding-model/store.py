@@ -41,22 +41,38 @@ def fetch_data_from_bucket():
     else:
         print("No blob found for the given path.")
 
-
     # Retrieve the meta data column for embedding
     ids = trials_df['id'].to_list()
-    titles = trials_df['long_title']
+    titles = trials_df['long_title'].to_list()
 
     return ids, titles, embeddings
 
-def main():
-    ids, titles, embeddings = fetch_data_from_bucket()
 
+def query_data():
     client = chromadb.HttpClient(host=CHROMADB_HOST, port=CHROMADB_PORT)
-    collection = client.get_or_create_collection(CHROMADB_COLLECTION_NAME)
-    # Upsert embeddings to the databaseDO
-    collection.upsert(
-        ids=ids,
-        embeddings=embeddings,
-        # metadatas= #(fields for filter),
-        documents= titles
-    )
+    collection = client.get_collection(CHROMADB_COLLECTION_NAME)
+    
+    # Example of querying by ID (adjust according to your API/client capabilities)
+    sample_id = 'NCT02371889'
+    document = collection.get(ids=[sample_id],include=['embeddings', 'documents', 'metadatas'])
+    print("Retrieved Document:", document)
+
+
+
+def main():
+    try:
+        ids, titles, embeddings = fetch_data_from_bucket()
+
+        client = chromadb.HttpClient(host=CHROMADB_HOST, port=CHROMADB_PORT)
+        collection = client.get_or_create_collection(CHROMADB_COLLECTION_NAME)
+        
+        # Upsert embeddings to the database
+        collection.upsert(
+            ids=ids,
+            embeddings=embeddings.tolist(),  
+            documents=titles
+        )
+        print("Data upserted successfully.")
+        query_data()
+    except Exception as e:
+        print(f"An error occurred: {e}")

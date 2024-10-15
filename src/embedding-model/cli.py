@@ -2,7 +2,7 @@
 
 import click
 
-from embed import main as cli_embed
+# from embed import main as cli_embed
 from store import main as cli_store
 from upload import main as cli_upload
 
