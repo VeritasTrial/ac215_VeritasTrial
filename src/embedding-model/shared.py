@@ -14,6 +14,9 @@ from rich.progress import (
 DATA_DIR = Path(__file__).parent / "data"
 EMBEDDINGS_NPY_PATH = DATA_DIR / "summary_embeddings.npy"
 
+if not DATA_DIR.exists():
+    DATA_DIR.mkdir()
+
 CHROMADB_HOST = os.environ.get("CHROMADB_HOST", "localhost")
 CHROMADB_PORT = os.environ.get("CHROMADB_PORT", 8000)
 CHROMADB_COLLECTION_NAME = "veritas-trial-embeddings"
