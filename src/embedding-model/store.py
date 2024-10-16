@@ -31,7 +31,7 @@ def main():
         data_io = StringIO(data_blob.download_as_text(encoding="utf-8"))
         studies_df = pd.read_json(data_io, lines=True)
         study_ids = studies_df["id"].to_list()
-        study_titles = studies_df["long_title"].to_list()
+        study_titles = studies_df["short_title"].to_list()
         progress.update(task, advance=1)
 
         # Fetch embeddings from the bucket

@@ -11,6 +11,7 @@ google-cloud-storage = "*"
 numpy = "*"
 peft = "*"  # XXX: required by FlagEmbedding, but not in setup.py before 1.0.6
 rich = "*"
+scikit-learn = "*"
 
 [dev-packages]
 black = "*"
