@@ -29,6 +29,7 @@ def main():
         progress.update(task, advance=1)
 
     # Load the model and encode the summaries, then save the embeddings as binary
+    # TODO: strangely use_fp16=True in the container still gives float32 embeddings
     rich.print("[bold green]->[/] Creating vector embeddings...")
     model = FlagModel("BAAI/bge-small-en-v1.5", use_fp16=True)
     embeddings = model.encode(studies_df["summary"].to_list())

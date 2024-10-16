@@ -50,6 +50,7 @@ def main():
         progress.update(task, advance=1)
 
         # Upsert embeddings and the corresponding metadata to the vector database
+        # TODO: add corresponding metadata to the vector database
         progress.update(task, description="Upserting data...")
         collection.upsert(
             ids=study_ids, embeddings=embeddings.tolist(), documents=study_titles
