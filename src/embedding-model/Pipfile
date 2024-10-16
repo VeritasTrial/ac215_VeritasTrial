@@ -1,0 +1,20 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[packages]
+chromadb-client = "*"
+click = "*"
+FlagEmbedding = "*"
+google-cloud-storage = "*"
+numpy = "*"
+peft = "*"  # XXX: required by FlagEmbedding, but not in setup.py before 1.0.6
+rich = "*"
+
+[dev-packages]
+black = "*"
+ruff = "*"
+
+[requires]
+python_version = "3.11"
