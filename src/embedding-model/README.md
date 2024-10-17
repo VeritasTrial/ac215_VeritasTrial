@@ -15,6 +15,13 @@ python cli.py upload
 python cli.py store
 ```
 
+You can test querying the vector database or perform an evaluation:
+
+```bash
+python cli.py query "Get me some trials related to mental disorder"
+python cli.py eval
+```
+
 > [!NOTE]
 > - Use `make info` to check the Docker network and the ChromaDB server.
-> - Use `--help` on `cli.py` to get an overview of what each subcommand does.
+> - Use `--help` on `cli.py` to and its subcommands to get an overview of what each subcommand does.
