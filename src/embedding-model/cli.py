@@ -29,9 +29,12 @@ def upload():
 def store():
     cli_store()
 
-@cli.command(help="Retrieve trials from ChromaDB based on query")
-def query():
-    cli_query()
+@cli.command(help="Retrieve trials from ChromaDB based on query.")
+@click.argument('query_text')
+@click.option('--top_k', default=10, help='Number of top results to retrieve.')
+def query(query_text, top_k):
+    """Retrieve trials from ChromaDB based on the query text."""
+    cli_query(query_text, top_k)
 
 @cli.command(help="Evaluate the embedding quality")
 def eval():
