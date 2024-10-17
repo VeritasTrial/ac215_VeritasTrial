@@ -1,33 +1,35 @@
 import chromadb
-from FlagEmbedding import FlagModel
+import rich
 
-from shared import (
-    CHROMADB_COLLECTION_NAME,
-    CHROMADB_HOST,
-    CHROMADB_PORT,
-    default_progress,
-)
+from shared import CHROMADB_COLLECTION_NAME, CHROMADB_HOST, CHROMADB_PORT, get_model
 
-def retrieve_top_k(query_text, k=10):
-    """Retrieve the top K results based on the query text."""
-    # Generate query embedding
-    model = FlagModel('BAAI/bge-small-en-v1.5', use_fp16=True)
-    query_embedding = model.encode(query_text)
 
-    # Connect to ChromaDB
+def main(query, top_k):
+    """Evaluate the query against the database and return top_k results."""
+    model = get_model()
+
+    # Generate embedding vector for the query text
+    rich.print("[bold green]->[/] Creating query embedding...")
+    query_embedding = model.encode(query)
+
+    # Query the ChromaDB vector database
+    rich.print(f"[bold green]->[/] Searching for top {top_k} matches...")
     client = chromadb.HttpClient(host=CHROMADB_HOST, port=CHROMADB_PORT)
     collection = client.get_collection(CHROMADB_COLLECTION_NAME)
+    results = collection.query(
+        query_embeddings=[query_embedding],
+        n_results=top_k,
+        include=["documents", "distances", "metadatas"],
+    )
 
-    # Perform the search
-    results = collection.query(query_embeddings=[query_embedding], n_results=k, include=['documents'])
-    return results
-
-def main(query_text, top_k=10):
-    """Evaluate the query against the database and return top_k results."""
-    # Call the retrieve function
-    results = retrieve_top_k(query_text, top_k)
-
-    # Print or process the results as needed
-    print(f"Top {top_k} results for query '{query_text}':")
-    for i, result in enumerate(results['documents'], start=1):
-        print(f"{i}. {result}")
+    # Print the results; note that we are taking the first entry in each result field
+    # because we are querying wiht a single embedding vector
+    n_digits = len(str(top_k))
+    for i, (nctid, doc, dist) in enumerate(
+        zip(results["ids"][0], results["documents"][0], results["distances"][0]),
+        start=1,
+    ):
+        rich.get_console().print(
+            f"[green][{i:0{n_digits}d}][/] {doc} [dim]{nctid} ({dist=:.3f})[/]",
+            highlight=False,
+        )
