@@ -12,8 +12,8 @@ build:
 # Run the Docker container and enter its interactive shell
 run:
 	$(DOCKER_CMD) container run -it --rm \
-		--env GOOGLE_APPLICATION_CREDENTIALS=/veritastrial/veritas-trial-data-service.json \
-		--volume $(PWD)/../../secrets/veritas-trial-data-service.json:/veritastrial/veritas-trial-data-service.json:ro \
+		--env GOOGLE_APPLICATION_CREDENTIALS=/veritastrial/veritas-trial-service.json \
+		--volume $(PWD)/../../secrets/veritas-trial-service.json:/veritastrial/veritas-trial-service.json:ro \
 		--name $(CONTAINER_NAME) $(IMAGE_NAME)
 
 # [DEV] Update lock file and development environment on the host machine

@@ -1,51 +1,39 @@
-# Use the official Debian-hosted Python image
-FROM python:3.9-slim-buster
+FROM python:3.11-slim-bullseye
 
-ARG DEBIAN_PACKAGES="build-essential git screen vim"
-
-# Prevent apt from showing prompts
+# Environment variabless
 ENV DEBIAN_FRONTEND=noninteractive
-
-# Python wants UTF-8 locale
-ENV LANG=C.UTF-8
-
-# Tell pipenv where the shell is. This allows us to use "pipenv shell" as a
-# container entry point.
 ENV PYENV_SHELL=/bin/bash
+ENV LANG=C.UTF-8
+ENV PYTHONBUFFERED=1
 
-# Tell Python to disable buffering so we don't lose any logs.
-ENV PYTHONUNBUFFERED=1
-
-# Ensure we have an up to date baseline, install dependencies and
-# create a user so we don't run the app as root
+# Install system dependencies and pipenv
 RUN set -ex; \
-    for i in $(seq 1 8); do mkdir -p "/usr/share/man/man${i}"; done && \
-    apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y --no-install-recommends $DEBIAN_PACKAGES && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    pip install --no-cache-dir --upgrade pip && \
-    pip install pipenv && \
-    useradd -ms /bin/bash app -d /home/app -u 1000 -p "$(openssl passwd -1 Passw0rd)" && \
-    mkdir -p /app && \
-    mkdir -p /persistent && \
-    chown app:app /persistent && \
-    chown app:app /app
+  apt-get update && \
+  apt-get upgrade -y && \
+  apt-get install -y build-essential curl && \
+  rm -rf /var/lib/apt/lists/* && \
+  pip install --no-cache-dir --upgrade pip && \
+  pip install --no-cache-dir pipenv
 
+# Set up user and working directory
+RUN set -ex; \
+  useradd -ms /bin/bash veritastrial -d /home/veritastrial -u 1000 -p "$(openssl passwd -1 Passw0rd)" && \
+  mkdir -p /veritastrial && \
+  chown veritastrial:veritastrial /veritastrial
+USER veritastrial
+WORKDIR /veritastrial
 
-# Switch to the new user
-USER app
-WORKDIR /app
+# Copy Pipfile and Pipfile.lock
+COPY --chown=veritastrial:veritastrial Pipfile Pipfile.lock /veritastrial/
 
-# Install python packages
-ADD --chown=app:app Pipfile Pipfile.lock /app/
-RUN pipenv lock --clear  # This will generate a new Pipfile.lock if Pipfile has changed
-RUN pipenv sync
+# Install Python dependencies and clear cache
+RUN pipenv sync --clear && \
+  rm -rf /home/veritastrial/.cache/pip/* && \
+  rm -rf /home/veritastrial/.cache/pipenv/*
 
-# Add the rest of the source code. This is done last so we don't invalidate all
-# layers when we change a line of code.
-ADD --chown=app:app . /app
+# Add the rest of the source code; this is done last to take advantage of
+# Docker's layer caching mechanism
+COPY --chown=veritastrial:veritastrial *.py Makefile /veritastrial/
 
-# Entry point
-ENTRYPOINT ["/bin/bash","./docker-entrypoint.sh"]
+# Activate the virtual environment on container startup
+ENTRYPOINT [ "pipenv", "shell" ]
