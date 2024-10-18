@@ -167,7 +167,9 @@ def main(start_idx, end_idx, n_pairs, overwrite):
                 data_blob.download_to_file(f)
         # Load the cleaned data and limit to the specified range
         with jsonlines.open(CLEANED_JSONL_PATH, "r") as f:
-            studies = [study for study in f][slice(start_idx, end_idx)]
+            studies = [study for study in f]
+            indices = list(range(len(studies)))[slice(start_idx, end_idx)]
+            studies = studies[slice(start_idx, end_idx)]
         progress.update(task, advance=1)
 
         # Skip generating QA pairs if the range is empty
@@ -195,7 +197,8 @@ def main(start_idx, end_idx, n_pairs, overwrite):
                 qa_data = json.load(f)
 
         # For each study, generate QA pairs and append to the existing data
-        for study in studies:
+        failed_indices = []
+        for idx, study in zip(indices, studies):
             study_id = study["id"]
             prompt = PROMPT_TEMPLATE.format(
                 n_pairs=n_pairs, trial_json=json.dumps(study, indent=2)
@@ -207,6 +210,7 @@ def main(start_idx, end_idx, n_pairs, overwrite):
                 response = model.generate_content(prompt, stream=False)
                 response_text = response.text
             except Exception as e:
+                failed_indices.append(idx)
                 rich.get_console().print(f"[bold red]Error:[/] {e}", highlight=False)
                 continue
 
@@ -223,6 +227,7 @@ def main(start_idx, end_idx, n_pairs, overwrite):
                 progress.update(task, advance=1)
             except Exception as e:
                 # Save any error for debugging purposes
+                failed_indices.append(idx)
                 err_path = ERRORS_DIR / f"{study_id}-{int(time.time())}.log"
                 rich.get_console().print(f"[bold red]Error:[/] {e}", highlight=False)
                 rich.get_console().print(f"[dim]Logs: {err_path}[/]", highlight=False)
@@ -241,3 +246,5 @@ def main(start_idx, end_idx, n_pairs, overwrite):
             json.dump(qa_data, f, indent=2)
 
     rich.print(f"[bold green]->[/] Generated QA saved to {QA_JSON_PATH}")
+    if len(failed_indices) > 0:
+        rich.print(f"[bold red]->[/] Failed indices: {failed_indices}", highlight=False)
