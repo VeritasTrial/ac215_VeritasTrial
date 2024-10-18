@@ -37,11 +37,10 @@ def main(seed):
     with default_progress() as progress:
         task = progress.add_task("Construction dataset...", total=len(qa_data))
         dataset = []
-        for study_id, qa_pairs in qa_data.items():
+        for _, qa_pairs in qa_data.items():
             for qa_pair in qa_pairs:
                 dataset.append(
                     {
-                        "id": study_id,
                         "contents": [
                             {"role": "user", "parts": [{"text": qa_pair["question"]}]},
                             {"role": "model", "parts": [{"text": qa_pair["answer"]}]},
