@@ -4,10 +4,11 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [packages]
+click = "*"
 google-cloud-aiplatform = "*"
 google-cloud-storage = "*"
 google-generativeai = "*"
-pandas = "*"
+jsonlines = "*"
 rich = "*"
 scikit-learn = "*"
 

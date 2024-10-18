@@ -11,15 +11,17 @@ from rich.progress import (
 )
 
 DATA_DIR = Path(__file__).parent / "data"
-GCP_PROJECT = "veritastrial"
-GCP_LOCATION = "us-central1"
-GENERATIVE_MODEL = "gemini-1.5-flash-001"
-OUTPUT_FOLDER = "data" 
-BUCKET_NAME = "veritas-trial"
-BUCKET_CLEANED_JSONL_PATH = "data-pipeline/cleaned_data.jsonl"
+CLEANED_JSONL_PATH = DATA_DIR / "cleaned_data.jsonl"
+QA_JSON_PATH = DATA_DIR / "generated_qa.json"
 
 if not DATA_DIR.exists():
     DATA_DIR.mkdir()
+
+BUCKET_NAME = "veritas-trial"
+BUCKET_CLEANED_JSONL_PATH = "data-pipeline/cleaned_data.jsonl"
+
+GENERATIVE_MODEL = "gemini-1.5-flash-001"
+
 
 def default_progress():
     """Get a progress bar instance with default style."""

@@ -1,16 +1,16 @@
 """The prepare subcommand."""
 
-import os
-import argparse
-import pandas as pd
 import json
-import glob
-from google.cloud import storage
+import os
 from io import StringIO
+
+from google.cloud import storage
 from sklearn.model_selection import train_test_split
+
 from shared import default_progress
 
-OUTPUT_FOLDER = "data" 
+OUTPUT_FOLDER = "data"
+
 
 def main():
     print("Preparing generated Q&A pairs for fine-tuning...")
@@ -51,22 +51,30 @@ def main():
     output_pairs_df.to_csv(filename, index=False)
 
     # Build training format for Gemini fine-tuning (while retaining the 'id')
-    output_pairs_df["contents"] = output_pairs_df.apply(lambda row: [
-        {"role": "user", "parts": [{"text": row["question"]}]},
-        {"role": "model", "parts": [{"text": row["answer"]}]}
-    ], axis=1)
+    output_pairs_df["contents"] = output_pairs_df.apply(
+        lambda row: [
+            {"role": "user", "parts": [{"text": row["question"]}]},
+            {"role": "model", "parts": [{"text": row["answer"]}]},
+        ],
+        axis=1,
+    )
 
     # Split into training and testing sets (retain 'id' field)
-    df_train, df_test = train_test_split(output_pairs_df, test_size=0.1, random_state=42)
+    df_train, df_test = train_test_split(
+        output_pairs_df, test_size=0.1, random_state=42
+    )
 
     # Limit validation dataset to 256 examples
     df_test = df_test[:256]
 
     # Save as JSONL for the next steps (with 'id' retained)
     with open(os.path.join(OUTPUT_FOLDER, "train.jsonl"), "w") as json_file:
-        json_file.write(df_train[["id", "contents"]].to_json(orient='records', lines=True))
+        json_file.write(
+            df_train[["id", "contents"]].to_json(orient="records", lines=True)
+        )
     with open(os.path.join(OUTPUT_FOLDER, "test.jsonl"), "w") as json_file:
-        json_file.write(df_test[["id", "contents"]].to_json(orient='records', lines=True))
+        json_file.write(
+            df_test[["id", "contents"]].to_json(orient="records", lines=True)
+        )
 
     print("Data prepared successfully for fine-tuning (id retained).")
-

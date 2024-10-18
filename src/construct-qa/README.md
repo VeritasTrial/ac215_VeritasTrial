@@ -16,5 +16,5 @@ python cli.py upload
 ```
 
 > [!NOTE]
+> - The generate subcommand supports generating for a range of cleaned data by specifying `-s/--start` and/or `-e/--end` options. The `--overwrite` flag controls that, if an ID is already seen in the existing QA dataset, whether we will overwrite its QA pairs or append to them.
 > - Use `--help` on `cli.py` and its subcommands to get an overview of what each subcommand does.
-

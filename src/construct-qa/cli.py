@@ -7,22 +7,25 @@ from prepare import main as cli_prepare
 from upload import main as cli_upload
 
 
-@click.group(help="Constructing qa-pairs for VeritasTrial.")
+@click.group(help="QA construction CLI for VeritasTrial.")
 def cli():
     pass
 
 
-@cli.command(help="Gnenerate qa-pairs.")
-def generate():
-    cli_generate()
+@cli.command(help="Generate QA with VertexAI.")
+@click.option("-s", "--start", type=int, help="Starting index of studies to process.")
+@click.option("-e", "--end", type=int, help="Ending index of studies to process.")
+@click.option("--overwrite", is_flag=True, help="Overwrite QA for existing studies.")
+def generate(start, end, overwrite):
+    cli_generate(start, end, overwrite)
 
 
-@cli.command(help="Prepare datasets as needed in Gemini.")
+@cli.command(help="Prepare instruction dataset from generated QA.")
 def prepare():
     cli_prepare()
 
 
-@cli.command(help="Upload qa-pairs in the required format.")
+@cli.command(help="Upload instruction dataset.")
 def upload():
     cli_upload()
 

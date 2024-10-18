@@ -1,19 +1,19 @@
 """The upload subcommand."""
 
-import os
-import argparse
-import pandas as pd
-import json
 import glob
-from google.cloud import storage
+import os
 from io import StringIO
+
+from google.cloud import storage
+
 from shared import (
     BUCKET_NAME,
     default_progress,
 )
 
 # Setup environment variables
-OUTPUT_FOLDER = "data" 
+OUTPUT_FOLDER = "data"
+
 
 def main():
     print("Uploading generated files to GCP bucket...")
@@ -21,10 +21,12 @@ def main():
     # Initialize GCP storage client
     storage_client = storage.Client()
     bucket = storage_client.bucket(BUCKET_NAME)
-    timeout = 300 
+    timeout = 300
 
     # Define the file paths for JSONL and CSV files
-    data_files = glob.glob(os.path.join(OUTPUT_FOLDER, "*.jsonl")) + glob.glob(os.path.join(OUTPUT_FOLDER, "*.csv"))
+    data_files = glob.glob(os.path.join(OUTPUT_FOLDER, "*.jsonl")) + glob.glob(
+        os.path.join(OUTPUT_FOLDER, "*.csv")
+    )
     data_files.sort()
 
     # Ensure files are found before proceeding
@@ -48,4 +50,6 @@ def main():
             except Exception as e:
                 print(f"Error uploading {data_file}: {e}")
 
-    rich.print(f"[bold green]Data uploaded to 'construct-qa/' in bucket {BUCKET_NAME}![/]")
+    rich.print(
+        f"[bold green]Data uploaded to 'construct-qa/' in bucket {BUCKET_NAME}![/]"
+    )
