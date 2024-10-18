@@ -23,7 +23,6 @@ def generate(start, end, overwrite):
 @cli.command(help="Prepare instruction dataset from generated QA.")
 @click.option("-s", "--seed", default=42, help="Random seed for dataset splitting.")
 def prepare(seed):
-    print(seed)
     cli_prepare(seed)
 
 
