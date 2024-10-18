@@ -1,6 +1,6 @@
-# Data Pipeline
+# Embedding Model
 
-Make sure you are in this directory. Also make sure to put `veritas-trial-data-service.json` that contains credentials for the VeritasTrial data service account under the `secrets/` folder in the root directory. To run the data pipeline:
+Make sure you are in this directory. Also make sure to put `veritas-trial-service.json` that contains credentials for the VeritasTrial data service account under the `secrets/` folder in the root directory. To run the embedding model:
 
 ```bash
 make build

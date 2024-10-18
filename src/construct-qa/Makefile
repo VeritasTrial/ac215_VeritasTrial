@@ -1,7 +1,7 @@
 # Docker settings
 DOCKER_CMD := docker
-IMAGE_NAME := veritas-trial-data-pipeline
-CONTAINER_NAME := veritas-trial-data-pipeline
+IMAGE_NAME := veritas-trial-construct-qa
+CONTAINER_NAME := veritas-trial-construct-qa
 
 all: build
 

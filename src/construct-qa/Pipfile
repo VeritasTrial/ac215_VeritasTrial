@@ -1,0 +1,19 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[packages]
+google-cloud-aiplatform = "*"
+google-cloud-storage = "*"
+google-generativeai = "*"
+pandas = "*"
+rich = "*"
+scikit-learn = "*"
+
+[dev-packages]
+black = "*"
+ruff = "*"
+
+[requires]
+python_version = "3.11"
