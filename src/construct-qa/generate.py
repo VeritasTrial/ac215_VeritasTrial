@@ -2,6 +2,8 @@
 
 import json
 import re
+import time
+import traceback
 
 import jsonlines
 import rich
@@ -13,6 +15,7 @@ from shared import (
     BUCKET_CLEANED_JSONL_PATH,
     BUCKET_NAME,
     CLEANED_JSONL_PATH,
+    ERRORS_DIR,
     QA_JSON_PATH,
     default_progress,
 )
@@ -122,10 +125,10 @@ OUTPUT_EXAMPLE = [
 ]
 
 
-def process_response(response):
+def process_response(text):
     """Process the response of the model into a list of QA pairs."""
     # Remove possible code block formatting and strip off whitespace
-    text = re.sub(r"```json|```", "", response.text).strip()
+    text = re.sub(r"```json|```", "", text).strip()
 
     # Attempt to parse the text as JSON
     qa_pairs = json.loads(text)
@@ -198,17 +201,31 @@ def main(start_idx, end_idx, overwrite):
                 n_pairs=3, trial_json=json.dumps(study, indent=2)
             )
             response = model.generate_content(prompt, stream=False)
+            response_text = response.text
             try:
                 # Retrive the list of QA pairs from the model response; note that if the
                 # `overwrite` flag is set, the existing QA pairs for the study will be
                 # replaced with the new ones, otherwise they will be appended
-                qa_pairs = process_response(response)
+                qa_pairs = process_response(response_text)
                 if study_id in qa_data and not overwrite:
                     qa_data[study_id].extend(qa_pairs)
                 else:
                     qa_data[study_id] = qa_pairs
             except Exception as e:
-                rich.print(f"[bold red]Error:[/] {e} [dim]({study['id']})[/]")
+                # Save any error for debugging purposes
+                err_path = ERRORS_DIR / f"{study_id}-{int(time.time())}.log"
+                rich.get_console().print(f"[bold red]Error:[/] {e}", highlight=False)
+                rich.get_console().print(f"[dim]Logs: {err_path}[/]", highlight=False)
+                with err_path.open("w", encoding="utf-8") as ef:
+                    ef.write("### System Instruction\n\n")
+                    ef.write(f"{system_instruction}\n\n")
+                    ef.write("### Prompt\n\n")
+                    ef.write(f"{prompt}\n\n")
+                    ef.write("### Response\n\n")
+                    ef.write(f"{response_text}\n\n")
+                    ef.write("### Error\n\n")
+                    ef.write(traceback.format_exc())
+
             progress.update(task, advance=1)
 
         # Write the updated QA pairs back

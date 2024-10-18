@@ -1,80 +1,67 @@
 """The prepare subcommand."""
 
 import json
-import os
-from io import StringIO
 
-from google.cloud import storage
+import jsonlines
+import rich
 from sklearn.model_selection import train_test_split
 
-from shared import default_progress
+from shared import (
+    INSTRUCTION_TEST_JSONL_PATH,
+    INSTRUCTION_TRAIN_JSONL_PATH,
+    QA_JSON_PATH,
+    default_progress,
+)
 
-OUTPUT_FOLDER = "data"
 
-
-def main():
-    print("Preparing generated Q&A pairs for fine-tuning...")
-
-    jsonl_file = os.path.join(OUTPUT_FOLDER, "clinical_trial_qa.jsonl")
-
-    output_pairs = []
-    errors = []
-
-    # Open the JSONL file and process each line (each Q&A pair)
-    try:
-        with open(jsonl_file, "r") as file:
-            for line in file:
-                try:
-                    # Load each line as a JSON object
-                    qa_pair = json.loads(line.strip())
-                    output_pairs.append(qa_pair)
-                except Exception as e:
-                    errors.append({"line": line, "error": str(e)})
-    except FileNotFoundError as e:
-        print(f"Error: {jsonl_file} not found.")
+def main(seed):
+    if not QA_JSON_PATH.exists():
+        rich.print(
+            f"[bold red]Error:[/] Generated QA missing at: {QA_JSON_PATH}; run the "
+            "generate subcommand first"
+        )
         return
 
-    print("Number of errors:", len(errors))
-    print(errors[:5] if errors else "No errors")
+    # Load the generated QA JSON file
+    with QA_JSON_PATH.open("r", encoding="utf-8") as f:
+        qa_data = json.load(f)
 
-    # Convert to DataFrame
-    output_pairs_df = pd.DataFrame(output_pairs)
+    # Convert into instruction dataset format
+    # {
+    #   "contents": [
+    #     {"role": "user", "parts": [{"text": "QUESTION?"}]},
+    #     {"role": "model", "parts": [{"text": "ANSWER."}]}
+    #   ]
+    # }
+    # https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini-supervised-tuning-prepare#dataset_example_for_gemini-15-pro_and_gemini-15-flash
+    with default_progress() as progress:
+        task = progress.add_task("Construction dataset...", total=len(qa_data))
+        dataset = []
+        for study_id, qa_pairs in qa_data.items():
+            for qa_pair in qa_pairs:
+                dataset.append(
+                    {
+                        "id": study_id,
+                        "contents": [
+                            {"role": "user", "parts": [{"text": qa_pair["question"]}]},
+                            {"role": "model", "parts": [{"text": qa_pair["answer"]}]},
+                        ],
+                    }
+                )
+            progress.update(task, advance=1)
 
-    # Drop duplicates based on all columns, including 'id'
-    output_pairs_df.drop_duplicates(inplace=True)
-    output_pairs_df = output_pairs_df.dropna()
-    print("Shape after dropping duplicates:", output_pairs_df.shape)
-    print(output_pairs_df.head())
+    # Split into training and testing sets
+    trainset, testset = train_test_split(dataset, test_size=0.1, random_state=seed)
+    with jsonlines.open(INSTRUCTION_TRAIN_JSONL_PATH, "w") as f:
+        f.write_all(trainset)
+    with jsonlines.open(INSTRUCTION_TEST_JSONL_PATH, "w") as f:
+        f.write_all(testset)
 
-    # Save cleaned dataset to CSV
-    filename = os.path.join(OUTPUT_FOLDER, "instruct-dataset.csv")
-    output_pairs_df.to_csv(filename, index=False)
-
-    # Build training format for Gemini fine-tuning (while retaining the 'id')
-    output_pairs_df["contents"] = output_pairs_df.apply(
-        lambda row: [
-            {"role": "user", "parts": [{"text": row["question"]}]},
-            {"role": "model", "parts": [{"text": row["answer"]}]},
-        ],
-        axis=1,
+    rich.print(
+        f"[bold green]->[/] {len(trainset)} training data saved to "
+        f"{INSTRUCTION_TRAIN_JSONL_PATH}"
     )
-
-    # Split into training and testing sets (retain 'id' field)
-    df_train, df_test = train_test_split(
-        output_pairs_df, test_size=0.1, random_state=42
+    rich.print(
+        f"[bold green]->[/] {len(testset)} testing data saved to "
+        f"{INSTRUCTION_TEST_JSONL_PATH}"
     )
-
-    # Limit validation dataset to 256 examples
-    df_test = df_test[:256]
-
-    # Save as JSONL for the next steps (with 'id' retained)
-    with open(os.path.join(OUTPUT_FOLDER, "train.jsonl"), "w") as json_file:
-        json_file.write(
-            df_train[["id", "contents"]].to_json(orient="records", lines=True)
-        )
-    with open(os.path.join(OUTPUT_FOLDER, "test.jsonl"), "w") as json_file:
-        json_file.write(
-            df_test[["id", "contents"]].to_json(orient="records", lines=True)
-        )
-
-    print("Data prepared successfully for fine-tuning (id retained).")
