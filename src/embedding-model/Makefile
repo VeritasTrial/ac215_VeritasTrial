@@ -42,15 +42,15 @@ chromadb: network
 run: chromadb
 	$(DOCKER_CMD) container run -it --rm \
 		--env CHROMADB_HOST=$(CONTAINER_NAME_CHROMADB) \
-		--env GOOGLE_APPLICATION_CREDENTIALS=/veritastrial/veritas-trial-data-service.json \
+		--env GOOGLE_APPLICATION_CREDENTIALS=/veritastrial/veritas-trial-service.json \
 		--network $(NETWORK_NAME) \
-		--volume $(PWD)/../../secrets/veritas-trial-data-service.json:/veritastrial/veritas-trial-data-service.json:ro \
+		--volume $(PWD)/../../secrets/veritas-trial-service.json:/veritastrial/veritas-trial-service.json:ro \
 		--name $(CONTAINER_NAME) $(IMAGE_NAME)
 
 # Get information of the running networks and containers
 info:
 	@echo "Network  : $$(docker network ls -q -f "name=^$(NETWORK_NAME)$$")"
-	@echo "ChromaDB : $$(docker ps -q -f "name=^$(CONTAINER_NAME_CHROMADB)$$")	"
+	@echo "ChromaDB : $$(docker ps -q -f "name=^$(CONTAINER_NAME_CHROMADB)$$")"
 
 # [DEV] Update lock file and development environment on the host machine
 devlock:
