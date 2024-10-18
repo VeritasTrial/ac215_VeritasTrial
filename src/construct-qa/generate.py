@@ -151,7 +151,7 @@ def process_response(text):
     return qa_pairs
 
 
-def main(start_idx, end_idx, overwrite):
+def main(start_idx, end_idx, n_pairs, overwrite):
     vertexai.init(project=GCP_PROJECT_ID, location=GCP_PROJECT_LOCATION)
     rich.print(f"[bold green]->[/] Selected range: [{start_idx}, {end_idx})")
 
@@ -198,10 +198,18 @@ def main(start_idx, end_idx, overwrite):
         for study in studies:
             study_id = study["id"]
             prompt = PROMPT_TEMPLATE.format(
-                n_pairs=3, trial_json=json.dumps(study, indent=2)
+                n_pairs=n_pairs, trial_json=json.dumps(study, indent=2)
             )
-            response = model.generate_content(prompt, stream=False)
-            response_text = response.text
+
+            try:
+                # Errors like quota limits or model unavailability can occur, but we do
+                # not want them to stop the entire process or lose the progress made
+                response = model.generate_content(prompt, stream=False)
+                response_text = response.text
+            except Exception as e:
+                rich.get_console().print(f"[bold red]Error:[/] {e}", highlight=False)
+                continue
+
             try:
                 # Retrive the list of QA pairs from the model response; note that if the
                 # `overwrite` flag is set, the existing QA pairs for the study will be
@@ -211,6 +219,8 @@ def main(start_idx, end_idx, overwrite):
                     qa_data[study_id].extend(qa_pairs)
                 else:
                     qa_data[study_id] = qa_pairs
+                # Progress bar is updated on in cases of successful generation
+                progress.update(task, advance=1)
             except Exception as e:
                 # Save any error for debugging purposes
                 err_path = ERRORS_DIR / f"{study_id}-{int(time.time())}.log"
@@ -225,8 +235,6 @@ def main(start_idx, end_idx, overwrite):
                     ef.write(f"{response_text}\n\n")
                     ef.write("### Error\n\n")
                     ef.write(traceback.format_exc())
-
-            progress.update(task, advance=1)
 
         # Write the updated QA pairs back
         with QA_JSON_PATH.open("w", encoding="utf-8") as f:

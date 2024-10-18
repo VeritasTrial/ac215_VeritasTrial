@@ -1,55 +1,49 @@
 """The upload subcommand."""
 
-import glob
-import os
-from io import StringIO
-
+import rich
 from google.cloud import storage
 
 from shared import (
+    BUCKET_INSTRUCTION_TEST_JSONL_PATH,
+    BUCKET_INSTRUCTION_TRAIN_JSONL_PATH,
     BUCKET_NAME,
+    BUCKET_QA_JSON_PATH,
+    INSTRUCTION_TEST_JSONL_PATH,
+    INSTRUCTION_TRAIN_JSONL_PATH,
+    QA_JSON_PATH,
     default_progress,
 )
 
-# Setup environment variables
-OUTPUT_FOLDER = "data"
+PATH_MAPPING = [
+    (QA_JSON_PATH, BUCKET_QA_JSON_PATH),
+    (INSTRUCTION_TRAIN_JSONL_PATH, BUCKET_INSTRUCTION_TRAIN_JSONL_PATH),
+    (INSTRUCTION_TEST_JSONL_PATH, BUCKET_INSTRUCTION_TEST_JSONL_PATH),
+]
 
 
 def main():
-    print("Uploading generated files to GCP bucket...")
+    for local_path, _ in PATH_MAPPING:
+        if not local_path.exists():
+            rich.print(
+                f"[bold red]Error:[/] Data missing at: {local_path}; run the generate "
+                "and prepare subcommands first"
+            )
+            return
 
     # Initialize GCP storage client
     storage_client = storage.Client()
     bucket = storage_client.bucket(BUCKET_NAME)
-    timeout = 300
 
-    # Define the file paths for JSONL and CSV files
-    data_files = glob.glob(os.path.join(OUTPUT_FOLDER, "*.jsonl")) + glob.glob(
-        os.path.join(OUTPUT_FOLDER, "*.csv")
-    )
-    data_files.sort()
-
-    # Ensure files are found before proceeding
-    if not data_files:
-        print(f"No files found in {OUTPUT_FOLDER} to upload.")
-        return
-
-    # Start the upload with a progress bar
+    # Upload the QA dataset and constructed instruction datasets
     with default_progress() as progress:
-        task = progress.add_task("Uploading files...", total=len(data_files))
+        task = progress.add_task("Uploading files...", total=len(PATH_MAPPING))
+        for local_path, remote_path in PATH_MAPPING:
+            blob = bucket.blob(remote_path)
+            blob.upload_from_filename(local_path)
+            progress.update(task, advance=1)
 
-        for data_file in data_files:
-            filename = os.path.basename(data_file)
-            destination_blob_name = os.path.join("construct-qa", filename)
-            blob = bucket.blob(destination_blob_name)
-
-            try:
-                print(f"Uploading {data_file} to {destination_blob_name}...")
-                blob.upload_from_filename(data_file, timeout=timeout)
-                progress.update(task, advance=1)
-            except Exception as e:
-                print(f"Error uploading {data_file}: {e}")
-
-    rich.print(
-        f"[bold green]Data uploaded to 'construct-qa/' in bucket {BUCKET_NAME}![/]"
-    )
+    for _, remote_path in PATH_MAPPING:
+        rich.print(
+            f"[bold green]->[/] Data uploaded to {remote_path!r} in bucket "
+            f"{BUCKET_NAME!r}"
+        )

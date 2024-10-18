@@ -17,6 +17,11 @@ QA_JSON_PATH = DATA_DIR / "generated_qa.json"
 INSTRUCTION_TRAIN_JSONL_PATH = DATA_DIR / "instruction_train.jsonl"
 INSTRUCTION_TEST_JSONL_PATH = DATA_DIR / "instruction_test.jsonl"
 
+BUCKET_NAME = "veritas-trial"
+BUCKET_QA_JSON_PATH = "construct-qa/generated_qa.json"
+BUCKET_INSTRUCTION_TRAIN_JSONL_PATH = "construct-qa/instruction_train.jsonl"
+BUCKET_INSTRUCTION_TEST_JSONL_PATH = "construct-qa/instruction_test.jsonl"
+
 if not DATA_DIR.exists():
     DATA_DIR.mkdir()
 

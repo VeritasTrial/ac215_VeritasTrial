@@ -7,7 +7,6 @@ verify_ssl = true
 click = "*"
 google-cloud-aiplatform = "*"
 google-cloud-storage = "*"
-google-generativeai = "*"
 jsonlines = "*"
 rich = "*"
 scikit-learn = "*"

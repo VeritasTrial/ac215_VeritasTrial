@@ -7,7 +7,7 @@ make build
 make run
 ```
 
-This should bring you within the Docker container. Then inside the container, run:
+This should bring you within the Docker container. Then inside the container, if you want to have a fresh run or overwrite whatever existing in GCS, run:
 
 ```bash
 python cli.py generate
@@ -15,7 +15,17 @@ python cli.py prepare
 python cli.py upload
 ```
 
+If you want to build on top of what already exists in GCS, run:
+
+```bash
+python cli.py fetch
+python cli.py generate
+python cli.py prepare
+python cli.py upload
+```
+
 > [!NOTE]
 > - See [generate.py](./generate.py) for the prompts used for generating QA.
-> - The generate subcommand supports generating for a range of cleaned data by specifying `-s/--start` and/or `-e/--end` options. The `--overwrite` flag controls that, if an ID is already seen in the existing QA dataset, whether we will overwrite its QA pairs or append to them.
+> - The fetch subcommand overwrites local QA data, so be sure to backup your local data if you need them.
+> - The generate subcommand by default appends to local QA data, but the `--overwrite` flag can change this behavior to such that, if an ID is seen in existing QA data, then that ID will be overwritten. The generate subcommand also supports generate only for a range of cleaned data via the `-s/--start` and/or `-e/--end` options.
 > - Use `--help` on `cli.py` and its subcommands to get an overview of what each subcommand does.
