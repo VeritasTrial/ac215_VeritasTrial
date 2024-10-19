@@ -79,7 +79,7 @@ def reuse_or_fetch(remote_path, data_size, test_size, seed):
     # otherwise sample `data_size` number of data
     data_size = data_size if isinstance(data_size, int) else int(len(data) * data_size)
     rng = np.random.default_rng(seed)
-    data = rng.choice(data, data_size, replace=False)
+    data = rng.choice(data, min(data_size, len(data)), replace=False)
 
     # Split the data into train and test sets
     train_data, test_data = train_test_split(
@@ -97,23 +97,31 @@ def main(configs, seed):
     train_writer = jsonlines.open(TEMP_TRAIN_JSONL_PATH, "w")
     test_writer = jsonlines.open(TEMP_TEST_JSONL_PATH, "w")
     n_train, n_test = 0, 0
+    all_test_data = []
 
     with default_progress() as progress:
         task = progress.add_task("Preparing dataset...", total=len(configs))
         for remote_path, data_size, test_size in configs:
-            rich.print(f"[bold green]->[/] Processing {remote_path!r}")
+            rich.print(f"[bold green]->[/] Retrieving {remote_path!r}...")
             train_data, test_data = reuse_or_fetch(
                 remote_path, data_size, test_size, seed
             )
 
-            # Write the train and test data to JSONL files
+            # Write the train to JSONL and store the test data
             train_writer.write_all(train_data)
-            test_writer.write_all(test_data)
+            all_test_data.extend(test_data)
             n_train += len(train_data)
             n_test += len(test_data)
             rich.print(f"   [bold green]->[/] Appended {len(train_data)} train data")
             rich.print(f"   [bold green]->[/] Appended {len(test_data)} test data")
             progress.update(task, advance=1)
+
+        # Randomly sample 256 test data from all test data because this is a hard limit
+        # of VertexAI SFT API
+        rng = np.random.default_rng(seed)
+        n_test = min(n_test, 256)
+        all_test_data = rng.choice(all_test_data, n_test, replace=False)
+        test_writer.write_all(all_test_data)
 
         train_writer.close()
         test_writer.close()

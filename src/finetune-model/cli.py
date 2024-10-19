@@ -12,7 +12,7 @@ def cli():
     pass
 
 
-@cli.command(help="Prepare the dataset.")
+@cli.command(help="Prepare finetuning dataset on GCS.")
 @click.option(
     "-d",
     "--dataset",
@@ -39,7 +39,7 @@ def prepare(dataset, seed):
 @click.option("--epochs", type=int, default=1, help="Number of SFT epochs.")
 @click.option("--learning-rate", type=float, default=1.0, help="SFT learning rate.")
 def train(train_dataset, test_dataset, epochs, learning_rate):
-    cli_train(train_dataset, test_dataset, test_dataset, epochs, learning_rate)
+    cli_train(train_dataset, test_dataset, epochs, learning_rate)
 
 
 if __name__ == "__main__":
