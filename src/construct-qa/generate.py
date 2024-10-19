@@ -18,6 +18,7 @@ from shared import (
     ERRORS_DIR,
     QA_JSON_PATH,
     default_progress,
+    get_cleaned_data,
 )
 
 # Project configuration used for Vertex AI
@@ -157,19 +158,10 @@ def main(start_idx, end_idx, n_pairs, overwrite):
 
     with default_progress() as progress:
         task = progress.add_task("Fetching cleaned data...", total=1)
-        if not CLEANED_JSONL_PATH.exists():
-            # Fetch cleaned data from GCP bucket only when the file is not already
-            # fetched to local
-            storage_client = storage.Client()
-            bucket = storage_client.bucket(BUCKET_NAME)
-            data_blob = bucket.get_blob(BUCKET_CLEANED_JSONL_PATH)
-            with CLEANED_JSONL_PATH.open("wb") as f:
-                data_blob.download_to_file(f)
-        # Load the cleaned data and limit to the specified range
-        with jsonlines.open(CLEANED_JSONL_PATH, "r") as f:
-            studies = [study for study in f]
-            indices = list(range(len(studies)))[slice(start_idx, end_idx)]
-            studies = studies[slice(start_idx, end_idx)]
+        studies = get_cleaned_data()
+        # Slice the studies based on the provided range
+        indices = list(range(len(studies)))[slice(start_idx, end_idx)]
+        studies = studies[slice(start_idx, end_idx)]
         progress.update(task, advance=1)
 
         # Skip generating QA pairs if the range is empty
