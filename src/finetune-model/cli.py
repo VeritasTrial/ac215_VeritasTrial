@@ -2,6 +2,7 @@
 
 import click
 
+from chat import main as cli_chat
 from prepare import main as cli_prepare
 from shared import DATASET_MAPPING
 from train import main as cli_train
@@ -31,6 +32,12 @@ def cli():
 @click.option("-s", "--seed", default=42, help="Random seed.")
 def prepare(dataset, seed):
     cli_prepare(dataset, seed)
+
+
+@cli.command(help="Chat with a finetuned model.")
+@click.argument("endpoint")
+def chat(endpoint):
+    cli_chat(endpoint)
 
 
 @cli.command(help="Finetune the model.")
