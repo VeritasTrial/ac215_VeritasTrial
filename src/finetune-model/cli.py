@@ -44,7 +44,12 @@ def chat(endpoint):
 @click.argument("train_dataset")
 @click.argument("test_dataset")
 @click.option("--epochs", type=int, default=1, help="Number of SFT epochs.")
-@click.option("--learning-rate", type=float, default=1.0, help="SFT learning rate.")
+@click.option(
+    "--learning-rate-multiplier",
+    type=float,
+    default=1.0,
+    help="SFT learning rate multiplier (w.r.t. the recommended learning rate).",
+)
 def train(train_dataset, test_dataset, epochs, learning_rate):
     cli_train(train_dataset, test_dataset, epochs, learning_rate)
 
