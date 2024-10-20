@@ -24,6 +24,10 @@ In particular, we have four separate containers for our pipeline. Please see the
 - [construct-qa](./src/construct-qa/): Construct QA pairs for finetuning.
 - [finetune-model](./src/finetune-model/): Finetune the model.
 
+As follows is a screenshot of all our four containers running:
+
+![image](https://github.com/user-attachments/assets/6dd8f8e7-fe0f-4fd0-9f06-70ddb0f088c8)
+
 ## Data Collection
 
 We collected clinical trial data from [ClinicalTrials.gov](https://clinicaltrials.gov/) and filtered 22K data with results. These are used both for creating our vector database, and for finetuning after construted into QA pairs. We also collected 211K medical QA data from the [PubMedQA](https://huggingface.co/datasets/qiaojin/PubMedQA) dataset and used a subset for finetuning, mixed with our constructed QA.
@@ -34,7 +38,7 @@ We used a small version of the [BGE](https://huggingface.co/BAAI/bge-small-en-v1
 
 ## Finetuning Results
 
-We finetuned the Gemini 1.5 Flash model with 29,800 messages (15,764,259 tokens) and 3 epochs. The training metrics during the supervised finetuning progress are as follows:
+We finetuned the Gemini 1.5 Flash model (gemini-1.5-flash-002) with 29,800 messages (15,764,259 tokens) and 3 epochs. The learing rate muliplier is 0.1 and the adapter size is 4. No sample is too long to be truncated. The training metrics during the supervised finetuning progress are as follows:
 
 <p align="center">
   <img width="300" alt="Total loss" src="https://github.com/user-attachments/assets/8ba85aaa-2f71-4f84-bbc5-7758b57edeed">
