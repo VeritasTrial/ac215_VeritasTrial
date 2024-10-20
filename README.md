@@ -40,11 +40,9 @@ We used a small version of the [BGE](https://huggingface.co/BAAI/bge-small-en-v1
 
 We finetuned the Gemini 1.5 Flash model (gemini-1.5-flash-002) with 29,800 messages (15,764,259 tokens) and 3 epochs. The learing rate muliplier is 0.1 and the adapter size is 4. No sample is too long to be truncated. The training metrics during the supervised finetuning progress are as follows:
 
-<p align="center">
-  <img width="300" alt="Total loss" src="https://github.com/user-attachments/assets/8ba85aaa-2f71-4f84-bbc5-7758b57edeed">
-  <img width="300" alt="Num predictions" src="https://github.com/user-attachments/assets/bc84b82b-b296-4fe2-8396-7690c7a1fa67">
-  <img width="300" alt="Fraction of correct next step preds" src="https://github.com/user-attachments/assets/e5491f66-e0a5-442b-be90-b25c006c797c">
-</p>
+<img width="300" alt="Total loss" src="https://github.com/user-attachments/assets/8ba85aaa-2f71-4f84-bbc5-7758b57edeed">
+<img width="300" alt="Num predictions" src="https://github.com/user-attachments/assets/bc84b82b-b296-4fe2-8396-7690c7a1fa67">
+<img width="300" alt="Fraction of correct next step preds" src="https://github.com/user-attachments/assets/e5491f66-e0a5-442b-be90-b25c006c797c">
 
 The validation metrics (on a validation set of size 256) during the supervised finetuning progress are as follows:
 
@@ -198,8 +196,6 @@ CMD [ "nginx", "-g", "daemon off;" ]
 
 Here is an example of what the app interface may look like:
 
-<p align="center">
-  <img width="300" alt="6c82ae3fc63718a00f5b225fc49e447" src="https://github.com/user-attachments/assets/3ac90b63-92d0-48d9-a791-39ee5ae98938">
-  <img width="300" alt="0251530ead34fc048822cfb2feacc95" src="https://github.com/user-attachments/assets/d2c419c9-c04e-404f-ab1b-55763c713b08">
-  <img width="300" alt="4170d338f651db1b31cabccadb8ea88" src="https://github.com/user-attachments/assets/ec3e74fa-f6ae-47db-8d10-74922caf9213">
-</p>
+<img width="300" alt="6c82ae3fc63718a00f5b225fc49e447" src="https://github.com/user-attachments/assets/3ac90b63-92d0-48d9-a791-39ee5ae98938">
+<img width="300" alt="0251530ead34fc048822cfb2feacc95" src="https://github.com/user-attachments/assets/d2c419c9-c04e-404f-ab1b-55763c713b08">
+<img width="300" alt="4170d338f651db1b31cabccadb8ea88" src="https://github.com/user-attachments/assets/ec3e74fa-f6ae-47db-8d10-74922caf9213">
