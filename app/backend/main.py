@@ -2,9 +2,10 @@ import json
 
 import chromadb
 import vertexai
-from vertexai.generative_models import GenerativeModel
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from FlagEmbedding import FlagModel
+from vertexai.generative_models import GenerativeModel
 
 EMBEDDING_MODEL = FlagModel("BAAI/bge-small-en-v1.5", use_fp16=True)
 CHROMADB_CLIENT = chromadb.HttpClient(host="chromadb", port=8000)
@@ -16,11 +17,22 @@ vertexai.init(project=GCP_PROJECT_ID, location=GCP_PROJECT_LOCATION)
 
 app = FastAPI()
 
+# Handle cross-origin requests
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",  # Default port of Vite development server
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 @app.get("/heartbeat")
 def heartbeat():
     """Health check endpoint."""
-    return {"status": "ok"}
+    return {"status": "alive"}
 
 
 @app.get("/query")
@@ -50,13 +62,21 @@ def query(query, top_k=5, get_documents=False, get_metadatas=False):
             metadata["collaborators"] = json.loads(metadata["collaborators"])
             metadata["conditions"] = json.loads(metadata["conditions"])
             metadata["documents"] = json.loads(metadata["documents"])
-            metadata["Interventions"] = json.loads(metadata["Interventions"])  # TODO: case
+            metadata["Interventions"] = json.loads(
+                metadata["Interventions"]
+            )  # TODO: case
             metadata["locations"] = json.loads(metadata["locations"])
             metadata["officials"] = json.loads(metadata["officials"])
-            metadata["other_measure_outcomes"] = json.loads(metadata["other_measure_outcomes"])
-            metadata["primary_measure_outcomes"] = json.loads(metadata["primary_measure_outcomes"])
+            metadata["other_measure_outcomes"] = json.loads(
+                metadata["other_measure_outcomes"]
+            )
+            metadata["primary_measure_outcomes"] = json.loads(
+                metadata["primary_measure_outcomes"]
+            )
             metadata["references"] = json.loads(metadata["references"])
-            metadata["secondary_measure_outcomes"] = json.loads(metadata["secondary_measure_outcomes"])
+            metadata["secondary_measure_outcomes"] = json.loads(
+                metadata["secondary_measure_outcomes"]
+            )
             cleaned_metadatas.append(metadata)
         cleaned_results["metadatas"] = cleaned_metadatas
 
