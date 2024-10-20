@@ -54,7 +54,149 @@ The validation metrics (on a validation set of size 256) during the supervised f
   <img width="300" alt="Fraction of correct next step preds (validation)" src="https://github.com/user-attachments/assets/7d1c4a04-3f8e-4d13-a9fc-781375758068">
 </p>
 
-## App Interface Design
+## App Preliminary Designs
+
+Here is a preliminary design of how our app may be composed:
+
+<details>
+<summary>docker-compose.yaml</summary>
+<p>
+
+```yaml
+services:
+  # ChromaDB - Query the vector database
+  chromadb:
+    image: chromadb/chroma:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma-data:/chroma/chroma
+  # Backend service - This will serve the embedding model and the finetuned LLM;
+  # for the embedding model it can load BGE to embed user query then query the
+  # vector database for relevant results; for the finetuned LLM it will utilize
+  # the Vertex AI endpoint
+  backend:
+    build:
+      context: ./backend
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/secrets/veritas-trial-service.json
+    ports:
+      - "8001:8001"
+    volumes:
+      - ../secrets:/secrets
+    depends_on:
+      - chromadb
+  # Frontend service - This will be the frontend interface built with React; it
+  # will query the service exposed by the backend; the frontend can be accessed
+  # at http://localhost:8080
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_BACKEND_URL: http://backend:8001
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  # We will reuse the ChromaDB volume created when creating the vector database
+  chroma-data:
+    external: true
+```
+
+</p>
+</details>
+
+<details>
+<summary>backend/Dockerfile</summary>
+<p>
+
+```Dockerfile
+FROM python:3.11-slim-bookworm
+
+# Environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYENV_SHELL=/bin/bash
+ENV LANG=C.UTF-8
+ENV PYTHONBUFFERED=1
+
+# Install system dependencies and pipenv
+RUN set -ex; \
+  apt-get update && \
+  apt-get upgrade -y && \
+  apt-get install -y build-essential curl && \
+  rm -rf /var/lib/apt/lists/* && \
+  pip install --no-cache-dir --upgrade pip && \
+  pip install --no-cache-dir pipenv
+
+# Set up user and working directory
+RUN set -ex; \
+  useradd -ms /bin/bash veritastrial -d /home/veritastrial -u 1000 -p "$(openssl passwd -1 Passw0rd)" && \
+  mkdir -p /veritastrial && \
+  chown veritastrial:veritastrial /veritastrial
+USER veritastrial
+WORKDIR /veritastrial
+
+# Copy Pipfile and Pipfile.lock
+COPY --chown=veritastrial:veritastrial Pipfile Pipfile.lock /veritastrial/
+
+# Install Python dependencies and clear cache
+RUN pipenv sync --clear && \
+  rm -rf /home/veritastrial/.cache/pip/* && \
+  rm -rf /home/veritastrial/.cache/pipenv/*
+
+# Add the rest of the source code; this is done last to take advantage of
+# Docker's layer caching mechanism
+COPY --chown=veritastrial:veritastrial *.py /veritastrial/
+
+# Run the app on port 8001
+EXPOSE 8001
+CMD [ "pipenv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001" ]
+```
+
+</p>
+</details>
+
+<details>
+<summary>frontend/Dockerfile</summary>
+<p>
+
+```Dockerfile
+FROM node:20-bookworm-slim as build
+
+# Environment variables
+ENV PNPM_HOME=/pnpm
+ENV PATH=${PNPM_HOME}:${PATH}
+RUN corepack enable
+
+# Copy package.json and pnpm-lock.yaml
+WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+
+# Install node modules
+RUN pnpm install --frozen-lockfile
+
+# Environment variables for the vite build
+ARG VITE_BACKEND_URL
+ENV VITE_BACKEND_URL=${VITE_BACKEND_URL}
+
+# Add the rest of the source code and build the app; this is done last to take
+# advantage of Docker's layer caching mechanism
+COPY . ./
+RUN pnpm build
+
+# Nginx wrapper to serve static files
+FROM nginx:stable
+COPY --from=build /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD [ "nginx", "-g", "daemon off;" ]
+```
+
+</p>
+</details>
+
+Here is an example of what the app interface may look like:
 
 <p align="center">
   <img width="300" alt="6c82ae3fc63718a00f5b225fc49e447" src="https://github.com/user-attachments/assets/3ac90b63-92d0-48d9-a791-39ee5ae98938">
