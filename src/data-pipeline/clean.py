@@ -205,7 +205,7 @@ def clean_one_study(study):
 
     # Inverventions module
     interv_module = protocols.get("armsInterventionsModule", {})
-    cleaned_data["Interventions"] = [
+    cleaned_data["interventions"] = [
         {
             "type": item.get("type"),
             "name": item.get("name"),
