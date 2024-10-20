@@ -1,4 +1,4 @@
-FROM python:3.11-slim-buster
+FROM python:3.11-slim-bookworm
 
 # Environment variables
 ENV DEBIAN_FRONTEND=noninteractive
