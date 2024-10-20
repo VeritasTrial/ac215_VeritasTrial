@@ -17,12 +17,10 @@ vertexai.init(project=GCP_PROJECT_ID, location=GCP_PROJECT_LOCATION)
 
 app = FastAPI()
 
-# Handle cross-origin requests
+# Handle cross-origin requests from the frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",  # Default port of Vite development server
-    ],
+    allow_origins=["http://localhost:8080"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

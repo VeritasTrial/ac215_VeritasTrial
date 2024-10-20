@@ -7,7 +7,7 @@ RUN corepack enable
 
 # Copy package.json and pnpm-lock.yaml
 WORKDIR /app
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml /app/
 
 # Install node modules
 RUN pnpm install --frozen-lockfile
@@ -18,7 +18,7 @@ ENV VITE_BACKEND_URL=${VITE_BACKEND_URL}
 
 # Add the rest of the source code and build the app; this is done last to take
 # advantage of Docker's layer caching mechanism
-COPY . ./
+COPY . /app/
 RUN pnpm build
 
 # Nginx wrapper to serve static files
