@@ -18,17 +18,22 @@ export const App = () => {
   return (
     <Theme appearance={appearance} accentColor="indigo" grayColor="slate">
       <Flex css={{ height: "100vh" }}>
-        <Box width="25%" p="4" css={{ backgroundColor: "var(--gray-4)" }}>
+        <Box
+          height="100%"
+          width="25%"
+          p="4"
+          css={{ backgroundColor: "var(--gray-4)" }}
+        >
           <Sidebar></Sidebar>
         </Box>
         <Flex
-          flexGrow="1"
+          height="100%"
+          width="75%"
           direction="column"
           p="4"
-          gap="6"
           css={{ backgroundColor: "var(--gray-1)" }}
         >
-          <Box>
+          <Box height="50px">
             <Header
               appearance={appearance}
               setAppearance={setAppearance}
@@ -36,7 +41,7 @@ export const App = () => {
               setModel={setModel}
             ></Header>
           </Box>
-          <Box flexGrow="1">
+          <Box height="calc(100% - 50px)">
             <RetrievePanel></RetrievePanel>
           </Box>
         </Flex>

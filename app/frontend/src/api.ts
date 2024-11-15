@@ -12,8 +12,9 @@ import { APIRetrieveResponseType, WrapAPI } from "./types";
  */
 export const callRetrieve = async (
   query: string,
+  topK: number,
 ): Promise<WrapAPI<APIRetrieveResponseType>> => {
-  const params = queryString.stringify({ query });
+  const params = queryString.stringify({ query, top_k: topK });
   try {
     const response = await fetch(
       `${import.meta.env.VITE_BACKEND_URL}/retrieve?${params}`,

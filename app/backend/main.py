@@ -1,6 +1,5 @@
 import json
 import time
-from pathlib import Path
 
 import chromadb
 import chromadb.types
@@ -17,7 +16,7 @@ from localtyping import (
     APIRetrieveResponseType,
     ModelType,
 )
-from utils import _clean_metadata, _get_metadata_from_id
+from utils import _get_metadata_from_id
 
 EMBEDDING_MODEL = FlagModel("BAAI/bge-small-en-v1.5", use_fp16=True)
 CHROMADB_CLIENT = chromadb.HttpClient(host="chromadb", port=8000)
@@ -67,39 +66,27 @@ async def heartbeat() -> APIHeartbeatResponseType:
 
 
 @app.get("/retrieve")
-async def retrieve(
-    query: str,
-    top_k: int = 3,
-    get_documents: bool = False,
-    get_metadatas: bool = False,
-) -> APIRetrieveResponseType:
+async def retrieve(query: str, top_k: int) -> APIRetrieveResponseType:
     """Retrieve items from the ChromaDB collection."""
-    if top_k <= 0 or top_k > 100:
-        raise HTTPException(status_code=404, detail="Invalid top_k value")
-
-    include_list: chromadb.Include = []
-    if get_documents:
-        include_list.append(chromadb.api.types.IncludeEnum("documents"))
-    if get_metadatas:
-        include_list.append(chromadb.api.types.IncludeEnum("metadatas"))
+    if top_k <= 0 or top_k > 30:
+        raise HTTPException(status_code=404, detail="Required 0 < top_k <= 30")
 
     # Embed the query and query the collection
     query_embedding = EMBEDDING_MODEL.encode(query)
     results = CHROMADB_COLLECTION.query(
         query_embeddings=[query_embedding],
         n_results=top_k,
-        include=include_list,
+        include=[chromadb.api.types.IncludeEnum("documents")],
     )
 
-    # Clean the results
-    cleaned_results: APIRetrieveResponseType = {"ids": results["ids"][0]}
-    if get_documents and results["documents"] is not None:
-        cleaned_results["documents"] = results["documents"][0]
-    if get_metadatas and results["metadatas"] is not None:
-        cleaned_results["metadatas"] = [
-            _clean_metadata(metadata) for metadata in results["metadatas"][0]
-        ]
-    return cleaned_results
+    # Retrieve the results
+    ids = results["ids"][0]
+    if results["documents"] is not None:
+        documents = results["documents"][0]
+    else:
+        documents = [""] * len(ids)
+
+    return {"ids": ids, "documents": documents}
 
 
 @app.get("/chat/{endpoint}/{item_id}")

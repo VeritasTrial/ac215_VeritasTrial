@@ -75,8 +75,7 @@ class APIHeartbeatResponseType(TypedDict):
 
 class APIRetrieveResponseType(TypedDict):
     ids: list[str]
-    documents: NotRequired[list[str]]
-    metadatas: NotRequired[list[TrialMetadataType]]
+    documents: list[str]
 
 
 class APIChatResponseType(TypedDict):

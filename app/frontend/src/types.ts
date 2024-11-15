@@ -4,53 +4,57 @@
  * This file defines custom types and interfaces for the application.
  */
 
+import { ReactNode } from "react";
+
 /**
  * The appearance type.
  */
 export type ApperanceType = "dark" | "light";
 
 /**
- * The model type.
+ * Wrap an API response to distinguish success and failure.
  */
-export type ModelType = "gemini-1.5-flash-001" | "6894888983713546240";
+export type WrapAPI<T> = { payload: T } | { error: string };
 
 /**
- * The type of a primary/secondary/other measure outcome of a clinical trial.
+ * Chat display interface.
  */
+export interface ChatDisplay {
+  /** Whether the message is from the user, otherwise it is from the bot. */
+  fromUser: boolean;
+  /** The React element to display for the message. */
+  element: ReactNode;
+}
+
+/* ==========================================================================
+ *   THE FOLLOWING ARE MIRROR DEFINITIONS OF BACKEND TYPES. CHECK OUT THE
+ *   BACKEND API FOR REFERENCE.
+ * ========================================================================== */
+
+export type ModelType = "gemini-1.5-flash-001" | "6894888983713546240";
+
 export interface TrialMetadataMeasureOutcomeType {
   measure: string;
   description: string;
   timeFrame: string;
 }
 
-/**
- * The type of an intervention of a clinical trial.
- */
 export interface TrialMetadataInterventionType {
   type: string;
   name: string;
   description: string;
 }
 
-/**
- * The type of a reference of a clinical trial.
- */
 export interface TrialMetadataReferenceType {
   pmid: string;
   citation: string;
 }
 
-/**
- * The type of a document of a clinical trial.
- */
 export interface TrialMetadataDocumentType {
   url: string;
   size: number;
 }
 
-/**
- * The type of metadata of a clinical trial.
- */
 export interface TrialMetadataType {
   shortTitle: string;
   longTitle: string;
@@ -93,30 +97,15 @@ export interface TrialMetadataType {
   documents: TrialMetadataDocumentType[];
 }
 
-/**
- * The type to wrap an okay response from the API or an error message.
- */
-export type WrapAPI<T> = { payload: T } | { error: string };
-
-/**
- * The type of a response from the /heartbeat API endpoint.
- */
 export interface APIHeartbeatResponseType {
   timestamp: number;
 }
 
-/**
- * The type of a response from the /retrieve API endpoint.
- */
 export interface APIRetrieveResponseType {
   ids: string[];
-  documents?: string[];
-  metadata?: TrialMetadataType[];
+  documents: string[];
 }
 
-/**
- * The type of a response from the /chat/{endpoint}/{item_id} API endpoint.
- */
 export interface APIChatResponseType {
   response: string;
 }
