@@ -1,28 +1,61 @@
-import js from "@eslint/js";
+// @ts-check
+
+import eslint from "@eslint/js";
 import globals from "globals";
-import reactHooks from "eslint-plugin-react-hooks";
-import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist"] },
+  { ignores: ["**/dist/**"] },
+
+  // --- Language Options ------------------------------------------------------
+
   {
-    extends: [js.configs.recommended, ...tseslint.configs.recommended],
-    files: ["**/*.{ts,tsx}"],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
+      parserOptions: {
+        project: ["./tsconfig.app.json", "./tsconfig.node.json"],
+        tsconfigRootDir: import.meta.dirname,
+      },
     },
-    plugins: {
-      "react-hooks": reactHooks,
-      "react-refresh": reactRefresh,
-    },
+  },
+
+  // --- Linter Rules ----------------------------------------------------------
+
+  eslint.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
+  ...tseslint.configs.stylisticTypeChecked,
+  {
     rules: {
-      ...reactHooks.configs.recommended.rules,
-      "react-refresh/only-export-components": [
-        "warn",
-        { allowConstantExport: true },
+      // Disables checking an asynchronous function passed as a JSX attribute
+      // expected to be a function that returns void. This is useful for event
+      // handlers of React components, e.g., `onClick` of a button
+      "@typescript-eslint/no-misused-promises": [
+        "error",
+        {
+          checksVoidReturn: {
+            attributes: false,
+          },
+        },
+      ],
+      // Sort within multiple imports from the same module; sorting across
+      // modules is disabled because it cannot be autofixed and sorts by
+      // declarations instead of import specifiers; TODO: complement with
+      // eslint-plugin-import when it supports eslint flat configuration
+      "sort-imports": [
+        "error",
+        {
+          ignoreDeclarationSort: true,
+        },
       ],
     },
+  },
+
+  // --- Linter Overrides ------------------------------------------------------
+
+  {
+    // Disables type checking for JavaScript files
+    files: ["**/*.js"],
+    ...tseslint.configs.disableTypeChecked,
   },
 );
