@@ -51,12 +51,7 @@ export const Header = ({
       </Flex>
       <Flex align="center" gap="4">
         <Tooltip content="Toggle theme">
-          <IconButton
-            color="gray"
-            size="1"
-            variant="ghost"
-            onClick={switchAppearance}
-          >
+          <IconButton size="1" variant="ghost" onClick={switchAppearance}>
             {appearance === "dark" ? (
               <MdDarkMode size="20" />
             ) : (
