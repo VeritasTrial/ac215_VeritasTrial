@@ -40,7 +40,7 @@ _FIELDS = [
     "enrollment_count",  # int
     "allocation",  # str
     "intervention_model",  # str
-    "observation_model",  # str
+    "observational_model",  # str
     "primary_purpose",  # str
     "who_masked",  # str
     # Inverventions module
@@ -197,7 +197,7 @@ def clean_one_study(study):
     )
     cleaned_data["allocation"] = design_info.get("allocation")
     cleaned_data["intervention_model"] = design_info.get("interventionModel")
-    cleaned_data["observation_model"] = design_info.get("observationalModel")
+    cleaned_data["observational_model"] = design_info.get("observationalModel")
     cleaned_data["primary_purpose"] = design_info.get("primaryPurpose")
     cleaned_data["who_masked"] = (
         ", ".join(design_info.get("maskingInfo", {}).get("whoMasked", [])) or None
