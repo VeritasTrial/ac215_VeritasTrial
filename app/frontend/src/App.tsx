@@ -20,17 +20,18 @@ export const App = () => {
       <Flex css={{ height: "100vh" }}>
         <Box
           height="100%"
-          width="25%"
+          width="20%"
           p="4"
-          css={{ backgroundColor: "var(--gray-4)" }}
+          css={{ backgroundColor: "var(--gray-3)" }}
         >
           <Sidebar></Sidebar>
         </Box>
         <Flex
           height="100%"
-          width="75%"
+          width="80%"
           direction="column"
           p="4"
+          pl="6"
           css={{ backgroundColor: "var(--gray-1)" }}
         >
           <Box height="50px">

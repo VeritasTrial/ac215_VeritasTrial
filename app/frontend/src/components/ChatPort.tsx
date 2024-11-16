@@ -38,8 +38,8 @@ export const ChatPort = forwardRef(
                 overflowX="hidden"
                 css={{
                   backgroundColor: fromUser
-                    ? "var(--accent-3)"
-                    : "var(--gray-4)",
+                    ? "var(--accent-4)"
+                    : "var(--gray-3)",
                   borderRadius: "var(--radius-3)",
                 }}
               >

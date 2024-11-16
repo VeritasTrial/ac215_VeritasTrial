@@ -128,135 +128,137 @@ export const RetrievePanel = () => {
   }, [messages]);
 
   return (
-    <Flex direction="column" justify="end" gap="3" px="3" height="100%">
+    <Flex direction="column" justify="end" gap="5" px="3" height="100%">
       <ChatPort ref={chatPortRef} messages={messages} loading={loading} />
-      <Collapsible.Root asChild>
-        <Flex direction="column-reverse">
-          <Collapsible.Trigger
-            asChild
-            onClick={() =>
-              // The timeout is to make sure that the collapsible animation is
-              // completed before scrolling the chat port so the scroll height
-              // can be calculated correctly
-              setTimeout(scrollChatPortToBottom, 300)
-            }
-            css={{
-              '&[data-state="open"] > .chevron': {
-                transform: "rotate(180deg)",
-              },
-            }}
-          >
-            <Flex
-              width="100%"
-              px="2"
-              align="center"
-              justify="between"
+      <Flex direction="column" gap="3">
+        <Collapsible.Root asChild>
+          <Flex direction="column-reverse">
+            <Collapsible.Trigger
+              asChild
+              onClick={() =>
+                // The timeout is to make sure that the collapsible animation is
+                // completed before scrolling the chat port so the scroll height
+                // can be calculated correctly
+                setTimeout(scrollChatPortToBottom, 300)
+              }
               css={{
-                cursor: "pointer",
-                backgroundColor: "var(--gray-4)",
-                borderRadius: "var(--radius-3)",
+                '&[data-state="open"] > .chevron': {
+                  transform: "rotate(180deg)",
+                },
               }}
             >
-              <Flex align="center" gap="2" py="2">
-                <MdFilterList size="20" />
-                <Text size="2">Refine your results with custom filters</Text>
+              <Flex
+                width="100%"
+                px="2"
+                align="center"
+                justify="between"
+                css={{
+                  cursor: "pointer",
+                  backgroundColor: "var(--gray-3)",
+                  borderRadius: "var(--radius-3)",
+                }}
+              >
+                <Flex align="center" gap="2" py="2">
+                  <MdFilterList size="20" />
+                  <Text size="2">Refine your results with custom filters</Text>
+                </Flex>
+                <MdArrowDropDown
+                  className="chevron"
+                  size="25"
+                  css={{ transition: "transform 300ms ease-in-out" }}
+                />
               </Flex>
-              <MdArrowDropDown
-                className="chevron"
-                size="25"
-                css={{ transition: "transform 300ms ease-in-out" }}
-              />
-            </Flex>
-          </Collapsible.Trigger>
-          <Collapsible.Content
-            css={{
-              height: "20vh",
-              '&[data-state="open"]': {
-                animation: `${slideDown} 300ms ease-in-out`,
-              },
-              '&[data-state="closed"]': {
-                animation: `${slideUp} 300ms ease-in-out`,
-              },
-            }}
-          >
-            <Box
-              p="3"
-              height="100%"
+            </Collapsible.Trigger>
+            <Collapsible.Content
               css={{
-                backgroundColor: "var(--gray-4)",
-                borderTopLeftRadius: "var(--radius-3)",
-                borderTopRightRadius: "var(--radius-3)",
-                marginTop: "var(--radius-3)",
+                height: "20vh",
+                '&[data-state="open"]': {
+                  animation: `${slideDown} 300ms ease-in-out`,
+                },
+                '&[data-state="closed"]': {
+                  animation: `${slideUp} 300ms ease-in-out`,
+                },
               }}
             >
-              <ScrollArea>TODO: FILTERS HERE!</ScrollArea>
-            </Box>
-          </Collapsible.Content>
-        </Flex>
-      </Collapsible.Root>
-      <Box
-        p="1"
-        css={{
-          borderRadius: "var(--radius-4)",
-          backgroundColor: "var(--gray-4)",
-          cursor: "text",
-        }}
-        onClick={focusTextArea}
-      >
-        <TextArea
-          ref={textAreaRef}
-          size="2"
-          radius="large"
+              <Box
+                p="3"
+                height="100%"
+                css={{
+                  backgroundColor: "var(--gray-3)",
+                  borderTopLeftRadius: "var(--radius-3)",
+                  borderTopRightRadius: "var(--radius-3)",
+                  marginTop: "var(--radius-3)",
+                }}
+              >
+                <ScrollArea>TODO: FILTERS HERE!</ScrollArea>
+              </Box>
+            </Collapsible.Content>
+          </Flex>
+        </Collapsible.Root>
+        <Box
+          p="1"
           css={{
-            outline: "none",
-            boxShadow: "none",
-            backgroundColor: "transparent",
+            borderRadius: "var(--radius-4)",
+            backgroundColor: "var(--gray-3)",
+            cursor: "text",
           }}
-          placeholder="Enter your query here..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          rows={5}
-        />
-        <Flex justify="between" align="center" p="2">
-          <Tooltip content="Delete history" side="bottom">
-            <IconButton
-              disabled={messages.length === 0 || loading}
-              variant="ghost"
-              size="1"
-              onClick={() => setMessages([])}
-            >
-              <MdDelete size="20" />
-            </IconButton>
-          </Tooltip>
-          <Flex align="center" gap="3">
-            <Select.Root
-              value={topK.toString()}
-              onValueChange={(value: string) => setTopK(Number(value))}
-              size="1"
-            >
-              <Select.Trigger variant="surface"></Select.Trigger>
-              <Select.Content position="popper" sideOffset={5}>
-                <Select.Item value="1">TopK: 1</Select.Item>
-                <Select.Item value="3">TopK: 3</Select.Item>
-                <Select.Item value="5">TopK: 5</Select.Item>
-                <Select.Item value="10">TopK: 10</Select.Item>
-                <Select.Item value="20">TopK: 20</Select.Item>
-                <Select.Item value="30">TopK: 30</Select.Item>
-              </Select.Content>
-            </Select.Root>
-            <Tooltip content="Send" side="bottom">
+          onClick={focusTextArea}
+        >
+          <TextArea
+            ref={textAreaRef}
+            size="2"
+            radius="large"
+            css={{
+              outline: "none",
+              boxShadow: "none",
+              backgroundColor: "transparent",
+            }}
+            placeholder="Enter your query here..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            rows={5}
+          />
+          <Flex justify="between" align="center" p="2">
+            <Tooltip content="Delete history" side="bottom">
               <IconButton
-                disabled={query === "" || loading}
+                disabled={messages.length === 0 || loading}
                 variant="ghost"
                 size="1"
-                onClick={handleSend}
+                onClick={() => setMessages([])}
               >
-                <MdSend size="20" />
+                <MdDelete size="20" />
               </IconButton>
             </Tooltip>
+            <Flex align="center" gap="3">
+              <Select.Root
+                value={topK.toString()}
+                onValueChange={(value: string) => setTopK(Number(value))}
+                size="1"
+              >
+                <Select.Trigger variant="surface"></Select.Trigger>
+                <Select.Content position="popper" sideOffset={5}>
+                  <Select.Item value="1">TopK: 1</Select.Item>
+                  <Select.Item value="3">TopK: 3</Select.Item>
+                  <Select.Item value="5">TopK: 5</Select.Item>
+                  <Select.Item value="10">TopK: 10</Select.Item>
+                  <Select.Item value="20">TopK: 20</Select.Item>
+                  <Select.Item value="30">TopK: 30</Select.Item>
+                </Select.Content>
+              </Select.Root>
+              <Tooltip content="Send" side="bottom">
+                <IconButton
+                  disabled={query === "" || loading}
+                  variant="ghost"
+                  size="1"
+                  onClick={handleSend}
+                >
+                  <MdSend size="20" />
+                </IconButton>
+              </Tooltip>
+            </Flex>
           </Flex>
-        </Flex>
-      </Box>
+        </Box>
+      </Flex>
     </Flex>
   );
 };
