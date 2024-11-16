@@ -22,6 +22,7 @@ import { callRetrieve } from "../api";
 import * as Collapsible from "@radix-ui/react-collapsible";
 import { keyframes } from "@emotion/react";
 import { ChatDisplay } from "../types";
+import { ChatPort } from "./ChatPort";
 
 const slideDown = keyframes({
   from: { height: 0 },
@@ -40,36 +41,32 @@ export const RetrievePanel = () => {
   const [topK, setTopK] = useState<number>(3);
   const [messages, setMessages] = useState<ChatDisplay[]>([]);
 
-  // Whenever there are new messages, scroll to bottom of the viewport
-  useEffect(() => {
+  // Scroll the chat port to its bottom; this is so that the latest messages
+  // are always visible
+  const scrollChatPortToBottom = () => {
     if (chatPortRef.current !== null) {
       chatPortRef.current.scrollTo({
         top: chatPortRef.current.scrollHeight,
         behavior: "smooth",
       });
     }
-  }, [messages]);
+  };
 
-  /**
-   * Focus the text area.
-   *
-   * This is a helper function so that components other than the text area
-   * itself can also focus the text area.
-   */
+  // Focus the text area; this is so that components other than the text area
+  // itself can also focus the text area
   const focusTextArea = () => {
     if (textAreaRef.current !== null) {
       textAreaRef.current.focus();
     }
   };
 
-  /**
-   * Handle the send button click event.
-   */
+  // Handle the click event on the send button
   const handleSend = async () => {
-    // Add the user message to the list
+    // Clear the input area and add the user message to the list
+    setQuery(""); // This will take effect only after the next render
     setMessages((prevMessages) => [
       ...prevMessages,
-      { fromUser: true, element: query },
+      { fromUser: true, element: <Text size="2">{query}</Text> },
     ]);
 
     // Call backend API to retrieve relevant clinical trials
@@ -85,23 +82,24 @@ export const RetrievePanel = () => {
     ]);
   };
 
+  // Whenever there are new messages, scroll chat port to the bottom
+  useEffect(() => {
+    scrollChatPortToBottom();
+  }, [messages]);
+
   return (
     <Flex direction="column" justify="end" gap="3" px="3" height="100%">
-      <ScrollArea ref={chatPortRef}>
-        <Flex direction="column" justify="end" height="100%">
-          {messages.map(({ fromUser, element }) =>
-            fromUser ? (
-              <Box>From user: {element}</Box>
-            ) : (
-              <Box>From bot: {element}</Box>
-            ),
-          )}
-        </Flex>
-      </ScrollArea>
+      <ChatPort ref={chatPortRef} messages={messages} />
       <Collapsible.Root asChild>
         <Flex direction="column-reverse">
           <Collapsible.Trigger
             asChild
+            onClick={() =>
+              // The timeout is to make sure that the collapsible animation is
+              // completed before scrolling the chat port so the scroll height
+              // can be calculated correctly
+              setTimeout(scrollChatPortToBottom, 300)
+            }
             css={{
               '&[data-state="open"] > .chevron': {
                 transform: "rotate(180deg)",
