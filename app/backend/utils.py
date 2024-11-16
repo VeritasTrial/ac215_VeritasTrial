@@ -49,7 +49,7 @@ def _clean_metadata(metadata: Any) -> TrialMetadataType:
                 description=item["description"],
                 timeFrame=item["time_frame"],
             )
-            for item in json.loads(metadata["primary_outcome_measures"])
+            for item in json.loads(metadata["primary_measure_outcomes"])
         ],
         secondaryMeasureOutcomes=[
             dict(
@@ -57,7 +57,7 @@ def _clean_metadata(metadata: Any) -> TrialMetadataType:
                 description=item["description"],
                 timeFrame=item["time_frame"],
             )
-            for item in json.loads(metadata["secondary_outcome_measures"])
+            for item in json.loads(metadata["secondary_measure_outcomes"])
         ],
         otherMeasureOutcomes=[
             dict(
@@ -65,7 +65,7 @@ def _clean_metadata(metadata: Any) -> TrialMetadataType:
                 description=item["description"],
                 timeFrame=item["time_frame"],
             )
-            for item in json.loads(metadata["other_outcome_measures"])
+            for item in json.loads(metadata["other_measure_outcomes"])
         ],
         minAge=metadata["min_age"],
         maxAge=metadata["max_age"],
