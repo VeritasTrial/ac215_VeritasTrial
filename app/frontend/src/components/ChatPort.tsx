@@ -5,7 +5,7 @@
  * of chat messages that follows the chat display protocol.
  */
 
-import { Avatar, Box, Flex, ScrollArea } from "@radix-ui/themes";
+import { Avatar, Box, Flex, ScrollArea, Spinner, Text } from "@radix-ui/themes";
 import { ChatDisplay } from "../types";
 import { ForwardedRef, forwardRef } from "react";
 import { FaUser } from "react-icons/fa";
@@ -13,10 +13,11 @@ import { RiRobot2Line } from "react-icons/ri";
 
 interface ChatPortProps {
   messages: ChatDisplay[];
+  loading: boolean;
 }
 
 export const ChatPort = forwardRef(
-  ({ messages }: ChatPortProps, ref: ForwardedRef<HTMLDivElement>) => {
+  ({ messages, loading }: ChatPortProps, ref: ForwardedRef<HTMLDivElement>) => {
     return (
       <ScrollArea
         ref={ref}
@@ -46,6 +47,16 @@ export const ChatPort = forwardRef(
               </Box>
             </Flex>
           ))}
+        </Flex>
+        <Flex
+          align="center"
+          justify="center"
+          gap="3"
+          pt="3"
+          display={loading ? "flex" : "none"}
+        >
+          <Spinner loading={loading} />
+          <Text size="2">Retrieving results...</Text>
         </Flex>
       </ScrollArea>
     );

@@ -10,6 +10,7 @@ import {
   Box,
   Flex,
   IconButton,
+  Link,
   ScrollArea,
   Select,
   Text,
@@ -17,7 +18,13 @@ import {
   Tooltip,
 } from "@radix-ui/themes";
 import { useEffect, useRef, useState } from "react";
-import { MdArrowDropDown, MdFilterList, MdSend } from "react-icons/md";
+import {
+  MdArrowDropDown,
+  MdChat,
+  MdDelete,
+  MdFilterList,
+  MdSend,
+} from "react-icons/md";
 import { callRetrieve } from "../api";
 import * as Collapsible from "@radix-ui/react-collapsible";
 import { keyframes } from "@emotion/react";
@@ -40,6 +47,7 @@ export const RetrievePanel = () => {
   const [query, setQuery] = useState<string>("");
   const [topK, setTopK] = useState<number>(3);
   const [messages, setMessages] = useState<ChatDisplay[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
 
   // Scroll the chat port to its bottom; this is so that the latest messages
   // are always visible
@@ -62,6 +70,8 @@ export const RetrievePanel = () => {
 
   // Handle the click event on the send button
   const handleSend = async () => {
+    setLoading(true);
+
     // Clear the input area and add the user message to the list
     setQuery(""); // This will take effect only after the next render
     setMessages((prevMessages) => [
@@ -78,8 +88,38 @@ export const RetrievePanel = () => {
     const data = callResult.payload;
     setMessages((prevMessages) => [
       ...prevMessages,
-      { fromUser: false, element: <pre>{JSON.stringify(data, null, 2)}</pre> },
+      {
+        fromUser: false,
+        element: (
+          <Flex direction="column" gap="2">
+            {data.ids.map((id, index) => (
+              <Flex direction="column" gap="1">
+                <Text size="2">
+                  [{index + 1}] {data.documents[index]}
+                </Text>
+                <Flex gap="2" align="center">
+                  <Link
+                    href={`https://clinicaltrials.gov/study/${id}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    size="2"
+                  >
+                    {id}
+                  </Link>
+                  <Tooltip content="Start a chat" side="right">
+                    <IconButton size="1" variant="ghost">
+                      <MdChat />
+                    </IconButton>
+                  </Tooltip>
+                </Flex>
+              </Flex>
+            ))}
+          </Flex>
+        ),
+      },
     ]);
+
+    setLoading(false);
   };
 
   // Whenever there are new messages, scroll chat port to the bottom
@@ -89,7 +129,7 @@ export const RetrievePanel = () => {
 
   return (
     <Flex direction="column" justify="end" gap="3" px="3" height="100%">
-      <ChatPort ref={chatPortRef} messages={messages} />
+      <ChatPort ref={chatPortRef} messages={messages} loading={loading} />
       <Collapsible.Root asChild>
         <Flex direction="column-reverse">
           <Collapsible.Trigger
@@ -177,32 +217,44 @@ export const RetrievePanel = () => {
           onChange={(e) => setQuery(e.target.value)}
           rows={5}
         />
-        <Flex justify="end" align="center" gap="4" p="2">
-          <Select.Root
-            value={topK.toString()}
-            onValueChange={(value: string) => setTopK(Number(value))}
-            size="1"
-          >
-            <Select.Trigger variant="surface"></Select.Trigger>
-            <Select.Content position="popper" sideOffset={5}>
-              <Select.Item value="1">TopK: 1</Select.Item>
-              <Select.Item value="3">TopK: 3</Select.Item>
-              <Select.Item value="5">TopK: 5</Select.Item>
-              <Select.Item value="10">TopK: 10</Select.Item>
-              <Select.Item value="20">TopK: 20</Select.Item>
-              <Select.Item value="30">TopK: 30</Select.Item>
-            </Select.Content>
-          </Select.Root>
-          <Tooltip content="Send" side="bottom">
+        <Flex justify="between" align="center" p="2">
+          <Tooltip content="Delete history" side="bottom">
             <IconButton
-              disabled={query === ""}
+              disabled={messages.length === 0 || loading}
               variant="ghost"
               size="1"
-              onClick={handleSend}
+              onClick={() => setMessages([])}
             >
-              <MdSend size="20" />
+              <MdDelete size="20" />
             </IconButton>
           </Tooltip>
+          <Flex align="center" gap="3">
+            <Select.Root
+              value={topK.toString()}
+              onValueChange={(value: string) => setTopK(Number(value))}
+              size="1"
+            >
+              <Select.Trigger variant="surface"></Select.Trigger>
+              <Select.Content position="popper" sideOffset={5}>
+                <Select.Item value="1">TopK: 1</Select.Item>
+                <Select.Item value="3">TopK: 3</Select.Item>
+                <Select.Item value="5">TopK: 5</Select.Item>
+                <Select.Item value="10">TopK: 10</Select.Item>
+                <Select.Item value="20">TopK: 20</Select.Item>
+                <Select.Item value="30">TopK: 30</Select.Item>
+              </Select.Content>
+            </Select.Root>
+            <Tooltip content="Send" side="bottom">
+              <IconButton
+                disabled={query === "" || loading}
+                variant="ghost"
+                size="1"
+                onClick={handleSend}
+              >
+                <MdSend size="20" />
+              </IconButton>
+            </Tooltip>
+          </Flex>
         </Flex>
       </Box>
     </Flex>

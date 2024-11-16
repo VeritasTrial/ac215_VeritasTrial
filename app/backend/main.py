@@ -2,7 +2,6 @@ import json
 import time
 
 import chromadb
-import chromadb.types
 import vertexai  # type: ignore
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
