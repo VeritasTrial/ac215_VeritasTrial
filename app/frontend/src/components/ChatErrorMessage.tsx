@@ -16,7 +16,12 @@ export const ChatErrorMessage = ({ error }: ChatErrorMessageProps) => {
     <Text
       size="2"
       color="red"
-      css={{ whiteSpace: "pre", fontFamily: "var(--code-font-family)" }}
+      as="div"
+      css={{
+        lineHeight: "calc(var(--font-size-2) * 1.3)",
+        whiteSpace: "pre",
+        fontFamily: "var(--code-font-family)",
+      }}
     >
       {error}
     </Text>
