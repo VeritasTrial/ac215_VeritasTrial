@@ -49,7 +49,7 @@ export const ChatPort = forwardRef(
                   whiteSpace: "pre-wrap",
                 }}
               >
-                <ScrollArea scrollbars="horizontal">{element}</ScrollArea>
+                {element}
               </Box>
             </Flex>
           ))}
