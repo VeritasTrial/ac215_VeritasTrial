@@ -42,11 +42,14 @@ export const RetrievePanel = ({
   const handleSend = async () => {
     setLoading(true);
     setQuery(""); // This will take effect only after the next render
-    addUserMessage(<Text size="2">{query}</Text>);
+    addUserMessage(<Text size="2">{query}</Text>, query);
 
     const callResult = await callRetrieve(query, topK);
     if ("error" in callResult) {
-      addBotMessage(<ChatErrorMessage error={callResult.error} />);
+      addBotMessage(
+        <ChatErrorMessage error={callResult.error} />,
+        callResult.error,
+      );
     } else {
       const data = callResult.payload;
       addBotMessage(

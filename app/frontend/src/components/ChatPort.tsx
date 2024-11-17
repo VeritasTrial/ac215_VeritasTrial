@@ -10,6 +10,7 @@ import { ChatDisplay } from "../types";
 import { ForwardedRef, forwardRef } from "react";
 import { FaUser } from "react-icons/fa";
 import { RiRobot2Line } from "react-icons/ri";
+import { CopyButton } from "./CopyButton";
 
 interface ChatPortProps {
   messages: ChatDisplay[];
@@ -26,7 +27,7 @@ export const ChatPort = forwardRef(
       >
         {/* List of chat messages, bots on left and user on right */}
         <Flex direction="column" justify="end" gap="3" pr="4" height="100%">
-          {messages.map(({ fromUser, element }, index) => (
+          {messages.map(({ fromUser, element, text }, index) => (
             <Flex
               key={index}
               direction={fromUser ? "row-reverse" : "row"}
@@ -51,6 +52,11 @@ export const ChatPort = forwardRef(
               >
                 {element}
               </Box>
+              {text !== undefined && (
+                <Box pt="2">
+                  <CopyButton text={text} />
+                </Box>
+              )}
             </Flex>
           ))}
         </Flex>

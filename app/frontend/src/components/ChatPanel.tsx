@@ -54,18 +54,22 @@ export const ChatPanel = ({
   const handleSend = async () => {
     setLoading(true);
     setQuery(""); // This will take effect only after the next render
-    addUserMessage(<Text size="2">{query}</Text>);
+    addUserMessage(<Text size="2">{query}</Text>, query);
 
     if (query === "/meta" || query === "/docs") {
       // Special commands where we only need to get metadata
       const callResult = await callMeta(tab);
       if ("error" in callResult) {
-        addBotMessage(<ChatErrorMessage error={callResult.error} />);
+        addBotMessage(
+          <ChatErrorMessage error={callResult.error} />,
+          callResult.error,
+        );
       } else {
         const data = callResult.payload;
         if (query === "/meta") {
           addBotMessage(
             <Text size="2">{JSON.stringify(data.metadata, null, 2)}</Text>,
+            JSON.stringify(data.metadata, null, 2),
           );
         } else {
           addBotMessage(
@@ -80,10 +84,13 @@ export const ChatPanel = ({
       // Normal chat command
       const callResult = await callChat(query, model, tab);
       if ("error" in callResult) {
-        addBotMessage(<ChatErrorMessage error={callResult.error} />);
+        addBotMessage(
+          <ChatErrorMessage error={callResult.error} />,
+          callResult.error,
+        );
       } else {
         const data = callResult.payload;
-        addBotMessage(<Text size="2">{data.response}</Text>);
+        addBotMessage(<Text size="2">{data.response}</Text>, data.response);
       }
     }
 

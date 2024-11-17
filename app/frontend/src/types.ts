@@ -31,6 +31,8 @@ export interface ChatDisplay {
   fromUser: boolean;
   /** The React element to display for the message. */
   element: ReactNode;
+  /** Pure text version of the message, used for copying if provided. */
+  text?: string;
 }
 
 /**

@@ -17,6 +17,7 @@ import { Header } from "./components/Header";
 import { Sidebar } from "./components/Sidebar";
 import { RetrievePanel } from "./components/RetrievePanel";
 import { ChatPanel } from "./components/ChatPanel";
+import { Toaster } from "sonner";
 
 export const App = () => {
   const [appearance, setAppearance] = useState<ApperanceType>("dark");
@@ -50,6 +51,20 @@ export const App = () => {
 
   return (
     <Theme appearance={appearance} accentColor="indigo" grayColor="slate">
+      <Toaster
+        position="top-right"
+        theme={appearance}
+        gap={6}
+        offset="var(--space-4)"
+        toastOptions={{
+          style: {
+            color: "var(--gray-12)",
+            borderColor: "var(--gray-6)",
+            backgroundColor: "var(--gray-surface)",
+            padding: "var(--space-2) var(--space-4)",
+          },
+        }}
+      />
       <Flex css={{ height: "100vh" }}>
         {/* Left-hand sidebar panel */}
         <Box

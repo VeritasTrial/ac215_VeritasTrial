@@ -5,14 +5,14 @@
  * related documentations of a trial.
  */
 
-import { Code, Flex, IconButton, Text } from "@radix-ui/themes";
+import { Code, Flex, Text } from "@radix-ui/themes";
 import {
   TrialMetadataDocumentType,
   TrialMetadataReferenceType,
 } from "../types";
 import { ExternalLink } from "./ExternalLink";
-import { MdContentCopy } from "react-icons/md";
 import { PUBMED_URL } from "../consts";
+import { CopyButton } from "./CopyButton";
 
 interface MessageDocsProps {
   references: TrialMetadataReferenceType[];
@@ -37,14 +37,7 @@ export const MessageDocs = ({ references, documents }: MessageDocsProps) => {
               >
                 {ref.citation}
               </ExternalLink>{" "}
-              <IconButton
-                size="1"
-                variant="ghost"
-                color="gray"
-                onClick={() => navigator.clipboard.writeText(ref.citation)}
-              >
-                <MdContentCopy />
-              </IconButton>
+              <CopyButton text={ref.citation} />
             </Flex>
           ))}
         </Flex>

@@ -13,17 +13,17 @@ import { UpdateMessagesFunction } from "./types";
 export const addMessageUtilities = (
   setMessages: (fn: UpdateMessagesFunction) => void,
 ) => {
-  const addUserMessage = (element: React.ReactNode) => {
+  const addUserMessage = (element: React.ReactNode, text?: string) => {
     setMessages((prevMessages) => [
       ...prevMessages,
-      { fromUser: true, element },
+      { fromUser: true, element, text },
     ]);
   };
 
-  const addBotMessage = (element: React.ReactNode) => {
+  const addBotMessage = (element: React.ReactNode, text?: string) => {
     setMessages((prevMessages) => [
       ...prevMessages,
-      { fromUser: false, element },
+      { fromUser: false, element, text },
     ]);
   };
 

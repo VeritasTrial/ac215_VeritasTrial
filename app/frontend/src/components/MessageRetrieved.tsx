@@ -34,7 +34,7 @@ export const MessageRetrieved = ({
           <Flex key={id} direction="column" gap="1">
             <Text size="2">{titles[index]}</Text>
             <Flex gap="2" align="center">
-              <ExternalLink href={`${CTGOV_URL}/${id}`} size="1">
+              <ExternalLink href={`${CTGOV_URL}/${id}`} size="2">
                 {id}
               </ExternalLink>
               <Tooltip content="Start a chat" side="right">

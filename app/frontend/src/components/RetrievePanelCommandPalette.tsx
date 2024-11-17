@@ -4,11 +4,11 @@
  * The command palette component in the retrieval panel.
  */
 
-import { Code, DataList, Flex, IconButton, Text } from "@radix-ui/themes";
-import { MdContentCopy } from "react-icons/md";
+import { Code, DataList, Flex, Text } from "@radix-ui/themes";
 import { ExternalLink } from "./ExternalLink";
 import { PUBMED_URL } from "../consts";
 import { MetaInfo } from "../types";
+import { CopyButton } from "./CopyButton";
 
 interface RetrievalPanelCommandPaletteProps {
   metaInfo: MetaInfo;
@@ -29,14 +29,7 @@ export const RetrievalPanelCommandPalette = ({
         <DataList.Label minWidth="0">
           <Flex align="center" gap="2">
             <Text>Full Title</Text>
-            <IconButton
-              size="1"
-              variant="ghost"
-              color="gray"
-              onClick={() => navigator.clipboard.writeText(title)}
-            >
-              <MdContentCopy />
-            </IconButton>
+            <CopyButton text={title} />
           </Flex>
         </DataList.Label>
         <DataList.Value>{title}</DataList.Value>
