@@ -4,27 +4,38 @@
  * The left-hand sidebar component.
  */
 
-import { Box, Flex, RadioCards, ScrollArea, Text } from "@radix-ui/themes";
+import {
+  Box,
+  Button,
+  Flex,
+  Link,
+  RadioCards,
+  ScrollArea,
+  Text,
+} from "@radix-ui/themes";
 import { Dispatch, SetStateAction } from "react";
 import { TbDatabaseSearch } from "react-icons/tb";
 import { MetaInfo } from "../types";
+import { MdDelete } from "react-icons/md";
 
 interface SidebarProps {
   metaMapping: Map<string, MetaInfo>;
   currentTab: string;
   setCurrentTab: Dispatch<SetStateAction<string>>;
+  clearTabs: () => void;
 }
 
 export const Sidebar = ({
   metaMapping,
   currentTab,
   setCurrentTab,
+  clearTabs,
 }: SidebarProps) => {
   return (
     <Flex direction="column" justify="between" height="100%">
       {/* Sidebar content */}
       <RadioCards.Root
-        css={{ height: "80%", gridTemplateRows: "auto auto 1fr" }}
+        css={{ height: "85%", gridTemplateRows: "auto auto 1fr" }}
         size="1"
         variant="surface"
         columns="1"
@@ -46,12 +57,14 @@ export const Sidebar = ({
             </Box>
           </Flex>
         </RadioCards.Item>
-        <Box pl="1" pt="4" pb="2">
-          <Text size="2" weight="medium">
-            Trials
-          </Text>
-        </Box>
         {/* List of chat tabs */}
+        {metaMapping.size > 0 && (
+          <Box pl="1" pt="4" pb="2">
+            <Text size="2" weight="medium">
+              Chats
+            </Text>
+          </Box>
+        )}
         <ScrollArea scrollbars="vertical">
           <Flex direction="column" gap="2">
             {[...metaMapping].map(([tab, metaInfo]) => (
@@ -74,10 +87,28 @@ export const Sidebar = ({
         </ScrollArea>
       </RadioCards.Root>
       {/* Sidebar footer */}
-      <Box height="calc(20% - var(--space-3))" overflow="hidden">
-        ABCDEFGHIJKLMNOPQRST ABCDEFGHIJKLMNOPQRST ABCDEFGHIJKLMNOPQRST
-        ABCDEFGHIJKLMNOPQRST ABCDEFGHIJKLMNOPQRST ABCDEFGHIJKLMNOPQRST
-      </Box>
+      <Flex
+        height="calc(15% - var(--space-3))"
+        direction="column"
+        justify="end"
+        gap="2"
+        overflow="hidden"
+      >
+        <Button
+          size="2"
+          variant="surface"
+          color="red"
+          onClick={clearTabs}
+          disabled={metaMapping.size === 0}
+        >
+          <MdDelete size="20" /> Delete all chats
+        </Button>
+        <Text size="1" color="gray" as="div" align="center">
+          © 2024 <Link href="mailto:yaoxiao@g.harvard.edu">Yao Xiao</Link>,{" "}
+          <Link href="mailto:bowenxu@g.harvard.edu">Bowen Xu</Link>,{" "}
+          <Link href="mailto:tongxiao@g.harvard.edu">Tong Xiao</Link>
+        </Text>
+      </Flex>
     </Flex>
   );
 };

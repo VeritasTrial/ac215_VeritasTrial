@@ -64,7 +64,7 @@ export const ChatCollapsibleHint = ({
               <HintIcon size="20" />
               <Text size="2">{hintText}</Text>
             </Flex>
-            <Flex align="center" gap="2">
+            <Flex align="center" gap="3">
               {rightHintComponent}
               <MdArrowDropDown
                 className="chevron"

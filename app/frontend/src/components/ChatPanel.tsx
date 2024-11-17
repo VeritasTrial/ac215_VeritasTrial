@@ -7,7 +7,7 @@
  * the results.
  */
 
-import { Code, Flex, Text } from "@radix-ui/themes";
+import { Code, Flex, IconButton, Text, Tooltip } from "@radix-ui/themes";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { GoCommandPalette } from "react-icons/go";
 import { callChat, callMeta } from "../api";
@@ -28,6 +28,7 @@ import { ChatErrorMessage } from "./ChatErrorMessage";
 import { addMessageUtilities, scrollToBottom } from "../utils";
 import { MessageDocs } from "./MessageDocs";
 import { RetrievalPanelCommandPalette } from "./RetrievePanelCommandPalette";
+import { MdDelete } from "react-icons/md";
 
 interface ChatPanelProps {
   model: ModelType;
@@ -35,6 +36,7 @@ interface ChatPanelProps {
   metaInfo: MetaInfo;
   messages: ChatDisplay[];
   setMessages: (fn: UpdateMessagesFunction) => void;
+  deleteTab: () => void;
 }
 
 export const ChatPanel = ({
@@ -43,6 +45,7 @@ export const ChatPanel = ({
   metaInfo,
   messages,
   setMessages,
+  deleteTab,
 }: ChatPanelProps) => {
   const chatPortRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState<string>("");
@@ -135,9 +138,21 @@ export const ChatPanel = ({
           hintText="Command palette"
           HintIcon={GoCommandPalette}
           rightHintComponent={
-            <ExternalLink href={`${CTGOV_URL}/${tab}`} size="2">
-              {tab}
-            </ExternalLink>
+            <>
+              <Tooltip content="Delete this chat" side="top">
+                <IconButton
+                  size="1"
+                  variant="ghost"
+                  color="red"
+                  onClick={deleteTab}
+                >
+                  <MdDelete />
+                </IconButton>
+              </Tooltip>
+              <ExternalLink href={`${CTGOV_URL}/${tab}`} size="2">
+                {tab}
+              </ExternalLink>
+            </>
           }
         >
           <RetrievalPanelCommandPalette metaInfo={metaInfo} />

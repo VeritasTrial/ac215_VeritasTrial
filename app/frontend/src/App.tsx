@@ -49,13 +49,39 @@ export const App = () => {
     setCurrentTab(tab);
   };
 
+  // Delete a tab
+  const deleteTab = (tab: string) => {
+    setMessagesMapping((prevMessagesMapping) => {
+      const newMessagesMapping = new Map(prevMessagesMapping);
+      newMessagesMapping.delete(tab);
+      return newMessagesMapping;
+    });
+    setMetaMapping((prevMetaMapping) => {
+      const newMetaMapping = new Map(prevMetaMapping);
+      newMetaMapping.delete(tab);
+      return newMetaMapping;
+    });
+    setCurrentTab("default");
+  };
+
+  // Clear all tabs
+  const clearTabs = () => {
+    setMessagesMapping((prevMessagesMapping) => {
+      const newMessagesMapping = new Map();
+      newMessagesMapping.set("default", prevMessagesMapping.get("default")!);
+      return newMessagesMapping;
+    });
+    setMetaMapping(new Map());
+    setCurrentTab("default");
+  };
+
   return (
     <Theme appearance={appearance} accentColor="indigo" grayColor="slate">
       <Toaster
         position="top-right"
         theme={appearance}
         gap={6}
-        offset="var(--space-4)"
+        offset="var(--space-3)"
         toastOptions={{
           style: {
             color: "var(--gray-12)",
@@ -77,6 +103,7 @@ export const App = () => {
             metaMapping={metaMapping}
             currentTab={currentTab}
             setCurrentTab={setCurrentTab}
+            clearTabs={clearTabs}
           ></Sidebar>
         </Box>
         {/* Right-hand main panel */}
@@ -131,6 +158,7 @@ export const App = () => {
                     return newMessagesMapping;
                   })
                 }
+                deleteTab={() => deleteTab(currentTab)}
               ></ChatPanel>
             )}
           </Box>
