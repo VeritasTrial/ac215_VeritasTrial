@@ -16,4 +16,4 @@ export const CTGOV_URL = "https://clinicaltrials.gov/study";
  *
  * Usage: Itself or `${PUBMED_URL}/${id}`.
  */
-export const PUBMED_URL = "https://pubmed.ncbi.nlm.nih.gov/";
+export const PUBMED_URL = "https://pubmed.ncbi.nlm.nih.gov";

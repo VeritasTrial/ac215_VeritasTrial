@@ -11,8 +11,8 @@ interface ChatInputProps {
   query: string;
   setQuery: Dispatch<SetStateAction<string>>;
   onPressEnter: () => void;
-  leftFunctionalComponents: ReactNode;
-  rightFunctionalComponents: ReactNode;
+  leftFunctionalComponents: ReactNode[];
+  rightFunctionalComponents: ReactNode[];
 }
 
 export const ChatInput = ({

@@ -7,6 +7,7 @@
 import queryString from "query-string";
 import {
   APIChatResponseType,
+  APIMetaResponseType,
   APIRetrieveResponseType,
   ModelType,
   WrapAPI,
@@ -60,6 +61,26 @@ export const callRetrieve = async (
       return { error: await formatNonOkResponse(response) };
     }
     const res = (await response.json()) as APIRetrieveResponseType;
+    return { payload: res };
+  } catch (e: unknown) {
+    console.error(e);
+    return { error: formatError(e) };
+  }
+};
+
+/**
+ * Call the /meta/{item_id} backend API.
+ */
+export const callMeta = async (
+  id: string,
+): Promise<WrapAPI<APIMetaResponseType>> => {
+  const url = `${import.meta.env.VITE_BACKEND_URL}/meta/${id}`;
+  try {
+    const response = await getResponse(url);
+    if (!response.ok) {
+      return { error: await formatNonOkResponse(response) };
+    }
+    const res = (await response.json()) as APIMetaResponseType;
     return { payload: res };
   } catch (e: unknown) {
     console.error(e);

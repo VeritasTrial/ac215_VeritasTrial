@@ -120,6 +120,10 @@ export interface APIRetrieveResponseType {
   documents: string[];
 }
 
+export interface APIMetaResponseType {
+  metadata: TrialMetadataType;
+}
+
 export interface APIChatResponseType {
   response: string;
 }

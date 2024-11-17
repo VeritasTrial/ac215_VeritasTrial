@@ -14,6 +14,7 @@ from vertexai.generative_models import GenerativeModel  # type: ignore
 from localtyping import (
     APIChatResponseType,
     APIHeartbeatResponseType,
+    APIMetaResponseType,
     APIRetrieveResponseType,
     ModelType,
 )
@@ -105,9 +106,24 @@ async def retrieve(query: str, top_k: int) -> APIRetrieveResponseType:
     return {"ids": ids, "documents": documents}
 
 
+@app.get("/meta/{item_id}")
+async def meta(item_id: str) -> APIMetaResponseType:
+    """Retrieve metadata for a specific item."""
+    metadata = _get_metadata_from_id(CHROMADB_COLLECTION, item_id)
+    if metadata is None:
+        raise HTTPException(status_code=404, detail="Trial metadata not found")
+
+    return {"metadata": metadata}
+
+
 @app.get("/chat/{model}/{item_id}")
 async def chat(model: ModelType, item_id: str, query: str) -> APIChatResponseType:
     """Chat with a generative model about a specific item."""
+    metadata = _get_metadata_from_id(CHROMADB_COLLECTION, item_id)
+    if metadata is None:
+        raise HTTPException(status_code=404, detail="Trial metadata not found")
+
+    # Determine the model to use
     if model not in ("gemini-1.5-flash-001",):
         model_name = (
             f"projects/{GCP_PROJECT_ID}/locations/{GCP_PROJECT_LOCATION}/"
@@ -126,8 +142,7 @@ async def chat(model: ModelType, item_id: str, query: str) -> APIChatResponseTyp
         },
     )
 
-    # Extract metadata from the item ID and combine with the query
-    metadata = _get_metadata_from_id(CHROMADB_COLLECTION, item_id)
+    # Combine metadata into the query
     query = (
         "You will be given the information of a clinical trial and asked a "
         "question. The information is as follows:\n\n"

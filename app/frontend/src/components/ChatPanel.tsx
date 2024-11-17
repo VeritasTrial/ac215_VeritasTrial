@@ -8,10 +8,10 @@
  */
 
 import { Code, DataList, Flex, IconButton, Text } from "@radix-ui/themes";
-import { useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { MdContentCopy } from "react-icons/md";
 import { GoCommandPalette } from "react-icons/go";
-import { callChat } from "../api";
+import { callChat, callMeta } from "../api";
 import {
   ChatDisplay,
   MetaInfo,
@@ -45,6 +45,7 @@ export const ChatPanel = ({
   const chatPortRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [extraRightFCs, setExtraRightFCs] = useState<ReactNode[]>([]);
 
   // Scroll the chat port to its bottom; this is so that the latest messages
   // are always visible
@@ -68,25 +69,116 @@ export const ChatPanel = ({
       { fromUser: true, element: <Text size="2">{query}</Text> },
     ]);
 
-    // Call backend API to retrieve relevant clinical trials
-    const callResult = await callChat(query, model, tab);
-    if ("error" in callResult) {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          fromUser: false,
-          element: <ChatErrorMessage error={callResult.error} />,
-        },
-      ]);
+    if (query === "/meta" || query === "/docs") {
+      // Special commands where we only need to get metadata
+      const callResult = await callMeta(tab);
+      if ("error" in callResult) {
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            fromUser: false,
+            element: <ChatErrorMessage error={callResult.error} />,
+          },
+        ]);
+      } else {
+        const data = callResult.payload;
+        if (query === "/meta") {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              fromUser: false,
+              element: (
+                <Text size="2">{JSON.stringify(data.metadata, null, 2)}</Text>
+              ),
+            },
+          ]);
+        } else {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              fromUser: false,
+              element: (
+                <Flex direction="column" gap="3">
+                  {data.metadata.references.length > 0 ? (
+                    <Flex direction="column" gap="1">
+                      <Text size="2" weight="medium" mb="1">
+                        References
+                      </Text>
+                      {data.metadata.references.map((ref) => (
+                        <Flex align="center" justify="between" gap="2" pr="1">
+                          <ExternalLink
+                            key={ref.pmid}
+                            href={`${PUBMED_URL}/${ref.pmid}`}
+                            size="2"
+                          >
+                            {ref.citation}
+                          </ExternalLink>{" "}
+                          <IconButton
+                            size="1"
+                            variant="ghost"
+                            color="gray"
+                            onClick={() =>
+                              navigator.clipboard.writeText(ref.citation)
+                            }
+                          >
+                            <MdContentCopy />
+                          </IconButton>
+                        </Flex>
+                      ))}
+                    </Flex>
+                  ) : (
+                    <Text size="2" weight="medium" color="red">
+                      No references found.
+                    </Text>
+                  )}
+                  {data.metadata.documents.length > 0 ? (
+                    <Flex direction="column" gap="1">
+                      <Text size="2" weight="medium" mb="1">
+                        Related Documents
+                      </Text>
+                      {data.metadata.documents.map((doc) => (
+                        <Flex align="center" justify="between" gap="2" pr="1">
+                          <ExternalLink key={doc.url} href={doc.url} size="2">
+                            {doc.url.split("/").pop()}
+                          </ExternalLink>{" "}
+                          <Code variant="ghost" color="gray" size="2">
+                            {Math.round(doc.size / 1024)}KB
+                          </Code>
+                        </Flex>
+                      ))}
+                    </Flex>
+                  ) : (
+                    <Text size="2" weight="medium" color="red">
+                      No related documents found.
+                    </Text>
+                  )}
+                </Flex>
+              ),
+            },
+          ]);
+        }
+      }
     } else {
-      const data = callResult.payload;
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          fromUser: false,
-          element: <Text size="2">{data.response}</Text>,
-        },
-      ]);
+      // Normal chat command
+      const callResult = await callChat(query, model, tab);
+      if ("error" in callResult) {
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            fromUser: false,
+            element: <ChatErrorMessage error={callResult.error} />,
+          },
+        ]);
+      } else {
+        const data = callResult.payload;
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            fromUser: false,
+            element: <Text size="2">{data.response}</Text>,
+          },
+        ]);
+      }
     }
 
     setLoading(false);
@@ -96,6 +188,28 @@ export const ChatPanel = ({
   useEffect(() => {
     scrollChatPortToBottom();
   }, [messages]);
+
+  // Extra right functional components based on the query
+  useEffect(() => {
+    const newFCs: ReactNode[] = [];
+    if (query === "/meta") {
+      newFCs.push(<Code size="2">/meta</Code>);
+    } else if (query === "/docs") {
+      newFCs.push(<Code size="2">/docs</Code>);
+    }
+    setExtraRightFCs(() => newFCs);
+  }, [query]);
+
+  const leftFCs = [
+    <FCClearHistoryButton
+      disabled={messages.length === 0 || loading}
+      onClick={() => setMessages(() => [])}
+    />,
+  ];
+
+  const rightFCs = [
+    <FCSendButton disabled={query === "" || loading} onClick={handleSend} />,
+  ];
 
   return (
     <Flex direction="column" justify="end" gap="5" px="3" height="100%">
@@ -165,18 +279,8 @@ export const ChatPanel = ({
             }
             await handleSend();
           }}
-          leftFunctionalComponents={
-            <FCClearHistoryButton
-              disabled={messages.length === 0 || loading}
-              onClick={() => setMessages(() => [])}
-            />
-          }
-          rightFunctionalComponents={
-            <FCSendButton
-              disabled={query === "" || loading}
-              onClick={handleSend}
-            />
-          }
+          leftFunctionalComponents={leftFCs}
+          rightFunctionalComponents={[...extraRightFCs, rightFCs]}
         />
       </Flex>
     </Flex>

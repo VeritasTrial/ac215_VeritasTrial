@@ -78,9 +78,7 @@ export const RetrievePanel = ({
             <Flex direction="column" gap="2">
               {data.ids.map((id, index) => (
                 <Flex key={id} direction="column" gap="1">
-                  <Text size="2">
-                    [{index + 1}] {data.documents[index]}
-                  </Text>
+                  <Text size="2">{data.documents[index]}</Text>
                   <Flex gap="2" align="center">
                     <ExternalLink href={`${CTGOV_URL}/${id}`} size="2">
                       {id}
@@ -113,6 +111,32 @@ export const RetrievePanel = ({
     scrollChatPortToBottom();
   }, [messages]);
 
+  const leftFunctionalComponents = [
+    <FCClearHistoryButton
+      disabled={messages.length === 0 || loading}
+      onClick={() => setMessages(() => [])}
+    />,
+  ];
+
+  const rightFunctionalComponents = [
+    <Select.Root
+      value={topK.toString()}
+      onValueChange={(value: string) => setTopK(Number(value))}
+      size="1"
+    >
+      <Select.Trigger variant="surface"></Select.Trigger>
+      <Select.Content position="popper" sideOffset={5}>
+        <Select.Item value="1">TopK: 1</Select.Item>
+        <Select.Item value="3">TopK: 3</Select.Item>
+        <Select.Item value="5">TopK: 5</Select.Item>
+        <Select.Item value="10">TopK: 10</Select.Item>
+        <Select.Item value="20">TopK: 20</Select.Item>
+        <Select.Item value="30">TopK: 30</Select.Item>
+      </Select.Content>
+    </Select.Root>,
+    <FCSendButton disabled={query === "" || loading} onClick={handleSend} />,
+  ];
+
   return (
     <Flex direction="column" justify="end" gap="5" px="3" height="100%">
       <ChatPort ref={chatPortRef} messages={messages} loading={loading} />
@@ -133,35 +157,8 @@ export const RetrievePanel = ({
             }
             await handleSend();
           }}
-          leftFunctionalComponents={
-            <FCClearHistoryButton
-              disabled={messages.length === 0 || loading}
-              onClick={() => setMessages(() => [])}
-            />
-          }
-          rightFunctionalComponents={
-            <>
-              <Select.Root
-                value={topK.toString()}
-                onValueChange={(value: string) => setTopK(Number(value))}
-                size="1"
-              >
-                <Select.Trigger variant="surface"></Select.Trigger>
-                <Select.Content position="popper" sideOffset={5}>
-                  <Select.Item value="1">TopK: 1</Select.Item>
-                  <Select.Item value="3">TopK: 3</Select.Item>
-                  <Select.Item value="5">TopK: 5</Select.Item>
-                  <Select.Item value="10">TopK: 10</Select.Item>
-                  <Select.Item value="20">TopK: 20</Select.Item>
-                  <Select.Item value="30">TopK: 30</Select.Item>
-                </Select.Content>
-              </Select.Root>
-              <FCSendButton
-                disabled={query === "" || loading}
-                onClick={handleSend}
-              />
-            </>
-          }
+          leftFunctionalComponents={leftFunctionalComponents}
+          rightFunctionalComponents={rightFunctionalComponents}
         />
       </Flex>
     </Flex>

@@ -78,5 +78,9 @@ class APIRetrieveResponseType(TypedDict):
     documents: list[str]
 
 
+class APIMetaResponseType(TypedDict):
+    metadata: TrialMetadataType
+
+
 class APIChatResponseType(TypedDict):
     response: str
