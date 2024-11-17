@@ -25,6 +25,7 @@ import { FCClearHistoryButton } from "./FCClearHistoryButton";
 import { ExternalLink } from "./ExternalLink";
 import { CTGOV_URL, PUBMED_URL } from "../consts";
 import { ChatCollapsibleHint } from "./ChatCollapsibleHint";
+import { ChatErrorMessage } from "./ChatErrorMessage";
 
 interface ChatPanelProps {
   model: ModelType;
@@ -70,7 +71,13 @@ export const ChatPanel = ({
     // Call backend API to retrieve relevant clinical trials
     const callResult = await callChat(query, model, tab);
     if ("error" in callResult) {
-      console.error(callResult.error);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          fromUser: false,
+          element: <ChatErrorMessage error={callResult.error} />,
+        },
+      ]);
     } else {
       const data = callResult.payload;
       setMessages((prevMessages) => [

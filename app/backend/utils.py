@@ -1,10 +1,27 @@
 import json
+import traceback
+from pathlib import Path
 from typing import Any
 
 import chromadb
 import chromadb.api
 
 from localtyping import TrialMetadataType
+
+
+def format_exc_details(exc: Exception) -> str:
+    """Format details of an exception."""
+    if exc.__traceback__ is None:
+        return f"{exc.__class__.__name__}: {exc}"
+
+    base_dir = str(Path(__file__).parent)
+    tb = traceback.extract_tb(exc.__traceback__)
+    tb_details = "".join(
+        traceback.format_list(
+            frame for frame in tb if frame.filename.startswith(base_dir)
+        )
+    )
+    return f"{tb_details}\n{exc.__class__.__name__}: {exc}"
 
 
 def _clean_metadata(metadata: Any) -> TrialMetadataType:

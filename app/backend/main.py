@@ -1,11 +1,13 @@
 import json
+import os
 import time
 
 import chromadb
 import vertexai  # type: ignore
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
+from fastapi.responses import JSONResponse
 from FlagEmbedding import FlagModel  # type: ignore
 from vertexai.generative_models import GenerativeModel  # type: ignore
 
@@ -15,7 +17,9 @@ from localtyping import (
     APIRetrieveResponseType,
     ModelType,
 )
-from utils import _get_metadata_from_id
+from utils import _get_metadata_from_id, format_exc_details
+
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:8080")
 
 EMBEDDING_MODEL = FlagModel("BAAI/bge-small-en-v1.5", use_fp16=True)
 CHROMADB_CLIENT = chromadb.HttpClient(host="chromadb", port=8000)
@@ -30,7 +34,7 @@ app = FastAPI(docs_url=None, redoc_url="/")
 # Handle cross-origin requests from the frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8080"],
+    allow_origins=[FRONTEND_URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -56,6 +60,19 @@ def custom_openapi():
 
 
 app.openapi = custom_openapi  # type: ignore
+
+
+@app.exception_handler(Exception)
+async def custom_exception_handler(request: Request, exc: Exception):
+    """Custom handle for all types of exceptions."""
+    response = JSONResponse(
+        status_code=500,
+        content={"details": format_exc_details(exc)},
+    )
+    # Manually set the CORS headers for the error response
+    response.headers["Access-Control-Allow-Origin"] = FRONTEND_URL
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    return response
 
 
 @app.get("/heartbeat")
