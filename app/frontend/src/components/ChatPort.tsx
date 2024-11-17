@@ -24,9 +24,14 @@ export const ChatPort = forwardRef(
         scrollbars="vertical"
         css={{ "[data-radix-scroll-area-viewport] > div": { width: "100%" } }}
       >
+        {/* List of chat messages, bots on left and user on right */}
         <Flex direction="column" justify="end" gap="3" pr="4" height="100%">
-          {messages.map(({ fromUser, element }) => (
-            <Flex direction={fromUser ? "row-reverse" : "row"} gap="3">
+          {messages.map(({ fromUser, element }, index) => (
+            <Flex
+              key={index}
+              direction={fromUser ? "row-reverse" : "row"}
+              gap="3"
+            >
               <Avatar
                 size="2"
                 fallback={fromUser ? <FaUser /> : <RiRobot2Line />}
@@ -39,7 +44,7 @@ export const ChatPort = forwardRef(
                 css={{
                   backgroundColor: fromUser
                     ? "var(--accent-4)"
-                    : "var(--gray-3)",
+                    : "var(--gray-4)",
                   borderRadius: "var(--radius-3)",
                 }}
               >
@@ -48,6 +53,7 @@ export const ChatPort = forwardRef(
             </Flex>
           ))}
         </Flex>
+        {/* Loading indicator */}
         <Flex
           align="center"
           justify="center"
@@ -56,7 +62,7 @@ export const ChatPort = forwardRef(
           display={loading ? "flex" : "none"}
         >
           <Spinner loading={loading} />
-          <Text size="2">Retrieving results...</Text>
+          <Text size="2">Loading...</Text>
         </Flex>
       </ScrollArea>
     );

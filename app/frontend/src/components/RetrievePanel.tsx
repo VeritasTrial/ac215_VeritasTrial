@@ -6,40 +6,18 @@
  * calling backend API), and displaying the results.
  */
 
-import {
-  Box,
-  Flex,
-  IconButton,
-  Link,
-  ScrollArea,
-  Select,
-  Text,
-  TextArea,
-  Tooltip,
-} from "@radix-ui/themes";
+import { Flex, IconButton, Select, Text, Tooltip } from "@radix-ui/themes";
 import { useEffect, useRef, useState } from "react";
-import {
-  MdArrowDropDown,
-  MdChat,
-  MdClear,
-  MdFilterList,
-  MdSend,
-} from "react-icons/md";
+import { MdChat, MdFilterList } from "react-icons/md";
 import { callRetrieve } from "../api";
-import * as Collapsible from "@radix-ui/react-collapsible";
-import { keyframes } from "@emotion/react";
 import { ChatDisplay, MetaInfo, UpdateMessagesFunction } from "../types";
 import { ChatPort } from "./ChatPort";
-
-const slideDown = keyframes({
-  from: { height: 0 },
-  to: { height: "var(--radix-collapsible-content-height)" },
-});
-
-const slideUp = keyframes({
-  from: { height: "var(--radix-collapsible-content-height)" },
-  to: { height: 0 },
-});
+import { ChatInput } from "./ChatInput";
+import { FCSendButton } from "./FCSendButton";
+import { FCClearHistoryButton } from "./FCClearHistoryButton";
+import { ExternalLink } from "./ExternalLink";
+import { CTGOV_URL } from "../consts";
+import { ChatCollapsibleHint } from "./ChatCollapsibleHint";
 
 interface RetrievalPanelProps {
   messages: ChatDisplay[];
@@ -52,7 +30,6 @@ export const RetrievePanel = ({
   setMessages,
   switchTab,
 }: RetrievalPanelProps) => {
-  const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const chatPortRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState<string>("");
   const [topK, setTopK] = useState<number>(3);
@@ -66,14 +43,6 @@ export const RetrievePanel = ({
         top: chatPortRef.current.scrollHeight,
         behavior: "smooth",
       });
-    }
-  };
-
-  // Focus the text area; this is so that components other than the text area
-  // itself can also focus the text area
-  const focusTextArea = () => {
-    if (textAreaRef.current !== null) {
-      textAreaRef.current.focus();
     }
   };
 
@@ -101,19 +70,14 @@ export const RetrievePanel = ({
           element: (
             <Flex direction="column" gap="2">
               {data.ids.map((id, index) => (
-                <Flex direction="column" gap="1">
+                <Flex key={id} direction="column" gap="1">
                   <Text size="2">
                     [{index + 1}] {data.documents[index]}
                   </Text>
                   <Flex gap="2" align="center">
-                    <Link
-                      href={`https://clinicaltrials.gov/study/${id}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      size="2"
-                    >
+                    <ExternalLink href={`${CTGOV_URL}/${id}`} size="2">
                       {id}
-                    </Link>
+                    </ExternalLink>
                     <Tooltip content="Start a chat" side="right">
                       <IconButton
                         size="1"
@@ -146,107 +110,24 @@ export const RetrievePanel = ({
     <Flex direction="column" justify="end" gap="5" px="3" height="100%">
       <ChatPort ref={chatPortRef} messages={messages} loading={loading} />
       <Flex direction="column" gap="3">
-        <Collapsible.Root asChild>
-          <Flex direction="column-reverse">
-            <Collapsible.Trigger
-              asChild
-              onClick={() =>
-                // The timeout is to make sure that the collapsible animation is
-                // completed before scrolling the chat port so the scroll height
-                // can be calculated correctly
-                setTimeout(scrollChatPortToBottom, 300)
-              }
-              css={{
-                '&[data-state="open"] > .chevron': {
-                  transform: "rotate(180deg)",
-                },
-              }}
-            >
-              <Flex
-                width="100%"
-                px="2"
-                align="center"
-                justify="between"
-                css={{
-                  cursor: "pointer",
-                  backgroundColor: "var(--gray-3)",
-                  borderRadius: "var(--radius-3)",
-                }}
-              >
-                <Flex align="center" gap="2" py="2">
-                  <MdFilterList size="20" />
-                  <Text size="2">Retrieval filters</Text>
-                </Flex>
-                <MdArrowDropDown
-                  className="chevron"
-                  size="25"
-                  css={{ transition: "transform 300ms ease-in-out" }}
-                />
-              </Flex>
-            </Collapsible.Trigger>
-            <Collapsible.Content
-              css={{
-                maxHeight: "20vh",
-                '&[data-state="open"]': {
-                  animation: `${slideDown} 300ms ease-in-out`,
-                },
-                '&[data-state="closed"]': {
-                  animation: `${slideUp} 300ms ease-in-out`,
-                },
-              }}
-            >
-              <Box
-                p="3"
-                height="100%"
-                css={{
-                  backgroundColor: "var(--gray-3)",
-                  borderTopLeftRadius: "var(--radius-3)",
-                  borderTopRightRadius: "var(--radius-3)",
-                  marginTop: "var(--radius-3)",
-                }}
-              >
-                <ScrollArea scrollbars="vertical" asChild>
-                  <Box pr="2">TODO: FILTERS HERE!</Box>
-                </ScrollArea>
-              </Box>
-            </Collapsible.Content>
-          </Flex>
-        </Collapsible.Root>
-        <Box
-          p="1"
-          css={{
-            borderRadius: "var(--radius-4)",
-            backgroundColor: "var(--gray-3)",
-            cursor: "text",
-          }}
-          onClick={focusTextArea}
+        <ChatCollapsibleHint
+          onToggleHint={scrollChatPortToBottom}
+          hintText="Retrieval filters"
+          HintIcon={MdFilterList}
         >
-          <TextArea
-            ref={textAreaRef}
-            size="2"
-            radius="large"
-            css={{
-              outline: "none",
-              boxShadow: "none",
-              backgroundColor: "transparent",
-            }}
-            placeholder="Enter your query here..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            rows={5}
-          />
-          <Flex justify="between" align="center" px="2" height="var(--space-7)">
-            <Tooltip content="Clear history" side="bottom">
-              <IconButton
-                disabled={messages.length === 0 || loading}
-                variant="ghost"
-                size="1"
-                onClick={() => setMessages(() => [])}
-              >
-                <MdClear size="20" />
-              </IconButton>
-            </Tooltip>
-            <Flex align="center" gap="3">
+          TODO: FILTERS HERE!
+        </ChatCollapsibleHint>
+        <ChatInput
+          query={query}
+          setQuery={setQuery}
+          leftFunctionalComponents={
+            <FCClearHistoryButton
+              disabled={messages.length === 0 || loading}
+              onClick={() => setMessages(() => [])}
+            />
+          }
+          rightFunctionalComponents={
+            <>
               <Select.Root
                 value={topK.toString()}
                 onValueChange={(value: string) => setTopK(Number(value))}
@@ -262,19 +143,13 @@ export const RetrievePanel = ({
                   <Select.Item value="30">TopK: 30</Select.Item>
                 </Select.Content>
               </Select.Root>
-              <Tooltip content="Send" side="bottom">
-                <IconButton
-                  disabled={query === "" || loading}
-                  variant="ghost"
-                  size="1"
-                  onClick={handleSend}
-                >
-                  <MdSend size="20" />
-                </IconButton>
-              </Tooltip>
-            </Flex>
-          </Flex>
-        </Box>
+              <FCSendButton
+                disabled={query === "" || loading}
+                onClick={handleSend}
+              />
+            </>
+          }
+        />
       </Flex>
     </Flex>
   );

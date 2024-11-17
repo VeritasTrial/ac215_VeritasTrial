@@ -22,6 +22,7 @@ export const Sidebar = ({
 }: SidebarProps) => {
   return (
     <Flex direction="column" justify="between" height="100%">
+      {/* Sidebar content */}
       <RadioCards.Root
         css={{ height: "80%", gridTemplateRows: "auto auto 1fr" }}
         size="1"
@@ -31,6 +32,7 @@ export const Sidebar = ({
         value={currentTab}
         onValueChange={(value) => setCurrentTab(value)}
       >
+        {/* Default retrieval tab */}
         <RadioCards.Item value="default">
           <Flex width="100%" gap="3" align="center">
             <TbDatabaseSearch size="30" />
@@ -49,6 +51,7 @@ export const Sidebar = ({
             Trials
           </Text>
         </Box>
+        {/* List of chat tabs */}
         <ScrollArea scrollbars="vertical">
           <Flex direction="column" gap="2">
             {[...metaMapping].map(([tab, metaInfo]) => (
@@ -70,6 +73,7 @@ export const Sidebar = ({
           </Flex>
         </ScrollArea>
       </RadioCards.Root>
+      {/* Sidebar footer */}
       <Box height="calc(20% - var(--space-3))" overflow="hidden">
         ABCDEFGHIJKLMNOPQRST ABCDEFGHIJKLMNOPQRST ABCDEFGHIJKLMNOPQRST
         ABCDEFGHIJKLMNOPQRST ABCDEFGHIJKLMNOPQRST ABCDEFGHIJKLMNOPQRST

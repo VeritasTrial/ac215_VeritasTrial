@@ -51,11 +51,12 @@ export const App = () => {
   return (
     <Theme appearance={appearance} accentColor="indigo" grayColor="slate">
       <Flex css={{ height: "100vh" }}>
+        {/* Left-hand sidebar panel */}
         <Box
           height="100%"
           width="20%"
           p="4"
-          css={{ backgroundColor: "var(--gray-3)" }}
+          css={{ backgroundColor: "var(--gray-4)" }}
         >
           <Sidebar
             metaMapping={metaMapping}
@@ -63,6 +64,7 @@ export const App = () => {
             setCurrentTab={setCurrentTab}
           ></Sidebar>
         </Box>
+        {/* Right-hand main panel */}
         <Flex
           height="100%"
           width="80%"
@@ -71,6 +73,7 @@ export const App = () => {
           pl="6"
           css={{ backgroundColor: "var(--gray-1)" }}
         >
+          {/* Top header */}
           <Box height="50px">
             <Header
               appearance={appearance}
@@ -79,6 +82,7 @@ export const App = () => {
               setModel={setModel}
             ></Header>
           </Box>
+          {/* Main body */}
           <Box height="calc(100% - 50px)">
             {currentTab === "default" && (
               <RetrievePanel

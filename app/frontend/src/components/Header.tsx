@@ -33,6 +33,7 @@ export const Header = ({
 
   return (
     <Flex justify="between" align="center" pr="3">
+      {/* Left-aligned part of header */}
       <Flex align="center" gap="4">
         <Avatar src={VeritasTrialLogo} fallback="VT" size="2" />
         <Select.Root
@@ -49,6 +50,7 @@ export const Header = ({
           </Select.Content>
         </Select.Root>
       </Flex>
+      {/* Right-aligned part of header */}
       <Flex align="center" gap="4">
         <Tooltip content="Toggle theme">
           <IconButton size="1" variant="ghost" onClick={switchAppearance}>
