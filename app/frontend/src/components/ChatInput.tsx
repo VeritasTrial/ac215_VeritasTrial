@@ -10,6 +10,7 @@ import { Dispatch, ReactNode, SetStateAction, useRef } from "react";
 interface ChatInputProps {
   query: string;
   setQuery: Dispatch<SetStateAction<string>>;
+  onPressEnter: () => void;
   leftFunctionalComponents: ReactNode;
   rightFunctionalComponents: ReactNode;
 }
@@ -17,6 +18,7 @@ interface ChatInputProps {
 export const ChatInput = ({
   query,
   setQuery,
+  onPressEnter,
   leftFunctionalComponents,
   rightFunctionalComponents,
 }: ChatInputProps) => {
@@ -49,8 +51,14 @@ export const ChatInput = ({
         }}
         placeholder="Enter your query here..."
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
         rows={5}
+        onChange={(e) => setQuery(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            onPressEnter();
+          }
+        }}
       />
       {/* The functional panel at the bottom */}
       <Flex justify="between" align="center" px="2" height="var(--space-7)">

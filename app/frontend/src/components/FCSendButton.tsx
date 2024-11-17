@@ -10,7 +10,7 @@ import { MdSend } from "react-icons/md";
 
 interface FCSendButtonProps {
   disabled: boolean;
-  onClick: () => Promise<void>;
+  onClick: () => void;
 }
 
 export const FCSendButton = ({ disabled, onClick }: FCSendButtonProps) => {

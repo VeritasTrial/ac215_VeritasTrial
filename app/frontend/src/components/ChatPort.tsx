@@ -39,13 +39,14 @@ export const ChatPort = forwardRef(
               <Box
                 py="2"
                 px="4"
-                width="75%"
+                width="70%"
                 overflowX="hidden"
                 css={{
                   backgroundColor: fromUser
                     ? "var(--accent-4)"
                     : "var(--gray-surface)",
                   borderRadius: "var(--radius-3)",
+                  whiteSpace: "pre-wrap",
                 }}
               >
                 <ScrollArea scrollbars="horizontal">{element}</ScrollArea>

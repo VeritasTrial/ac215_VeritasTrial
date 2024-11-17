@@ -159,6 +159,12 @@ export const ChatPanel = ({
         <ChatInput
           query={query}
           setQuery={setQuery}
+          onPressEnter={async () => {
+            if (query === "" || loading) {
+              return;
+            }
+            await handleSend();
+          }}
           leftFunctionalComponents={
             <FCClearHistoryButton
               disabled={messages.length === 0 || loading}

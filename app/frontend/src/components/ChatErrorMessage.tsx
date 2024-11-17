@@ -15,7 +15,6 @@ export const ChatErrorMessage = ({ error }: ChatErrorMessageProps) => {
   return (
     <Text
       size="2"
-      as="div"
       color="red"
       css={{ whiteSpace: "pre", fontFamily: "var(--code-font-family)" }}
     >
