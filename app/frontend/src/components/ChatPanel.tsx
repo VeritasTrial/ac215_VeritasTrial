@@ -1,18 +1,20 @@
 /**
- * @file RetrievePanel.tsx
+ * @file ChatPanel.tsx
  *
- * The retrieval panel component in the body. In particular, this component is
- * responsible for taking user query, retrieving results from ChromaDB (by
- * calling backend API), and displaying the results.
+ * The chat panel component in the body. In particular, this component is
+ * responsible for taking user query, generating response with the specified
+ * model and for the specified trial (by calling backend API), and displaying
+ * the results.
  */
 
 import {
   Box,
+  Code,
+  DataList,
   Flex,
   IconButton,
   Link,
   ScrollArea,
-  Select,
   Text,
   TextArea,
   Tooltip,
@@ -20,15 +22,20 @@ import {
 import { useEffect, useRef, useState } from "react";
 import {
   MdArrowDropDown,
-  MdChat,
   MdClear,
-  MdFilterList,
+  MdContentCopy,
   MdSend,
 } from "react-icons/md";
-import { callRetrieve } from "../api";
+import { GoCommandPalette } from "react-icons/go";
+import { callChat } from "../api";
 import * as Collapsible from "@radix-ui/react-collapsible";
 import { keyframes } from "@emotion/react";
-import { ChatDisplay, MetaInfo, UpdateMessagesFunction } from "../types";
+import {
+  ChatDisplay,
+  MetaInfo,
+  ModelType,
+  UpdateMessagesFunction,
+} from "../types";
 import { ChatPort } from "./ChatPort";
 
 const slideDown = keyframes({
@@ -41,21 +48,24 @@ const slideUp = keyframes({
   to: { height: 0 },
 });
 
-interface RetrievalPanelProps {
+interface ChatPanelProps {
+  model: ModelType;
+  tab: string;
+  metaInfo: MetaInfo;
   messages: ChatDisplay[];
   setMessages: (fn: UpdateMessagesFunction) => void;
-  switchTab: (tab: string, metaInfo: MetaInfo) => void;
 }
 
-export const RetrievePanel = ({
+export const ChatPanel = ({
+  model,
+  tab,
+  metaInfo,
   messages,
   setMessages,
-  switchTab,
-}: RetrievalPanelProps) => {
+}: ChatPanelProps) => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const chatPortRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState<string>("");
-  const [topK, setTopK] = useState<number>(3);
   const [loading, setLoading] = useState<boolean>(false);
 
   // Scroll the chat port to its bottom; this is so that the latest messages
@@ -89,7 +99,7 @@ export const RetrievePanel = ({
     ]);
 
     // Call backend API to retrieve relevant clinical trials
-    const callResult = await callRetrieve(query, topK);
+    const callResult = await callChat(query, model, tab);
     if ("error" in callResult) {
       console.error(callResult.error);
     } else {
@@ -98,38 +108,7 @@ export const RetrievePanel = ({
         ...prevMessages,
         {
           fromUser: false,
-          element: (
-            <Flex direction="column" gap="2">
-              {data.ids.map((id, index) => (
-                <Flex direction="column" gap="1">
-                  <Text size="2">
-                    [{index + 1}] {data.documents[index]}
-                  </Text>
-                  <Flex gap="2" align="center">
-                    <Link
-                      href={`https://clinicaltrials.gov/study/${id}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      size="2"
-                    >
-                      {id}
-                    </Link>
-                    <Tooltip content="Start a chat" side="right">
-                      <IconButton
-                        size="1"
-                        variant="ghost"
-                        onClick={() =>
-                          switchTab(id, { title: data.documents[index] })
-                        }
-                      >
-                        <MdChat />
-                      </IconButton>
-                    </Tooltip>
-                  </Flex>
-                </Flex>
-              ))}
-            </Flex>
-          ),
+          element: <Text size="2">{data.response}</Text>,
         },
       ]);
     }
@@ -174,14 +153,24 @@ export const RetrievePanel = ({
                 }}
               >
                 <Flex align="center" gap="2" py="2">
-                  <MdFilterList size="20" />
-                  <Text size="2">Retrieval filters</Text>
+                  <GoCommandPalette size="20" />
+                  <Text size="2">Command palette</Text>
                 </Flex>
-                <MdArrowDropDown
-                  className="chevron"
-                  size="25"
-                  css={{ transition: "transform 300ms ease-in-out" }}
-                />
+                <Flex align="center" gap="2">
+                  <Link
+                    href={`https://clinicaltrials.gov/study/${tab}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    size="2"
+                  >
+                    {tab}
+                  </Link>
+                  <MdArrowDropDown
+                    className="chevron"
+                    size="25"
+                    css={{ transition: "transform 300ms ease-in-out" }}
+                  />
+                </Flex>
               </Flex>
             </Collapsible.Trigger>
             <Collapsible.Content
@@ -206,7 +195,60 @@ export const RetrievePanel = ({
                 }}
               >
                 <ScrollArea scrollbars="vertical" asChild>
-                  <Box pr="2">TODO: FILTERS HERE!</Box>
+                  <Box pr="2">
+                    <DataList.Root
+                      size="2"
+                      css={{
+                        rowGap: "var(--space-2)",
+                        columnGap: "var(--space-6)",
+                      }}
+                    >
+                      <DataList.Item>
+                        <DataList.Label minWidth="0">
+                          <Flex align="center" gap="2">
+                            <Text>Full Title</Text>
+                            <IconButton
+                              size="1"
+                              variant="ghost"
+                              color="gray"
+                              onClick={() =>
+                                navigator.clipboard.writeText(metaInfo.title)
+                              }
+                            >
+                              <MdContentCopy />
+                            </IconButton>
+                          </Flex>
+                        </DataList.Label>
+                        <DataList.Value>{metaInfo.title}</DataList.Value>
+                      </DataList.Item>
+                      <DataList.Item>
+                        <DataList.Label minWidth="0">
+                          <Code>/meta</Code>
+                        </DataList.Label>
+                        <DataList.Value>
+                          Get metadata of the trial.
+                        </DataList.Value>
+                      </DataList.Item>
+                      <DataList.Item>
+                        <DataList.Label minWidth="0">
+                          <Code>/docs</Code>
+                        </DataList.Label>
+                        <DataList.Value>
+                          <Text>
+                            Get references from{" "}
+                            <Link
+                              href="https://pubmed.ncbi.nlm.nih.gov/"
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              PubMed
+                            </Link>{" "}
+                            and other relevant documents.
+                          </Text>
+                        </DataList.Value>
+                      </DataList.Item>
+                    </DataList.Root>
+                  </Box>
                 </ScrollArea>
               </Box>
             </Collapsible.Content>
@@ -247,21 +289,6 @@ export const RetrievePanel = ({
               </IconButton>
             </Tooltip>
             <Flex align="center" gap="3">
-              <Select.Root
-                value={topK.toString()}
-                onValueChange={(value: string) => setTopK(Number(value))}
-                size="1"
-              >
-                <Select.Trigger variant="surface"></Select.Trigger>
-                <Select.Content position="popper" sideOffset={5}>
-                  <Select.Item value="1">TopK: 1</Select.Item>
-                  <Select.Item value="3">TopK: 3</Select.Item>
-                  <Select.Item value="5">TopK: 5</Select.Item>
-                  <Select.Item value="10">TopK: 10</Select.Item>
-                  <Select.Item value="20">TopK: 20</Select.Item>
-                  <Select.Item value="30">TopK: 30</Select.Item>
-                </Select.Content>
-              </Select.Root>
               <Tooltip content="Send" side="bottom">
                 <IconButton
                   disabled={query === "" || loading}

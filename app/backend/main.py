@@ -88,19 +88,19 @@ async def retrieve(query: str, top_k: int) -> APIRetrieveResponseType:
     return {"ids": ids, "documents": documents}
 
 
-@app.get("/chat/{endpoint}/{item_id}")
-async def chat(endpoint: ModelType, item_id: str, query: str) -> APIChatResponseType:
+@app.get("/chat/{model}/{item_id}")
+async def chat(model: ModelType, item_id: str, query: str) -> APIChatResponseType:
     """Chat with a generative model about a specific item."""
-    if endpoint not in ("gemini-1.5-flash-001",):
+    if model not in ("gemini-1.5-flash-001",):
         model_name = (
             f"projects/{GCP_PROJECT_ID}/locations/{GCP_PROJECT_LOCATION}/"
-            f"endpoints/{endpoint}"
+            f"endpoints/{model}"
         )
     else:
-        model_name = endpoint
+        model_name = model
 
     # Initialize the generative model
-    model = GenerativeModel(
+    gen_model = GenerativeModel(
         model_name=model_name,
         generation_config={
             "max_output_tokens": 2048,
@@ -120,5 +120,5 @@ async def chat(endpoint: ModelType, item_id: str, query: str) -> APIChatResponse
     )
 
     # Generate the response
-    response = model.generate_content(query, stream=False)
+    response = gen_model.generate_content(query, stream=False)
     return {"response": response.text.strip()}

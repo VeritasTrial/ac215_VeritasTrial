@@ -5,10 +5,15 @@
  */
 
 import queryString from "query-string";
-import { APIRetrieveResponseType, WrapAPI } from "./types";
+import {
+  APIChatResponseType,
+  APIRetrieveResponseType,
+  ModelType,
+  WrapAPI,
+} from "./types";
 
 /**
- * TODO(!)
+ * Call the /retrieve backend API.
  */
 export const callRetrieve = async (
   query: string,
@@ -26,6 +31,38 @@ export const callRetrieve = async (
       },
     );
     const res = (await response.json()) as APIRetrieveResponseType;
+    return { payload: res };
+  } catch (e: unknown) {
+    if (typeof e === "string") {
+      return { error: e };
+    } else if (e instanceof Error) {
+      return { error: e.message };
+    } else {
+      return { error: "Unknown error" };
+    }
+  }
+};
+
+/**
+ * Call the /chat/{model}/{item_id} backend API.
+ */
+export const callChat = async (
+  query: string,
+  model: ModelType,
+  id: string,
+): Promise<WrapAPI<APIChatResponseType>> => {
+  const params = queryString.stringify({ query });
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/chat/${model}/${id}?${params}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    );
+    const res = (await response.json()) as APIChatResponseType;
     return { payload: res };
   } catch (e: unknown) {
     if (typeof e === "string") {

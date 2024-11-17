@@ -17,6 +17,13 @@ export type ApperanceType = "dark" | "light";
 export type WrapAPI<T> = { payload: T } | { error: string };
 
 /**
+ * Metainfo of a trial, used specifically for frontend display.
+ */
+export interface MetaInfo {
+  title: string;
+}
+
+/**
  * Chat display interface.
  */
 export interface ChatDisplay {
@@ -25,6 +32,13 @@ export interface ChatDisplay {
   /** The React element to display for the message. */
   element: ReactNode;
 }
+
+/**
+ * Type of the function that updates messages.
+ */
+export type UpdateMessagesFunction = (
+  prevMessages: ChatDisplay[],
+) => ChatDisplay[];
 
 /* ==========================================================================
  *   THE FOLLOWING ARE MIRROR DEFINITIONS OF BACKEND TYPES. CHECK OUT THE
