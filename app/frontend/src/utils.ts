@@ -41,3 +41,15 @@ export const scrollToBottom = (ref: RefObject<HTMLElement>) => {
     });
   }
 };
+
+/**
+ * Scroll to the top of a React ref object.
+ */
+export const scrollToTop = (ref: RefObject<HTMLElement>) => {
+  if (ref.current !== null) {
+    ref.current.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }
+};
