@@ -36,6 +36,7 @@ jobs:
         with:
           node-version: lts/*
           cache: pnpm
+          cache-dependency-path: app/frontend/pnpm-lock.yaml
 
       - name: Install development dependencies
         run: cd app && make devinstall
