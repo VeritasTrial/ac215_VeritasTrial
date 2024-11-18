@@ -25,6 +25,10 @@ jobs:
         with:
           python-version: '3.11'
           cache: pipenv
+          cache-dependency-path: app/backend/Pipfile.lock
+
+      - name: Install pipenv
+        run: pip install pipenv
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
