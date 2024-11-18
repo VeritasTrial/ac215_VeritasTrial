@@ -11,6 +11,12 @@ devlock:
 	@cd backend && pipenv lock && pipenv sync -d && pipenv clean
 	@cd frontend && pnpm install
 
+# [DEV] Install development dependencies on the host machine based on the lock
+# files without modifying them
+devinstall:
+	@cd backend && pipenv sync -d
+	@cd frontend && pnpm install --frozen-lockfile
+
 # [DEV] Format and lint the codebase
 devlint:
 	@cd backend && pipenv run bash -c "black . && ruff check --select I --fix . && ruff format . && mypy ."
