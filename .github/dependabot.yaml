@@ -1,0 +1,33 @@
+version: 2
+updates:
+  # Node dependencies
+  - package-ecosystem: npm
+    directories:
+      - /app/frontend
+    schedule:
+      interval: daily
+    labels:
+      - dependencies
+    groups:
+      all:
+        patterns:
+          - "*"
+
+  # Python dependencies
+  - package-ecosystem: pip
+    directories:
+      - /app/backend
+    schedule:
+      interval: daily
+    labels:
+      - dependencies
+    groups:
+      all:
+        patterns:
+          - "*"
+
+  # GitHub Actions dependencies
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
