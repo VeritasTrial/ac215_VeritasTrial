@@ -9,6 +9,7 @@ fastapi = "*"
 FlagEmbedding = "*"
 google-cloud-aiplatform = "*"
 peft = "*"  # XXX: required by FlagEmbedding, but not in setup.py before 1.0.6
+pyarrow = "<=17.0.0"
 typing-extensions = "*"
 uvicorn = "*"
 
