@@ -1,0 +1,35 @@
+services:
+  # ChromaDB
+  chromadb:
+    image: chromadb/chroma:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma-data:/chroma/chroma
+  # Backend service
+  backend:
+    build:
+      context: ./backend
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/secrets/veritas-trial-service.json
+      - FRONTEND_URL=http://localhost:8080
+    ports:
+      - "8001:8001"
+    volumes:
+      - ../secrets:/secrets
+    depends_on:
+      - chromadb
+  # Frontend service
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_BACKEND_URL: http://localhost:8001
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  chroma-data:
+    external: true

@@ -1,4 +1,7 @@
 __pycache__/
+node_modules/
+dist/
+*.tsbuildinfo
 
 # Data files
 data/
