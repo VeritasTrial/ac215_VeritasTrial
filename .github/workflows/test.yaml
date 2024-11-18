@@ -1,0 +1,50 @@
+name: Testing
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Python setup
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: pipenv
+          cache-dependency-path: app/backend/Pipfile.lock
+
+      - name: Install pipenv
+        run: pip install pipenv
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Node setup and cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: app/frontend/pnpm-lock.yaml
+
+      - name: Install development dependencies
+        run: cd app && make devinstall
