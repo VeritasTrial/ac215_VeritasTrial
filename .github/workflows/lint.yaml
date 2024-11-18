@@ -38,7 +38,7 @@ jobs:
       - name: Node setup and cache
         uses: actions/setup-node@v4
         with:
-          node-version: lts/*
+          node-version: 20
           cache: pnpm
           cache-dependency-path: app/frontend/pnpm-lock.yaml
 
