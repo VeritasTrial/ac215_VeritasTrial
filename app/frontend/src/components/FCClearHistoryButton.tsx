@@ -18,12 +18,13 @@ export const FCClearHistoryButton = ({
   onClick,
 }: FCClearHistoryButtonProps) => {
   return (
-    <Tooltip content="Clear history" side="bottom">
+    <Tooltip content="Clear history" side="top">
       <IconButton
         disabled={disabled}
         variant="ghost"
         size="1"
         onClick={onClick}
+        color="red"
       >
         <MdClear size="20" />
       </IconButton>

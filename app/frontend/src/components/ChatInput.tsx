@@ -60,10 +60,10 @@ export const ChatInput = ({
         }}
       />
       <Flex justify="between" align="center" px="2" height="var(--space-7)">
-        <Flex align="center" gap="3">
+        <Flex align="center" gap="2">
           {leftFunctionalComponents}
         </Flex>
-        <Flex align="center" gap="3">
+        <Flex align="center" gap="2">
           {rightFunctionalComponents}
         </Flex>
       </Flex>

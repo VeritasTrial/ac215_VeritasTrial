@@ -7,7 +7,7 @@
  * the results.
  */
 
-import { Code, Flex, IconButton, Text, Tooltip } from "@radix-ui/themes";
+import { Code, Flex, Text } from "@radix-ui/themes";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { GoCommandPalette } from "react-icons/go";
 import { callChat, callMeta } from "../api";
@@ -28,7 +28,7 @@ import { ChatErrorMessage } from "./ChatErrorMessage";
 import { addMessageUtilities, scrollToBottom } from "../utils";
 import { MessageDocs } from "./MessageDocs";
 import { RetrievalPanelCommandPalette } from "./RetrievePanelCommandPalette";
-import { MdDelete } from "react-icons/md";
+import { FCDeleteChatButton } from "./FCDeleteChatButton";
 
 interface ChatPanelProps {
   model: ModelType;
@@ -106,6 +106,7 @@ export const ChatPanel = ({
       disabled={messages.length === 0 || loading}
       onClick={() => setMessages(() => [])}
     />,
+    <FCDeleteChatButton onClick={deleteTab} />,
   ];
 
   // Persistent right functional components
@@ -138,21 +139,9 @@ export const ChatPanel = ({
           hintText="Command palette"
           HintIcon={GoCommandPalette}
           rightHintComponent={
-            <>
-              <Tooltip content="Delete this chat" side="top">
-                <IconButton
-                  size="1"
-                  variant="ghost"
-                  color="red"
-                  onClick={deleteTab}
-                >
-                  <MdDelete />
-                </IconButton>
-              </Tooltip>
-              <ExternalLink href={`${CTGOV_URL}/${tab}`} size="2">
-                {tab}
-              </ExternalLink>
-            </>
+            <ExternalLink href={`${CTGOV_URL}/${tab}`} size="2">
+              {tab}
+            </ExternalLink>
           }
         >
           <RetrievalPanelCommandPalette metaInfo={metaInfo} />

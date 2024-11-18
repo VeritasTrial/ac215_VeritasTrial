@@ -13,12 +13,13 @@ import {
   ScrollArea,
   Text,
 } from "@radix-ui/themes";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { TbDatabaseSearch } from "react-icons/tb";
 import { MetaInfo } from "../types";
-import { MdDelete } from "react-icons/md";
+import { MdDeleteOutline } from "react-icons/md";
 
 interface SidebarProps {
+  tabRefs: MutableRefObject<Map<string, HTMLButtonElement>>;
   metaMapping: Map<string, MetaInfo>;
   currentTab: string;
   setCurrentTab: Dispatch<SetStateAction<string>>;
@@ -26,6 +27,7 @@ interface SidebarProps {
 }
 
 export const Sidebar = ({
+  tabRefs,
   metaMapping,
   currentTab,
   setCurrentTab,
@@ -35,7 +37,7 @@ export const Sidebar = ({
     <Flex direction="column" justify="between" height="100%">
       {/* Sidebar content */}
       <RadioCards.Root
-        css={{ height: "85%", gridTemplateRows: "auto auto 1fr" }}
+        css={{ height: "80%", gridTemplateRows: "auto auto 1fr" }}
         size="1"
         variant="surface"
         columns="1"
@@ -59,7 +61,7 @@ export const Sidebar = ({
         </RadioCards.Item>
         {/* List of chat tabs */}
         {metaMapping.size > 0 && (
-          <Box pl="1" pt="4" pb="2">
+          <Box pl="1" pt="4" pb="3">
             <Text size="2" weight="medium">
               Chats
             </Text>
@@ -68,7 +70,11 @@ export const Sidebar = ({
         <ScrollArea scrollbars="vertical">
           <Flex direction="column" gap="2">
             {[...metaMapping].map(([tab, metaInfo]) => (
-              <RadioCards.Item key={tab} value={tab}>
+              <RadioCards.Item
+                key={tab}
+                value={tab}
+                ref={(el) => el !== null && tabRefs.current.set(tab, el)}
+              >
                 <Text
                   size="2"
                   css={{
@@ -87,28 +93,26 @@ export const Sidebar = ({
         </ScrollArea>
       </RadioCards.Root>
       {/* Sidebar footer */}
-      <Flex
-        height="calc(15% - var(--space-3))"
-        direction="column"
-        justify="end"
-        gap="2"
-        overflow="hidden"
-      >
-        <Button
-          size="2"
-          variant="surface"
-          color="red"
-          onClick={clearTabs}
-          disabled={metaMapping.size === 0}
-        >
-          <MdDelete size="20" /> Delete all chats
-        </Button>
-        <Text size="1" color="gray" as="div" align="center">
-          © 2024 <Link href="mailto:yaoxiao@g.harvard.edu">Yao Xiao</Link>,{" "}
-          <Link href="mailto:bowenxu@g.harvard.edu">Bowen Xu</Link>,{" "}
-          <Link href="mailto:tongxiao@g.harvard.edu">Tong Xiao</Link>
-        </Text>
-      </Flex>
+      <ScrollArea scrollbars="vertical" asChild>
+        <Box height="auto" maxHeight="calc(20% - var(--space-4))">
+          <Flex direction="column" justify="end" gap="2" overflow="hidden">
+            <Button
+              size="2"
+              variant="surface"
+              color="red"
+              onClick={clearTabs}
+              disabled={metaMapping.size === 0}
+            >
+              <MdDeleteOutline size="20" /> Delete all chats
+            </Button>
+            <Text size="1" color="gray" as="div" align="center">
+              © 2024 <Link href="mailto:yaoxiao@g.harvard.edu">Yao Xiao</Link>,{" "}
+              <Link href="mailto:bowenxu@g.harvard.edu">Bowen Xu</Link>,{" "}
+              <Link href="mailto:tongxiao@g.harvard.edu">Tong Xiao</Link>
+            </Text>
+          </Flex>
+        </Box>
+      </ScrollArea>
     </Flex>
   );
 };

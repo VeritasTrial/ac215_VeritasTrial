@@ -5,7 +5,7 @@
  */
 
 import { Box, Flex, Theme } from "@radix-ui/themes";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ApperanceType,
   ChatDisplay,
@@ -29,6 +29,7 @@ export const App = () => {
   const [metaMapping, setMetaMapping] = useState<Map<string, MetaInfo>>(
     new Map(),
   );
+  const tabRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
 
   // Switch to a different tab, creating a new tab if it does not exist yet
   const switchTab = (tab: string, metaInfo: MetaInfo) => {
@@ -62,6 +63,7 @@ export const App = () => {
       return newMetaMapping;
     });
     setCurrentTab("default");
+    tabRefs.current.delete(tab);
   };
 
   // Clear all tabs
@@ -73,7 +75,19 @@ export const App = () => {
     });
     setMetaMapping(new Map());
     setCurrentTab("default");
+    tabRefs.current.clear();
   };
+
+  // When the current tab changes, scroll to make it visible; note that the
+  // "default" tab is not in the scroll area and is always visible
+  useEffect(() => {
+    if (currentTab !== "default" && tabRefs.current.has(currentTab)) {
+      tabRefs.current.get(currentTab)!.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    }
+  }, [currentTab]);
 
   return (
     <Theme appearance={appearance} accentColor="indigo" grayColor="slate">
@@ -100,6 +114,7 @@ export const App = () => {
           css={{ backgroundColor: "var(--gray-4)" }}
         >
           <Sidebar
+            tabRefs={tabRefs}
             metaMapping={metaMapping}
             currentTab={currentTab}
             setCurrentTab={setCurrentTab}

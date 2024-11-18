@@ -15,7 +15,7 @@ interface FCSendButtonProps {
 
 export const FCSendButton = ({ disabled, onClick }: FCSendButtonProps) => {
   return (
-    <Tooltip content="Send" side="bottom">
+    <Tooltip content="Send" side="top">
       <IconButton
         disabled={disabled}
         variant="ghost"

@@ -21,7 +21,10 @@ export const FCTopKSelector = ({
       onValueChange={(value: string) => onValueChange(Number(value))}
       size="1"
     >
-      <Select.Trigger variant="surface"></Select.Trigger>
+      <Select.Trigger
+        variant="surface"
+        css={{ margin: "0 var(--space-1)" }}
+      ></Select.Trigger>
       <Select.Content position="popper" sideOffset={5}>
         {options.map((option) => (
           <Select.Item key={option} value={option.toString()}>
