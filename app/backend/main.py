@@ -12,8 +12,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 from FlagEmbedding import FlagModel  # type: ignore
-import time
-from typing import Dict
 from vertexai.generative_models import GenerativeModel, ChatSession, Content # type: ignore
 
 from localtyping import (
@@ -26,7 +24,6 @@ from localtyping import (
 from utils import format_exc_details, get_metadata_from_id
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:8080")
-
 CHROMADB_COLLECTION_NAME = "veritas-trial-embeddings"
 GCP_PROJECT_ID = "veritastrial"
 GCP_PROJECT_LOCATION = "us-central1"
@@ -34,7 +31,7 @@ GCP_PROJECT_LOCATION = "us-central1"
 # Global states for the FastAPI app
 EMBEDDING_MODEL: FlagModel | None = None
 CHROMADB_COLLECTION: chromadb.Collection | None = None
-CHAT_SESSIONS: Dict[str, ChatSession] = {}
+CHAT_SESSIONS: dict[str, ChatSession] = {}
 
 
 @asynccontextmanager
@@ -50,6 +47,7 @@ async def lifespan(app: FastAPI):  # pragma: no cover
 
     EMBEDDING_MODEL = None
     CHROMADB_COLLECTION = None
+    CHAT_SESSIONS.clear()
 
 
 # Initialize the FastAPI app
@@ -149,7 +147,7 @@ async def meta(item_id: str) -> APIMetaResponseType:
     return {"metadata": metadata}
 
 @app.post("/chat/{model}/{item_id}")
-async def chat(model: ModelType, item_id: str, query: str=Body(...)) -> APIChatResponseType:
+async def chat(model: ModelType, item_id: str, query: str) -> APIChatResponseType:
     """Chat with a generative model about a specific item."""
     if CHROMADB_COLLECTION is None:
         raise RuntimeError("ChromaDB not initialized")
@@ -182,26 +180,24 @@ async def chat(model: ModelType, item_id: str, query: str=Body(...)) -> APIChatR
         initial_context = Content(
             role="system",
             content=(
-                "You are assisting with clinical trials.You will be given the information of a clinical trial and asked several "
-                "questions. Here is the metadata for the trial:\n"
+                "You are assisting with clinical trials. You will be given the "
+                "information of a clinical trial and asked several questions. Here is "
+                "the information of the trial:\n\n"
                 f"{json.dumps(metadata, indent=2)}"
             ),
         )
-        CHAT_SESSIONS[session_key] = ChatSession(model=gen_model, history=[initial_context])
-
-    # Retrieve the existing session
-    chat_session = CHAT_SESSIONS[session_key]
+        chat_session = ChatSession(model=gen_model, history=[initial_context])
+        CHAT_SESSIONS[session_key] = chat_session
+    else:
+        chat_session = CHAT_SESSIONS[session_key]
 
     # Add the user's query to the chat session
     user_message = Content(role="user", content=query)
     chat_session.history.append(user_message)
 
-    # Generate the response
+    # Generate the response and add to the chat session
     response = chat_session.send_message(query)
+    response_text = response.text.strip()
+    chat_session.history.append(Content(role="assistant", content=response_text))
 
-    # Save the assistant's response in the session history
-    chat_session.history.append(Content(role="assistant", content=response.text.strip()))
-
-    return {"response": response.text.strip()}
-
-
+    return {"response": response_text}
