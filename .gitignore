@@ -2,7 +2,11 @@ __pycache__/
 node_modules/
 dist/
 *.tsbuildinfo
-.coverage
+
+# Coverage reports
+app/backend/htmlcov/
+app/backend/.coverage
+app/frontend/coverage/
 
 # Data files
 data/
