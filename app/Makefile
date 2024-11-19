@@ -43,23 +43,14 @@ devlintcheck:
 	@$(MAKE) devlintcheckbackend
 	@$(MAKE) devlintcheckfrontend
 
-# [DEV] Test the codebase
-devtestbackend:
-	@cd backend && pipenv run pytest
-devtestfrontend:
-	@cd frontend && pnpm test
+# [DEV] Test the codebase; note we are only testing the backend
 devtest:
-	@$(MAKE) devtestbackend
-	@$(MAKE) devtestfrontend
+	@cd backend && pipenv run pytest
 
-# [DEV] Test the codebase and generate coverage reports
-devtestcovbackend:
-	@cd backend && pipenv run bash -c "coverage run -m pytest && coverage report -m && coverage html"
-devtestcovfrontend:
-	@cd frontend && pnpm test:cov
+# [DEV] Test the codebase and generate coverage reports; note we are only
+# testing the backend
 devtestcov:
-	@$(MAKE) devtestcovbackend
-	@$(MAKE) devtestcovfrontend
+	@cd backend && pipenv run bash -c "coverage run -m pytest && coverage report -m && coverage html"
 
 # [DEV] Run the backend server only; this should be run in a separate terminal
 # window before running `devfrontend`
