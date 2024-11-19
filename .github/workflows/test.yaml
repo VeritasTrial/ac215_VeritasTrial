@@ -52,10 +52,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: backend-coverage-report
-          path: /app/backend/htmlcov
+          path: app/backend/htmlcov/
 
-      - name: Upload frontend coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-coverage-report
-          path: /app/frontend/coverage
+      # TODO: Upload frontend coverage report once implemented
