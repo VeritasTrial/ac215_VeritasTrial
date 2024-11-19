@@ -21,6 +21,8 @@ updates:
       interval: daily
     labels:
       - dependencies
+    allow:
+      - dependency-type: all
     groups:
       all:
         patterns:
