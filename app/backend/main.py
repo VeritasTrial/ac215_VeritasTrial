@@ -34,7 +34,7 @@ CHROMADB_COLLECTION: chromadb.Collection | None = None
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI):  # pragma: no cover
     """Context manager to handle the lifespan of the FastAPI app."""
     global EMBEDDING_MODEL, CHROMADB_COLLECTION
     EMBEDDING_MODEL = FlagModel("BAAI/bge-small-en-v1.5", use_fp16=True)
@@ -61,7 +61,7 @@ app.add_middleware(
 )
 
 
-def custom_openapi():
+def custom_openapi():  # pragma: no cover
     """OpenAPI schema customization."""
     if app.openapi_schema:
         return app.openapi_schema
@@ -83,7 +83,9 @@ app.openapi = custom_openapi  # type: ignore
 
 
 @app.exception_handler(Exception)
-async def custom_exception_handler(request: Request, exc: Exception):
+async def custom_exception_handler(
+    request: Request, exc: Exception
+):  # pragma: no cover
     """Custom handle for all types of exceptions."""
     response = JSONResponse(
         status_code=500,

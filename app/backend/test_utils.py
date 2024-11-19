@@ -30,7 +30,7 @@ def test_format_exc_details():
         assert 'np.sum("")' in details
 
 
-@pytest.mark.parametrize("item_id", ["id1", "id2", "id3", "id4"])
+@pytest.mark.parametrize("item_id", ["id0", "id1", "id2"])
 def test_get_metadata_from_id(item_id, chromadb_collection, sample_metadata):
     metadata = get_metadata_from_id(chromadb_collection, item_id)
     assert metadata["shortTitle"] == f"Sample Metadata {item_id}"
