@@ -2,6 +2,7 @@
 
 import json
 
+import numpy as np
 import pytest
 
 SAMPLE_METADATA = dict(
@@ -68,39 +69,42 @@ SAMPLE_METADATA = dict(
 )
 
 
+class MockEmbeddingModel:
+    """Mock embedding model."""
+
+    def encode(self, query):
+        return np.array([0.1, 0.2, 0.3, 0.4, 0.5])
+
+
 class MockChromadbCollection:
     """Mock ChromaDB collection."""
 
-    RECORDS = {"id1", "id2", "id3", "id4"}
+    RECORDS = set(f"id{i}" for i in range(50))
 
-    def get(
-        self,
-        ids=None,
-        where=None,
-        limit=None,
-        offset=None,
-        where_document=None,
-        include=["metadatas", "documents"],
-    ):
+    def _result(self, ids, include):
         result = dict(
-            ids=[],
+            ids=ids,
             documents=[] if "documents" in include else None,
             metadatas=[] if "metadatas" in include else None,
             include=include,
         )
-
         for key in ids:
-            if key not in self.RECORDS:
-                raise ValueError(f"Record {key} not found.")
-            result["ids"].append(key)
             if "documents" in include:
                 result["documents"].append(f"doc-{key}")
             if "metadatas" in include:
                 metadata = SAMPLE_METADATA.copy()
                 metadata["short_title"] = f"Sample Metadata {key}"
                 result["metadatas"].append(metadata)
-
         return result
+
+    def query(self, *, query_embeddings, n_results, include):
+        result = self._result(list(self.RECORDS)[:n_results], include)
+        for k in result:
+            result[k] = [result[k] for _ in range(len(query_embeddings))]
+        return result
+
+    def get(self, *, ids, include):
+        return self._result(ids, include)
 
 
 @pytest.fixture
@@ -110,6 +114,18 @@ def sample_metadata():
 
 
 @pytest.fixture
+def embedding_model():
+    """Return a mock embedding model."""
+    return MockEmbeddingModel()
+
+
+@pytest.fixture
 def chromadb_collection():
     """Return a mock ChromaDB collection."""
     return MockChromadbCollection()
+
+
+@pytest.fixture(autouse=True)
+def setup(monkeypatch):
+    monkeypatch.setattr("main.EMBEDDING_MODEL", MockEmbeddingModel())
+    monkeypatch.setattr("main.CHROMADB_COLLECTION", MockChromadbCollection())
