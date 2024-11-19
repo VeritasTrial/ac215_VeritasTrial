@@ -10,7 +10,7 @@ ENV PYTHONBUFFERED=1
 RUN set -ex; \
   apt-get update && \
   apt-get upgrade -y && \
-  apt-get install -y build-essential curl && \
+  apt-get install -y build-essential curl zlib1g-dev && \
   rm -rf /var/lib/apt/lists/* && \
   pip install --no-cache-dir --upgrade pip && \
   pip install --no-cache-dir pipenv

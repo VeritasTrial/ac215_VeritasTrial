@@ -23,8 +23,9 @@ def stringify_metadata(metadata):
     stringfied = {}
     for k, v in metadata.items():
         if v is None:
-            # Numeric None values are automatically converted to NaN in the
-            # dataframe so we can safely convert the rest to empty strings
+            # This is a safeguard for None values, which are not allowed in
+            # ChromaDB; we ensure not to leave numerical fields empty so we
+            # safely replace with an empty string here
             stringfied[k] = ""
         elif isinstance(v, (list, dict)):
             stringfied[k] = json.dumps(v)

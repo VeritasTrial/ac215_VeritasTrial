@@ -1,6 +1,9 @@
+"""Entrypoint of the backend APIs."""
+
 import json
 import os
 import time
+from contextlib import asynccontextmanager
 
 import chromadb
 import vertexai  # type: ignore
@@ -20,20 +23,37 @@ from localtyping import (
     APIRetrieveResponseType,
     ModelType,
 )
-from utils import _get_metadata_from_id, format_exc_details
+from utils import format_exc_details, get_metadata_from_id
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:8080")
 
-EMBEDDING_MODEL = FlagModel("BAAI/bge-base-en-v1.5", use_fp16=True)
-CHROMADB_CLIENT = chromadb.HttpClient(host="chromadb", port=8000)
-CHROMADB_COLLECTION = CHROMADB_CLIENT.get_collection("veritas-trial-embeddings")
-
+CHROMADB_COLLECTION_NAME = "veritas-trial-embeddings"
 GCP_PROJECT_ID = "veritastrial"
 GCP_PROJECT_LOCATION = "us-central1"
-vertexai.init(project=GCP_PROJECT_ID, location=GCP_PROJECT_LOCATION)
+
+# Global states for the FastAPI app
+EMBEDDING_MODEL: FlagModel | None = None
+CHROMADB_COLLECTION: chromadb.Collection | None = None
 CHAT_SESSIONS: Dict[str, ChatSession] = {}
 
-app = FastAPI(docs_url=None, redoc_url="/")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):  # pragma: no cover
+    """Context manager to handle the lifespan of the FastAPI app."""
+    global EMBEDDING_MODEL, CHROMADB_COLLECTION
+    EMBEDDING_MODEL = FlagModel("BAAI/bge-small-en-v1.5", use_fp16=True)
+    chromadb_client = chromadb.HttpClient(host="chromadb", port=8000)
+    CHROMADB_COLLECTION = chromadb_client.get_collection(CHROMADB_COLLECTION_NAME)
+    vertexai.init(project=GCP_PROJECT_ID, location=GCP_PROJECT_LOCATION)
+
+    yield
+
+    EMBEDDING_MODEL = None
+    CHROMADB_COLLECTION = None
+
+
+# Initialize the FastAPI app
+app = FastAPI(lifespan=lifespan, docs_url=None, redoc_url="/")
 
 # Handle cross-origin requests from the frontend
 app.add_middleware(
@@ -45,7 +65,7 @@ app.add_middleware(
 )
 
 
-def custom_openapi():
+def custom_openapi():  # pragma: no cover
     """OpenAPI schema customization."""
     if app.openapi_schema:
         return app.openapi_schema
@@ -67,7 +87,9 @@ app.openapi = custom_openapi  # type: ignore
 
 
 @app.exception_handler(Exception)
-async def custom_exception_handler(request: Request, exc: Exception):
+async def custom_exception_handler(
+    request: Request, exc: Exception
+):  # pragma: no cover
     """Custom handle for all types of exceptions."""
     response = JSONResponse(
         status_code=500,
@@ -88,6 +110,11 @@ async def heartbeat() -> APIHeartbeatResponseType:
 @app.get("/retrieve")
 async def retrieve(query: str, top_k: int) -> APIRetrieveResponseType:
     """Retrieve items from the ChromaDB collection."""
+    if EMBEDDING_MODEL is None:
+        raise RuntimeError("Embedding model not initialized")
+    if CHROMADB_COLLECTION is None:
+        raise RuntimeError("ChromaDB not initialized")
+
     if top_k <= 0 or top_k > 30:
         raise HTTPException(status_code=404, detail="Required 0 < top_k <= 30")
 
@@ -112,7 +139,10 @@ async def retrieve(query: str, top_k: int) -> APIRetrieveResponseType:
 @app.get("/meta/{item_id}")
 async def meta(item_id: str) -> APIMetaResponseType:
     """Retrieve metadata for a specific item."""
-    metadata = _get_metadata_from_id(CHROMADB_COLLECTION, item_id)
+    if CHROMADB_COLLECTION is None:
+        raise RuntimeError("ChromaDB not initialized")
+
+    metadata = get_metadata_from_id(CHROMADB_COLLECTION, item_id)
     if metadata is None:
         raise HTTPException(status_code=404, detail="Trial metadata not found")
 
@@ -121,7 +151,10 @@ async def meta(item_id: str) -> APIMetaResponseType:
 @app.post("/chat/{model}/{item_id}")
 async def chat(model: ModelType, item_id: str, query: str=Body(...)) -> APIChatResponseType:
     """Chat with a generative model about a specific item."""
-    metadata = _get_metadata_from_id(CHROMADB_COLLECTION, item_id)
+    if CHROMADB_COLLECTION is None:
+        raise RuntimeError("ChromaDB not initialized")
+
+    metadata = get_metadata_from_id(CHROMADB_COLLECTION, item_id)
     if metadata is None:
         raise HTTPException(status_code=404, detail="Trial metadata not found")
 

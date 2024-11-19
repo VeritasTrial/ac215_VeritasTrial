@@ -1,3 +1,5 @@
+"""Utilities for the backend APIs."""
+
 import json
 import traceback
 from pathlib import Path
@@ -109,7 +111,7 @@ def _clean_metadata(metadata: Any) -> TrialMetadataType:
     )
 
 
-def _get_metadata_from_id(
+def get_metadata_from_id(
     collection: chromadb.Collection, item_id: str
 ) -> TrialMetadataType | None:
     """Get metadata from a document ID."""

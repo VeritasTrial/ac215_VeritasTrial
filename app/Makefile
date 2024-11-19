@@ -7,25 +7,50 @@ run:
 	docker-compose up
 
 # [DEV] Update lock files and development environment on the host machine
-devlock:
+devlockbackend:
 	@cd backend && pipenv lock && pipenv sync -d && pipenv clean
+devlockfrontend:
 	@cd frontend && pnpm install
+devlock:
+	@$(MAKE) devlockbackend
+	@$(MAKE) devlockfrontend
 
 # [DEV] Install development dependencies on the host machine based on the lock
 # files without modifying them
-devinstall:
+devinstallbackend:
 	@cd backend && pipenv sync -d
+devinstallfrontend:
 	@cd frontend && pnpm install --frozen-lockfile
+devinstall:
+	@$(MAKE) devinstallbackend
+	@$(MAKE) devinstallfrontend
 
 # [DEV] Format and lint the codebase
-devlint:
+devlintbackend:
 	@cd backend && pipenv run bash -c "black . && ruff check --select I --fix . && ruff format . && mypy ."
+devlintfrontend:
 	@cd frontend && pnpm format && pnpm lint
+devlint:
+	@$(MAKE) devlintbackend
+	@$(MAKE) devlintfrontend
 
 # [DEV] Check formatting and linting of the codebase
-devlintcheck:
+devlintcheckbackend:
 	@cd backend && pipenv run bash -c "black --check . && ruff check --select I . && mypy ."
+devlintcheckfrontend:
 	@cd frontend && pnpm format:check && pnpm lint:check
+devlintcheck:
+	@$(MAKE) devlintcheckbackend
+	@$(MAKE) devlintcheckfrontend
+
+# [DEV] Test the codebase; note we are only testing the backend
+devtest:
+	@cd backend && pipenv run pytest
+
+# [DEV] Test the codebase and generate coverage reports; note we are only
+# testing the backend
+devtestcov:
+	@cd backend && pipenv run bash -c "coverage run -m pytest && coverage report -m && coverage html"
 
 # [DEV] Run the backend server only; this should be run in a separate terminal
 # window before running `devfrontend`
