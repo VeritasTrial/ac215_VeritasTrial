@@ -17,6 +17,10 @@ updates:
   - package-ecosystem: pip
     directories:
       - /app/backend
+      - /src/data-pipeline
+      - /src/embedding-model
+      - /src/construct-qa
+      - /src/finetune-model
     schedule:
       interval: daily
     labels:
