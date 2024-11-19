@@ -17,7 +17,7 @@ from rich.progress import (
 
 DATA_DIR = Path(__file__).parent / "data"
 CLEANED_JSONL_PATH = DATA_DIR / "cleaned_data.jsonl"
-EMBEDDINGS_NPY_PATH = DATA_DIR / "summary_embeddings.npy"
+EMBEDDINGS_NPY_PATH = DATA_DIR / "bge_base_embedding.npy"
 
 if not DATA_DIR.exists():
     DATA_DIR.mkdir()
@@ -28,7 +28,7 @@ CHROMADB_COLLECTION_NAME = "veritas-trial-embeddings"
 
 BUCKET_NAME = "veritas-trial"
 BUCKET_CLEANED_JSONL_PATH = "data-pipeline/cleaned_data.jsonl"
-BUCKET_EMBEDDINGS_NPY_PATH = f"embedding-model/summary_embeddings.npy"
+BUCKET_EMBEDDINGS_NPY_PATH = f"embedding-model/bge_base_embedding.npy"
 
 
 def default_progress():
@@ -67,6 +67,6 @@ def get_model():
     """Get the model used for embedding."""
     from FlagEmbedding import FlagModel
 
-    model_name = "BAAI/bge-small-en-v1.5"
+    model_name = "BAAI/bge-base-en-v1.5"
     rich.print(f"[bold green]->[/] Loading {model_name!r}...")
     return FlagModel(model_name, use_fp16=True)

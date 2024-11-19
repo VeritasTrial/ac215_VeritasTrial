@@ -4,12 +4,14 @@ import time
 
 import chromadb
 import vertexai  # type: ignore
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Body, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 from FlagEmbedding import FlagModel  # type: ignore
-from vertexai.generative_models import GenerativeModel  # type: ignore
+import time
+from typing import Dict
+from vertexai.generative_models import GenerativeModel, ChatSession, Content # type: ignore
 
 from localtyping import (
     APIChatResponseType,
@@ -22,13 +24,14 @@ from utils import _get_metadata_from_id, format_exc_details
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:8080")
 
-EMBEDDING_MODEL = FlagModel("BAAI/bge-small-en-v1.5", use_fp16=True)
+EMBEDDING_MODEL = FlagModel("BAAI/bge-base-en-v1.5", use_fp16=True)
 CHROMADB_CLIENT = chromadb.HttpClient(host="chromadb", port=8000)
 CHROMADB_COLLECTION = CHROMADB_CLIENT.get_collection("veritas-trial-embeddings")
 
 GCP_PROJECT_ID = "veritastrial"
 GCP_PROJECT_LOCATION = "us-central1"
 vertexai.init(project=GCP_PROJECT_ID, location=GCP_PROJECT_LOCATION)
+CHAT_SESSIONS: Dict[str, ChatSession] = {}
 
 app = FastAPI(docs_url=None, redoc_url="/")
 
@@ -115,9 +118,8 @@ async def meta(item_id: str) -> APIMetaResponseType:
 
     return {"metadata": metadata}
 
-
-@app.get("/chat/{model}/{item_id}")
-async def chat(model: ModelType, item_id: str, query: str) -> APIChatResponseType:
+@app.post("/chat/{model}/{item_id}")
+async def chat(model: ModelType, item_id: str, query: str=Body(...)) -> APIChatResponseType:
     """Chat with a generative model about a specific item."""
     metadata = _get_metadata_from_id(CHROMADB_COLLECTION, item_id)
     if metadata is None:
@@ -132,25 +134,41 @@ async def chat(model: ModelType, item_id: str, query: str) -> APIChatResponseTyp
     else:
         model_name = model
 
-    # Initialize the generative model
-    gen_model = GenerativeModel(
-        model_name=model_name,
-        generation_config={
-            "max_output_tokens": 2048,
-            "temperature": 0.75,
-            "top_p": 0.95,
-        },
-    )
+    # Initialize or retrieve the chat session
+    session_key = f"{model}-{item_id}"
+    if session_key not in CHAT_SESSIONS:
+        # Create a new chat session and initialize with metadata
+        gen_model = GenerativeModel(
+            model_name=model_name,
+            generation_config={
+                "max_output_tokens": 2048,
+                "temperature": 0.75,
+                "top_p": 0.95,
+            },
+        )
+        initial_context = Content(
+            role="system",
+            content=(
+                "You are assisting with clinical trials.You will be given the information of a clinical trial and asked several "
+                "questions. Here is the metadata for the trial:\n"
+                f"{json.dumps(metadata, indent=2)}"
+            ),
+        )
+        CHAT_SESSIONS[session_key] = ChatSession(model=gen_model, history=[initial_context])
 
-    # Combine metadata into the query
-    query = (
-        "You will be given the information of a clinical trial and asked a "
-        "question. The information is as follows:\n\n"
-        f"{json.dumps(metadata, indent=2)}\n\n"
-        "## Question\n\n"
-        f"{query}"
-    )
+    # Retrieve the existing session
+    chat_session = CHAT_SESSIONS[session_key]
+
+    # Add the user's query to the chat session
+    user_message = Content(role="user", content=query)
+    chat_session.history.append(user_message)
 
     # Generate the response
-    response = gen_model.generate_content(query, stream=False)
+    response = chat_session.send_message(query)
+
+    # Save the assistant's response in the session history
+    chat_session.history.append(Content(role="assistant", content=response.text.strip()))
+
     return {"response": response.text.strip()}
+
+

@@ -44,6 +44,7 @@ def main():
         metadatas = studies_df.apply(
             lambda row: stringify_metadata(row), axis=1
         ).tolist()
+        del studies_df
         progress.update(task, advance=1)
 
         # Fetch embeddings from the bucket or reuse from local

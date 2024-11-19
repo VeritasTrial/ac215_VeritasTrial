@@ -26,6 +26,20 @@ const getResponse = async (url: string) => {
 };
 
 /**
+ * Fetch the response from the given URL with a POST method and body.
+ */
+const postResponse = async (url: string, body: object) => {
+  return await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+};
+
+
+/**
  * Format an unknown error into a string.
  */
 const formatError = (error: unknown) => {
@@ -88,21 +102,25 @@ export const callMeta = async (
   }
 };
 
+
 /**
- * Call the /chat/{model}/{item_id} backend API.
+ * Call the /chat/{model}/{item_id} backend API using POST.
  */
 export const callChat = async (
   query: string,
   model: ModelType,
   id: string,
 ): Promise<WrapAPI<APIChatResponseType>> => {
-  const params = queryString.stringify({ query });
-  const url = `${import.meta.env.VITE_BACKEND_URL}/chat/${model}/${id}?${params}`;
+  const url = `${import.meta.env.VITE_BACKEND_URL}/chat/${model}/${id}`; // No query params in POST
+  const payload = { query }; // Move query to the request body
+
   try {
-    const response = await getResponse(url);
+    const response = await postResponse(url, payload); 
+
     if (!response.ok) {
       return { error: await formatNonOkResponse(response) };
     }
+
     const res = (await response.json()) as APIChatResponseType;
     return { payload: res };
   } catch (e: unknown) {
@@ -110,3 +128,4 @@ export const callChat = async (
     return { error: formatError(e) };
   }
 };
+
