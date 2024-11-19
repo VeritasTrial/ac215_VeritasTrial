@@ -13,7 +13,7 @@ chromadb-client = "*"
 fastapi = "*"
 FlagEmbedding = "*"
 google-cloud-aiplatform = "*"
-torch = {version = "*", index = "pytorch-cpu"}  # Avoid CUDA issue on macOS
+torch = {version = "*", index = "pytorch-cpu"}
 typing-extensions = "*"
 uvicorn = "*"
 

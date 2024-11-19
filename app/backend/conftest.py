@@ -69,6 +69,8 @@ SAMPLE_METADATA = dict(
 
 
 class MockChromadbCollection:
+    """Mock ChromaDB collection."""
+
     RECORDS = {"id1", "id2", "id3", "id4"}
 
     def get(
@@ -103,9 +105,11 @@ class MockChromadbCollection:
 
 @pytest.fixture
 def sample_metadata():
+    """Return a fixed sample metadata."""
     return SAMPLE_METADATA
 
 
 @pytest.fixture
 def chromadb_collection():
+    """Return a mock ChromaDB collection."""
     return MockChromadbCollection()

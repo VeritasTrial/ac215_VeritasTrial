@@ -1,3 +1,5 @@
+"""Test the main module."""
+
 from fastapi.testclient import TestClient
 
 from main import app

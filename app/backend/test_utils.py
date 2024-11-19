@@ -1,3 +1,5 @@
+"""Test the utils module."""
+
 import json
 
 import numpy as np
@@ -45,8 +47,10 @@ def test_get_metadata_from_id(item_id, chromadb_collection, sample_metadata):
             "references",
             "documents",
         ):
+            # Flat lists or list of dictionaries that do not need case conversion
             assert metadata[_snake_to_camel(key)] == json.loads(value)
         elif key.endswith("_measure_outcomes"):
+            # List of dictionaries that need case conversion
             for item, item_exp in zip(
                 metadata[_snake_to_camel(key)], json.loads(value), strict=True
             ):
