@@ -3,17 +3,25 @@ name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
 
+[[source]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+verify_ssl = true
+
 [packages]
 chromadb-client = "*"
 fastapi = "*"
 FlagEmbedding = "*"
 google-cloud-aiplatform = "*"
+torch = {version = "*", index = "pytorch-cpu"}  # Avoid CUDA issue on macOS
 typing-extensions = "*"
 uvicorn = "*"
 
 [dev-packages]
 black = "*"
+coverage = "*"
 mypy = "*"
+pytest = "*"
 ruff = "*"
 
 [requires]
