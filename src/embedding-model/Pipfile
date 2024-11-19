@@ -3,15 +3,20 @@ name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
 
+[[source]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+verify_ssl = true
+
 [packages]
 chromadb-client = "*"
 click = "*"
 FlagEmbedding = "*"
 google-cloud-storage = "*"
 numpy = "*"
-peft = "*"  # XXX: required by FlagEmbedding, but not in setup.py before 1.0.6
 rich = "*"
 scikit-learn = "*"
+torch = {version = "*", index = "pytorch-cpu"}
 
 [dev-packages]
 black = "*"

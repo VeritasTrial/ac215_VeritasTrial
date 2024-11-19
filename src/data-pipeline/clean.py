@@ -69,11 +69,11 @@ _FIELDS = [
 def format_date_struct(date_info):
     """Helper function to format data information."""
     if isinstance(date_info, dict):
-        date = date_info.get("date", "")
-        if date_info.get("type") == "ESTIMATED" and date:
+        date = date_info.get("date")
+        if date is not None and date_info.get("type") == "ESTIMATED":
             date += " (estimated)"
-        return date
-    return "" if date_info is None else str(date_info)
+        return date or ""
+    return str(date_info)
 
 
 def clean_outcomes(outcomes):
@@ -91,7 +91,7 @@ def clean_outcomes(outcomes):
 def extract_age(age_info):
     """Helper function to extract age from a string."""
     age_match = re.match(r"^(\d+)\s+years$", age_info, re.IGNORECASE)
-    return int(age_match.group(1)) if age_match is not None else ""
+    return int(age_match.group(1)) if age_match is not None else None
 
 
 def format_official(official):
@@ -130,11 +130,11 @@ def get_inclusion_exclusion_criteria(criteria_text):
 
 def get_document_url(id, doc_info):
     """Helper function to get the URL of a large document attachment."""
-    filename = doc_info.get("filename", "")
+    filename = doc_info.get("filename")
     return (
         f"https://cdn.clinicaltrials.gov/large-docs/{id[-2:]}/{id}/{filename}"
-        if filename
-        else ""
+        if filename is not None
+        else None
     )
 
 
@@ -175,7 +175,7 @@ def clean_one_study(study):
     cleaned_data["collaborators"] = [
         name
         for item in collab_module.get("collaborators", [])
-        if (name := item.get("name", ""))
+        if (name := item.get("name")) is not None
     ]
 
     # Description module
@@ -190,7 +190,7 @@ def clean_one_study(study):
     # Design module
     design_module = protocols.get("designModule", {})
     design_info = design_module.get("designInfo", {})
-    cleaned_data["study_phases"] = ", ".join(design_module.get("phases", [])) or ""
+    cleaned_data["study_phases"] = ", ".join(design_module.get("phases", []))
     cleaned_data["study_type"] = design_module.get("studyType", "")
     cleaned_data["enrollment_count"] = design_module.get("enrollmentInfo", {}).get(
         "count", 0
@@ -199,7 +199,9 @@ def clean_one_study(study):
     cleaned_data["intervention_model"] = design_info.get("interventionModel", "")
     cleaned_data["observational_model"] = design_info.get("observationalModel", "")
     cleaned_data["primary_purpose"] = design_info.get("primaryPurpose", "")
-    cleaned_data["who_masked"] = ", ".join(design_info.get("maskingInfo", {}).get("whoMasked", [])) or ""
+    cleaned_data["who_masked"] = ", ".join(
+        design_info.get("maskingInfo", {}).get("whoMasked", [])
+    )
 
     # Inverventions module
     interv_module = protocols.get("armsInterventionsModule", {})
@@ -226,12 +228,12 @@ def clean_one_study(study):
 
     # Eligibility module
     elig_module = protocols.get("eligibilityModule", {})
-    cleaned_data["min_age"] = extract_age(elig_module.get("minimumAge", ""))
-    cleaned_data["max_age"] = extract_age(elig_module.get("maximumAge", ""))
+    cleaned_data["min_age"] = extract_age(elig_module.get("minimumAge", "")) or 0
+    cleaned_data["max_age"] = extract_age(elig_module.get("maximumAge", "")) or 120
     cleaned_data["eligible_sex"] = elig_module.get("sex", "")
     cleaned_data["accepts_healthy"] = elig_module.get("healthyVolunteers", False)
     cleaned_data["inclusion_criteria"], cleaned_data["exclusion_criteria"] = (
-        get_inclusion_exclusion_criteria(elig_module.get("eligibilityCriteria", ""))
+        get_inclusion_exclusion_criteria(elig_module.get("eligibilityCriteria"))
     )
 
     # Locations module
@@ -246,14 +248,17 @@ def clean_one_study(study):
     # References module
     ref_module = protocols.get("referencesModule", {})
     cleaned_data["references"] = [
-        {"pmid": item.get("pmid", ""), "citation": item.get("citation", "")}
+        {"pmid": pmid, "citation": item.get("citation", "")}
         for item in ref_module.get("references", [])
+        if (pmid := item.get("pmid")) is not None
     ]
 
+    # Large documents module
     doc_module = documents.get("largeDocumentModule", {})
     cleaned_data["documents"] = [
-        {"url": get_document_url(cleaned_data["id"], item), "size": item.get("size", 0)}
+        {"url": url, "size": item.get("size", 0)}
         for item in doc_module.get("largeDocs", [])
+        if (url := get_document_url(cleaned_data["id"], item)) is not None
     ]
 
     return cleaned_data
@@ -267,6 +272,7 @@ def main():
         )
         return
 
+    # Load metadata if it exists
     n_cleaned_studies = 0
     n_studies = None
     if METADATA_PATH.exists():
@@ -279,6 +285,7 @@ def main():
 
         with jsonlines.open(CLEANED_JSONL_PATH, "w") as out_file:
             with jsonlines.open(RAW_JSONL_PATH, "r") as in_file:
+                # Iterate over raw data, clean each entry, and write a CSV row
                 for data in in_file:
                     out_file.write(clean_one_study(data))
                     progress.update(task, advance=1)
