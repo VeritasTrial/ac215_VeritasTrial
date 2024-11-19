@@ -11,7 +11,9 @@
     "format": "prettier --write .",
     "lint:check": "eslint .",
     "lint": "eslint --fix .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "echo \"Frontend testing not implemented\"",
+    "test:cov": "echo \"Frontend testing not implemented\""
   },
   "dependencies": {
     "@emotion/react": "^11.13.3",

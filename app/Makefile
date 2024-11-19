@@ -27,6 +27,16 @@ devlintcheck:
 	@cd backend && pipenv run bash -c "black --check . && ruff check --select I . && mypy ."
 	@cd frontend && pnpm format:check && pnpm lint:check
 
+# [DEV] Test the codebase
+devtest:
+	@cd backend && pipenv run pytest
+	@cd frontend && pnpm test
+
+# [DEV] Test the codebase and generate coverage reports
+devtestcov:
+	@cd backend && pipenv run bash -c "coverage run -m pytest && coverage report -m && coverage html"
+	@cd frontend && pnpm test:cov
+
 # [DEV] Run the backend server only; this should be run in a separate terminal
 # window before running `devfrontend`
 devbackend:
