@@ -3,12 +3,10 @@ import { ChatCollapsibleHint } from "../../src/components/ChatCollapsibleHint";
 import { MdFilterList } from "react-icons/md";
 
 describe("ChatCollapsibleHint", () => {
-  const mockOnToggleHint = vi.fn();
-
   it("renders with the correct hint text", () => {
     render(
       <ChatCollapsibleHint
-        onToggleHint={mockOnToggleHint}
+        onToggleHint={vi.fn()}
         hintText="Test Hint"
         HintIcon={MdFilterList}
       >
@@ -22,7 +20,7 @@ describe("ChatCollapsibleHint", () => {
   it("renders custom right hint component", () => {
     render(
       <ChatCollapsibleHint
-        onToggleHint={mockOnToggleHint}
+        onToggleHint={vi.fn()}
         hintText="Test Hint"
         HintIcon={MdFilterList}
         rightHintComponent={<button>Custom Button</button>}
@@ -34,10 +32,10 @@ describe("ChatCollapsibleHint", () => {
     expect(screen.getByText("Custom Button")).toBeInTheDocument();
   });
 
-  it("hides collapsible content initially", async () => {
+  it("hides collapsible content initially", () => {
     render(
       <ChatCollapsibleHint
-        onToggleHint={mockOnToggleHint}
+        onToggleHint={vi.fn()}
         hintText="Test Hint"
         HintIcon={MdFilterList}
       >
@@ -45,12 +43,12 @@ describe("ChatCollapsibleHint", () => {
       </ChatCollapsibleHint>,
     );
 
-    await waitFor(() => {
-      expect(screen.queryByText("Hint Content")).not.toBeInTheDocument();
-    });
+    expect(screen.queryByText("Hint Content")).not.toBeInTheDocument();
   });
 
   it("toggles collapsible content on trigger click", async () => {
+    const mockOnToggleHint = vi.fn();
+
     render(
       <ChatCollapsibleHint
         onToggleHint={mockOnToggleHint}
