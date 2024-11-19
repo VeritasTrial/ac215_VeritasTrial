@@ -1,4 +1,6 @@
-from typing import Literal, NotRequired, TypeAlias
+"""Type definitions for the backend APIs."""
+
+from typing import Literal, TypeAlias
 
 from typing_extensions import TypedDict
 
