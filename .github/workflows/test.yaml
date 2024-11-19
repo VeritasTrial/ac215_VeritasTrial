@@ -53,5 +53,3 @@ jobs:
         with:
           name: backend-coverage-report
           path: app/backend/htmlcov/
-
-      # TODO: Upload frontend coverage report once implemented
