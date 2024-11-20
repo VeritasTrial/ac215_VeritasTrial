@@ -126,6 +126,10 @@ export interface APIMetaResponseType {
   metadata: TrialMetadataType;
 }
 
+export interface APIChatPayloadType {
+  query: string;
+}
+
 export interface APIChatResponseType {
   response: string;
 }

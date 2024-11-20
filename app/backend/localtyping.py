@@ -2,6 +2,7 @@
 
 from typing import Literal, TypeAlias
 
+from pydantic import BaseModel
 from typing_extensions import TypedDict
 
 ModelType: TypeAlias = Literal["gemini-1.5-flash-001", "6894888983713546240"]
@@ -82,6 +83,10 @@ class APIRetrieveResponseType(TypedDict):
 
 class APIMetaResponseType(TypedDict):
     metadata: TrialMetadataType
+
+
+class APIChatPayloadType(BaseModel):
+    query: str
 
 
 class APIChatResponseType(TypedDict):

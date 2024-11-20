@@ -1,20 +1,27 @@
 """Entrypoint of the backend APIs."""
 
 import json
+import logging
 import os
 import time
 from contextlib import asynccontextmanager
 
 import chromadb
 import vertexai  # type: ignore
-from fastapi import Body, FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 from FlagEmbedding import FlagModel  # type: ignore
-from vertexai.generative_models import GenerativeModel, ChatSession, Content # type: ignore
+from vertexai.generative_models import (  # type: ignore
+    ChatSession,
+    Content,
+    GenerativeModel,
+    Part,
+)
 
 from localtyping import (
+    APIChatPayloadType,
     APIChatResponseType,
     APIHeartbeatResponseType,
     APIMetaResponseType,
@@ -22,6 +29,8 @@ from localtyping import (
     ModelType,
 )
 from utils import format_exc_details, get_metadata_from_id
+
+logger = logging.getLogger("uvicorn.error")
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:8080")
 CHROMADB_COLLECTION_NAME = "veritas-trial-embeddings"
@@ -146,8 +155,11 @@ async def meta(item_id: str) -> APIMetaResponseType:
 
     return {"metadata": metadata}
 
+
 @app.post("/chat/{model}/{item_id}")
-async def chat(model: ModelType, item_id: str, query: str) -> APIChatResponseType:
+async def chat(
+    model: ModelType, item_id: str, payload: APIChatPayloadType
+) -> APIChatResponseType:
     """Chat with a generative model about a specific item."""
     if CHROMADB_COLLECTION is None:
         raise RuntimeError("ChromaDB not initialized")
@@ -168,7 +180,14 @@ async def chat(model: ModelType, item_id: str, query: str) -> APIChatResponseTyp
     # Initialize or retrieve the chat session
     session_key = f"{model}-{item_id}"
     if session_key not in CHAT_SESSIONS:
-        # Create a new chat session and initialize with metadata
+        system_instruction = (
+            "You are assisting with a specific clinical trial. You will be given some "
+            "information of the clinical trial and asked several questions. Here is "
+            "the information of the clinical trial:\n\n"
+            f"{json.dumps(metadata, indent=2)}"
+        )
+
+        # Create a new chat session
         gen_model = GenerativeModel(
             model_name=model_name,
             generation_config={
@@ -176,28 +195,23 @@ async def chat(model: ModelType, item_id: str, query: str) -> APIChatResponseTyp
                 "temperature": 0.75,
                 "top_p": 0.95,
             },
+            system_instruction=system_instruction,
         )
-        initial_context = Content(
-            role="system",
-            content=(
-                "You are assisting with clinical trials. You will be given the "
-                "information of a clinical trial and asked several questions. Here is "
-                "the information of the trial:\n\n"
-                f"{json.dumps(metadata, indent=2)}"
-            ),
-        )
-        chat_session = ChatSession(model=gen_model, history=[initial_context])
+        chat_session = ChatSession(model=gen_model, history=[])
         CHAT_SESSIONS[session_key] = chat_session
+        logger.info(f"Created new chat session: {session_key}")
     else:
         chat_session = CHAT_SESSIONS[session_key]
 
     # Add the user's query to the chat session
-    user_message = Content(role="user", content=query)
+    user_message = Content(role="user", parts=[Part.from_text(payload.query)])
     chat_session.history.append(user_message)
 
     # Generate the response and add to the chat session
-    response = chat_session.send_message(query)
+    response = chat_session.send_message(payload.query)
     response_text = response.text.strip()
-    chat_session.history.append(Content(role="assistant", content=response_text))
+    chat_session.history.append(
+        Content(role="model", parts=[Part.from_text(response_text)])
+    )
 
     return {"response": response_text}

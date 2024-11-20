@@ -44,3 +44,6 @@ def test_meta(item_id):
     response_json = response.json()
     assert "metadata" in response_json
     assert response_json["metadata"]["shortTitle"] == f"Sample Metadata {item_id}"
+
+
+# TODO: Add tests for the /chat/{model}/{item_id} endpoint

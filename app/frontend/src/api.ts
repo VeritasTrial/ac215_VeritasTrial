@@ -6,6 +6,7 @@
 
 import queryString from "query-string";
 import {
+  APIChatPayloadType,
   APIChatResponseType,
   APIMetaResponseType,
   APIRetrieveResponseType,
@@ -14,7 +15,7 @@ import {
 } from "./types";
 
 /**
- * Fetch the response from the given URL.
+ * Fetch the response from the given URL with the GET method.
  */
 const getResponse = async (url: string) => {
   return await fetch(url, {
@@ -26,18 +27,17 @@ const getResponse = async (url: string) => {
 };
 
 /**
- * Fetch the response from the given URL with a POST method and body.
+ * Fetch the response from the given URL with the POST method.
  */
-const postResponse = async (url: string, body: object) => {
+const postResponse = async <T>(url: string, payload: T) => {
   return await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify(payload),
   });
 };
-
 
 /**
  * Format an unknown error into a string.
@@ -102,25 +102,20 @@ export const callMeta = async (
   }
 };
 
-
 /**
- * Call the /chat/{model}/{item_id} backend API using POST.
+ * Call the /chat/{model}/{item_id} backend API.
  */
 export const callChat = async (
   query: string,
   model: ModelType,
   id: string,
 ): Promise<WrapAPI<APIChatResponseType>> => {
-  const url = `${import.meta.env.VITE_BACKEND_URL}/chat/${model}/${id}`; // No query params in POST
-  const payload = { query }; // Move query to the request body
-
+  const url = `${import.meta.env.VITE_BACKEND_URL}/chat/${model}/${id}`;
   try {
-    const response = await postResponse(url, payload); 
-
+    const response = await postResponse<APIChatPayloadType>(url, { query });
     if (!response.ok) {
       return { error: await formatNonOkResponse(response) };
     }
-
     const res = (await response.json()) as APIChatResponseType;
     return { payload: res };
   } catch (e: unknown) {
@@ -128,4 +123,3 @@ export const callChat = async (
     return { error: formatError(e) };
   }
 };
-
