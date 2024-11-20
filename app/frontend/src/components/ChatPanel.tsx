@@ -29,6 +29,7 @@ import { addMessageUtilities, scrollToBottom } from "../utils";
 import { MessageDocs } from "./MessageDocs";
 import { RetrievalPanelCommandPalette } from "./RetrievePanelCommandPalette";
 import { FCDeleteChatButton } from "./FCDeleteChatButton";
+import { FCScrollButtons } from "./FCScrollButtons";
 
 interface ChatPanelProps {
   model: ModelType;
@@ -107,6 +108,7 @@ export const ChatPanel = ({
       onClick={() => setMessages(() => [])}
     />,
     <FCDeleteChatButton onClick={deleteTab} />,
+    <FCScrollButtons containerRef={chatPortRef} />,
   ];
 
   // Persistent right functional components

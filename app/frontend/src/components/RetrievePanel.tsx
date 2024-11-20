@@ -20,6 +20,7 @@ import { ChatErrorMessage } from "./ChatErrorMessage";
 import { addMessageUtilities, scrollToBottom } from "../utils";
 import { MessageRetrieved } from "./MessageRetrieved";
 import { FCTopKSelector } from "./FCTopKSelector";
+import { FCScrollButtons } from "./FCScrollButtons";
 
 interface RetrievalPanelProps {
   messages: ChatDisplay[];
@@ -70,6 +71,7 @@ export const RetrievePanel = ({
       disabled={messages.length === 0 || loading}
       onClick={() => setMessages(() => [])}
     />,
+    <FCScrollButtons containerRef={chatPortRef} />,
   ];
 
   // Persistent right functional components
