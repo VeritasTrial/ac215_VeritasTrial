@@ -6,6 +6,7 @@
 
 import queryString from "query-string";
 import {
+  APIChatPayloadType,
   APIChatResponseType,
   APIMetaResponseType,
   APIRetrieveResponseType,
@@ -14,7 +15,7 @@ import {
 } from "./types";
 
 /**
- * Fetch the response from the given URL.
+ * Fetch the response from the given URL with the GET method.
  */
 const getResponse = async (url: string) => {
   return await fetch(url, {
@@ -22,6 +23,19 @@ const getResponse = async (url: string) => {
     headers: {
       "Content-Type": "application/json",
     },
+  });
+};
+
+/**
+ * Fetch the response from the given URL with the POST method.
+ */
+const postResponse = async <T>(url: string, payload: T) => {
+  return await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
   });
 };
 
@@ -96,10 +110,9 @@ export const callChat = async (
   model: ModelType,
   id: string,
 ): Promise<WrapAPI<APIChatResponseType>> => {
-  const params = queryString.stringify({ query });
-  const url = `${import.meta.env.VITE_BACKEND_URL}/chat/${model}/${id}?${params}`;
+  const url = `${import.meta.env.VITE_BACKEND_URL}/chat/${model}/${id}`;
   try {
-    const response = await getResponse(url);
+    const response = await postResponse<APIChatPayloadType>(url, { query });
     if (!response.ok) {
       return { error: await formatNonOkResponse(response) };
     }

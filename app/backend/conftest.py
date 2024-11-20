@@ -127,5 +127,6 @@ def chromadb_collection():
 
 @pytest.fixture(autouse=True)
 def setup(monkeypatch):
+    monkeypatch.setattr("vertexai.init", lambda: None)
     monkeypatch.setattr("main.EMBEDDING_MODEL", MockEmbeddingModel())
     monkeypatch.setattr("main.CHROMADB_COLLECTION", MockChromadbCollection())

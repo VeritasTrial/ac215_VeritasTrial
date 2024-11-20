@@ -1,6 +1,7 @@
 """Entrypoint of the backend APIs."""
 
 import json
+import logging
 import os
 import time
 from contextlib import asynccontextmanager
@@ -12,9 +13,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 from FlagEmbedding import FlagModel  # type: ignore
-from vertexai.generative_models import GenerativeModel  # type: ignore
+from vertexai.generative_models import (  # type: ignore
+    ChatSession,
+    Content,
+    GenerativeModel,
+    Part,
+)
 
 from localtyping import (
+    APIChatPayloadType,
     APIChatResponseType,
     APIHeartbeatResponseType,
     APIMetaResponseType,
@@ -22,6 +29,8 @@ from localtyping import (
     ModelType,
 )
 from utils import format_exc_details, get_metadata_from_id
+
+logger = logging.getLogger("uvicorn.error")
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:8080")
 CHROMADB_COLLECTION_NAME = "veritas-trial-embeddings"
@@ -31,6 +40,7 @@ GCP_PROJECT_LOCATION = "us-central1"
 # Global states for the FastAPI app
 EMBEDDING_MODEL: FlagModel | None = None
 CHROMADB_COLLECTION: chromadb.Collection | None = None
+CHAT_SESSIONS: dict[str, ChatSession] = {}
 
 
 @asynccontextmanager
@@ -46,6 +56,7 @@ async def lifespan(app: FastAPI):  # pragma: no cover
 
     EMBEDDING_MODEL = None
     CHROMADB_COLLECTION = None
+    CHAT_SESSIONS.clear()
 
 
 # Initialize the FastAPI app
@@ -145,8 +156,10 @@ async def meta(item_id: str) -> APIMetaResponseType:
     return {"metadata": metadata}
 
 
-@app.get("/chat/{model}/{item_id}")
-async def chat(model: ModelType, item_id: str, query: str) -> APIChatResponseType:
+@app.post("/chat/{model}/{item_id}")
+async def chat(
+    model: ModelType, item_id: str, payload: APIChatPayloadType
+) -> APIChatResponseType:
     """Chat with a generative model about a specific item."""
     if CHROMADB_COLLECTION is None:
         raise RuntimeError("ChromaDB not initialized")
@@ -164,25 +177,41 @@ async def chat(model: ModelType, item_id: str, query: str) -> APIChatResponseTyp
     else:
         model_name = model
 
-    # Initialize the generative model
-    gen_model = GenerativeModel(
-        model_name=model_name,
-        generation_config={
-            "max_output_tokens": 2048,
-            "temperature": 0.75,
-            "top_p": 0.95,
-        },
+    # Initialize or retrieve the chat session
+    session_key = f"{model}-{item_id}"
+    if session_key not in CHAT_SESSIONS:
+        system_instruction = (
+            "You are assisting with a specific clinical trial. You will be given some "
+            "information of the clinical trial and asked several questions. Here is "
+            "the information of the clinical trial:\n\n"
+            f"{json.dumps(metadata, indent=2)}"
+        )
+
+        # Create a new chat session
+        gen_model = GenerativeModel(
+            model_name=model_name,
+            generation_config={
+                "max_output_tokens": 2048,
+                "temperature": 0.75,
+                "top_p": 0.95,
+            },
+            system_instruction=system_instruction,
+        )
+        chat_session = ChatSession(model=gen_model, history=[])
+        CHAT_SESSIONS[session_key] = chat_session
+        logger.info(f"Created new chat session: {session_key}")
+    else:
+        chat_session = CHAT_SESSIONS[session_key]
+
+    # Add the user's query to the chat session
+    user_message = Content(role="user", parts=[Part.from_text(payload.query)])
+    chat_session.history.append(user_message)
+
+    # Generate the response and add to the chat session
+    response = chat_session.send_message(payload.query)
+    response_text = response.text.strip()
+    chat_session.history.append(
+        Content(role="model", parts=[Part.from_text(response_text)])
     )
 
-    # Combine metadata into the query
-    query = (
-        "You will be given the information of a clinical trial and asked a "
-        "question. The information is as follows:\n\n"
-        f"{json.dumps(metadata, indent=2)}\n\n"
-        "## Question\n\n"
-        f"{query}"
-    )
-
-    # Generate the response
-    response = gen_model.generate_content(query, stream=False)
-    return {"response": response.text.strip()}
+    return {"response": response_text}
