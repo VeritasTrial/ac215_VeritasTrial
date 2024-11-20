@@ -27,7 +27,7 @@ import { ChatCollapsibleHint } from "./ChatCollapsibleHint";
 import { ChatErrorMessage } from "./ChatErrorMessage";
 import { addMessageUtilities, scrollToBottom } from "../utils";
 import { MessageDocs } from "./MessageDocs";
-import { RetrievalPanelCommandPalette } from "./RetrievePanelCommandPalette";
+import { ChatPanelCommandPalette } from "./ChatPanelCommandPalette";
 import { FCDeleteChatButton } from "./FCDeleteChatButton";
 
 interface ChatPanelProps {
@@ -144,7 +144,7 @@ export const ChatPanel = ({
             </ExternalLink>
           }
         >
-          <RetrievalPanelCommandPalette metaInfo={metaInfo} />
+          <ChatPanelCommandPalette metaInfo={metaInfo} />
         </ChatCollapsibleHint>
         <ChatInput
           query={query}

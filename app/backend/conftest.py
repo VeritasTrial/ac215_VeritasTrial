@@ -81,13 +81,14 @@ class MockChromadbCollection:
 
     RECORDS = set(f"id{i}" for i in range(50))
 
-    def _result(self, ids, include):
+    def _result(self, ids, include, where):
         result = dict(
             ids=ids,
             documents=[] if "documents" in include else None,
             metadatas=[] if "metadatas" in include else None,
             include=include,
         )
+
         for key in ids:
             if "documents" in include:
                 result["documents"].append(f"doc-{key}")
@@ -97,14 +98,14 @@ class MockChromadbCollection:
                 result["metadatas"].append(metadata)
         return result
 
-    def query(self, *, query_embeddings, n_results, include):
-        result = self._result(list(self.RECORDS)[:n_results], include)
+    def query(self, *, query_embeddings, n_results, include, where=None):
+        result = self._result(list(self.RECORDS)[:n_results], include, where)
         for k in result:
             result[k] = [result[k] for _ in range(len(query_embeddings))]
         return result
 
-    def get(self, *, ids, include):
-        return self._result(ids, include)
+    def get(self, *, ids, include, where=None):
+        return self._result(ids, include, where)
 
 
 @pytest.fixture

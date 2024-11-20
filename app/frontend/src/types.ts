@@ -42,6 +42,10 @@ export type UpdateMessagesFunction = (
   prevMessages: ChatDisplay[],
 ) => ChatDisplay[];
 
+export interface TrialFilters {
+  studyType?: string;
+}
+
 /* ==========================================================================
  *   THE FOLLOWING ARE MIRROR DEFINITIONS OF BACKEND TYPES. CHECK OUT THE
  *   BACKEND API FOR REFERENCE.

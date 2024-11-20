@@ -27,6 +27,7 @@ from localtyping import (
     APIMetaResponseType,
     APIRetrieveResponseType,
     ModelType,
+    TrialFilters,
 )
 from utils import format_exc_details, get_metadata_from_id
 
@@ -115,7 +116,9 @@ async def heartbeat() -> APIHeartbeatResponseType:
 
 
 @app.get("/retrieve")
-async def retrieve(query: str, top_k: int) -> APIRetrieveResponseType:
+async def retrieve(
+    query: str, top_k: int, filters_serialized: str
+) -> APIRetrieveResponseType:
     """Retrieve items from the ChromaDB collection."""
     if EMBEDDING_MODEL is None:
         raise RuntimeError("Embedding model not initialized")
@@ -125,12 +128,31 @@ async def retrieve(query: str, top_k: int) -> APIRetrieveResponseType:
     if top_k <= 0 or top_k > 30:
         raise HTTPException(status_code=404, detail="Required 0 < top_k <= 30")
 
+    # Construct the filters
+    filters: TrialFilters = json.loads(filters_serialized)
+    processed_filters = []
+    if "studyType" in filters:
+        if filters["studyType"] == "interventional":
+            processed_filters.append({"study_type": "INTERVENTIONAL"})
+        elif filters["studyType"] == "observational":
+            processed_filters.append({"study_type": "OBSERVATIONAL"})
+
+    # Construct the where clause
+    where: chromadb.Where | None
+    if len(processed_filters) == 0:
+        where = None
+    elif len(processed_filters) == 1:
+        where = processed_filters[0]  # type: ignore  # TODO: Fix this
+    else:
+        where = {"$and": processed_filters}  # type: ignore  # TODO: Fix this
+
     # Embed the query and query the collection
     query_embedding = EMBEDDING_MODEL.encode(query)
     results = CHROMADB_COLLECTION.query(
         query_embeddings=[query_embedding],
         n_results=top_k,
         include=[chromadb.api.types.IncludeEnum("documents")],
+        where=where,
     )
 
     # Retrieve the results

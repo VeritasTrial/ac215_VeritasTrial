@@ -72,6 +72,10 @@ class TrialMetadataType(TypedDict):
     documents: list[TrialMetadataDocumentType]
 
 
+class TrialFilters(TypedDict, total=False):
+    studyType: str
+
+
 class APIHeartbeatResponseType(TypedDict):
     timestamp: int
 
