@@ -2,6 +2,7 @@ __pycache__/
 node_modules/
 dist/
 *.tsbuildinfo
+.coverage
 
 # Data files
 data/

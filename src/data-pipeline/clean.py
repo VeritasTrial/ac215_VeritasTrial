@@ -72,7 +72,7 @@ def format_date_struct(date_info):
         date = date_info.get("date")
         if date is not None and date_info.get("type") == "ESTIMATED":
             date += " (estimated)"
-        return date
+        return date or ""
     return str(date_info)
 
 
@@ -80,9 +80,9 @@ def clean_outcomes(outcomes):
     """Helper function to clean a list of measure outcomes."""
     return [
         {
-            "measure": item.get("measure"),
-            "description": item.get("description"),
-            "time_frame": item.get("timeFrame"),
+            "measure": item.get("measure", ""),
+            "description": item.get("description", ""),
+            "time_frame": item.get("timeFrame", ""),
         }
         for item in outcomes
     ]
@@ -146,32 +146,32 @@ def clean_one_study(study):
 
     # Identification module
     id_module = protocols.get("identificationModule", {})
-    cleaned_data["id"] = id_module.get("nctId")
-    cleaned_data["short_title"] = id_module.get("briefTitle")
-    cleaned_data["long_title"] = id_module.get("officialTitle")
-    cleaned_data["organization"] = id_module.get("organization", {}).get("fullName")
+    cleaned_data["id"] = id_module.get("nctId", "")
+    cleaned_data["short_title"] = id_module.get("briefTitle", "")
+    cleaned_data["long_title"] = id_module.get("officialTitle", "")
+    cleaned_data["organization"] = id_module.get("organization", {}).get("fullName", "")
 
     # Status module
     status_module = protocols.get("statusModule", {})
-    cleaned_data["submit_date"] = status_module.get("studyFirstSubmitDate")
-    cleaned_data["submit_date_qc"] = status_module.get("studyFirstSubmitQcDate")
+    cleaned_data["submit_date"] = status_module.get("studyFirstSubmitDate", "")
+    cleaned_data["submit_date_qc"] = status_module.get("studyFirstSubmitQcDate", "")
     cleaned_data["submit_date_posted"] = format_date_struct(
         status_module.get("studyFirstPostDateStruct", {})
     )
-    cleaned_data["results_date"] = status_module.get("resultsFirstSubmitDate")
-    cleaned_data["results_date_qc"] = status_module.get("resultsFirstSubmitQcDate")
+    cleaned_data["results_date"] = status_module.get("resultsFirstSubmitDate", "")
+    cleaned_data["results_date_qc"] = status_module.get("resultsFirstSubmitQcDate", "")
     cleaned_data["results_date_posted"] = format_date_struct(
         status_module.get("resultsFirstPostDateStruct", {})
     )
-    cleaned_data["last_update_date"] = status_module.get("lastUpdateSubmitDate")
+    cleaned_data["last_update_date"] = status_module.get("lastUpdateSubmitDate", "")
     cleaned_data["last_update_date_posted"] = format_date_struct(
         status_module.get("lastUpdatePostDateStruct", {})
     )
-    cleaned_data["verify_date"] = status_module.get("statusVerifiedDate")
+    cleaned_data["verify_date"] = status_module.get("statusVerifiedDate", "")
 
     # Sponsor/Collaborators module
     collab_module = protocols.get("sponsorCollaboratorsModule", {})
-    cleaned_data["sponsor"] = collab_module.get("leadSponsor", {}).get("name")
+    cleaned_data["sponsor"] = collab_module.get("leadSponsor", {}).get("name", "")
     cleaned_data["collaborators"] = [
         name
         for item in collab_module.get("collaborators", [])
@@ -180,8 +180,8 @@ def clean_one_study(study):
 
     # Description module
     descr_module = protocols.get("descriptionModule", {})
-    cleaned_data["summary"] = descr_module.get("briefSummary", None)
-    cleaned_data["details"] = descr_module.get("detailedDescription", None)
+    cleaned_data["summary"] = descr_module.get("briefSummary", "")
+    cleaned_data["details"] = descr_module.get("detailedDescription", "")
 
     # Conditions module
     cond_module = protocols.get("conditionsModule", {})
@@ -190,26 +190,26 @@ def clean_one_study(study):
     # Design module
     design_module = protocols.get("designModule", {})
     design_info = design_module.get("designInfo", {})
-    cleaned_data["study_phases"] = ", ".join(design_module.get("phases", [])) or None
-    cleaned_data["study_type"] = design_module.get("studyType")
+    cleaned_data["study_phases"] = ", ".join(design_module.get("phases", []))
+    cleaned_data["study_type"] = design_module.get("studyType", "")
     cleaned_data["enrollment_count"] = design_module.get("enrollmentInfo", {}).get(
         "count", 0
     )
-    cleaned_data["allocation"] = design_info.get("allocation")
-    cleaned_data["intervention_model"] = design_info.get("interventionModel")
-    cleaned_data["observational_model"] = design_info.get("observationalModel")
-    cleaned_data["primary_purpose"] = design_info.get("primaryPurpose")
-    cleaned_data["who_masked"] = (
-        ", ".join(design_info.get("maskingInfo", {}).get("whoMasked", [])) or None
+    cleaned_data["allocation"] = design_info.get("allocation", "")
+    cleaned_data["intervention_model"] = design_info.get("interventionModel", "")
+    cleaned_data["observational_model"] = design_info.get("observationalModel", "")
+    cleaned_data["primary_purpose"] = design_info.get("primaryPurpose", "")
+    cleaned_data["who_masked"] = ", ".join(
+        design_info.get("maskingInfo", {}).get("whoMasked", [])
     )
 
     # Inverventions module
     interv_module = protocols.get("armsInterventionsModule", {})
     cleaned_data["interventions"] = [
         {
-            "type": item.get("type"),
-            "name": item.get("name"),
-            "description": item.get("description"),
+            "type": item.get("type", ""),
+            "name": item.get("name", ""),
+            "description": item.get("description", ""),
         }
         for item in interv_module.get("interventions", [])
     ]
@@ -228,9 +228,9 @@ def clean_one_study(study):
 
     # Eligibility module
     elig_module = protocols.get("eligibilityModule", {})
-    cleaned_data["min_age"] = extract_age(elig_module.get("minimumAge", ""))
-    cleaned_data["max_age"] = extract_age(elig_module.get("maximumAge", ""))
-    cleaned_data["eligible_sex"] = elig_module.get("sex")
+    cleaned_data["min_age"] = extract_age(elig_module.get("minimumAge", "")) or 0
+    cleaned_data["max_age"] = extract_age(elig_module.get("maximumAge", "")) or 120
+    cleaned_data["eligible_sex"] = elig_module.get("sex", "")
     cleaned_data["accepts_healthy"] = elig_module.get("healthyVolunteers", False)
     cleaned_data["inclusion_criteria"], cleaned_data["exclusion_criteria"] = (
         get_inclusion_exclusion_criteria(elig_module.get("eligibilityCriteria"))
@@ -248,15 +248,17 @@ def clean_one_study(study):
     # References module
     ref_module = protocols.get("referencesModule", {})
     cleaned_data["references"] = [
-        {"pmid": item.get("pmid"), "citation": item.get("citation")}
+        {"pmid": pmid, "citation": item.get("citation", "")}
         for item in ref_module.get("references", [])
+        if (pmid := item.get("pmid")) is not None
     ]
 
     # Large documents module
     doc_module = documents.get("largeDocumentModule", {})
     cleaned_data["documents"] = [
-        {"url": get_document_url(cleaned_data["id"], item), "size": item.get("size")}
+        {"url": url, "size": item.get("size", 0)}
         for item in doc_module.get("largeDocs", [])
+        if (url := get_document_url(cleaned_data["id"], item)) is not None
     ]
 
     return cleaned_data

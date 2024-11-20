@@ -1,4 +1,4 @@
-name: Formatting and Linting
+name: Testing
 
 on:
   push:
@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -45,5 +45,11 @@ jobs:
       - name: Install development dependencies
         run: cd app && make devinstall
 
-      - name: Check code formatting and linting
-        run: cd app && make devlintcheck
+      - name: Run test suite and generate coverage report
+        run: cd app && make devtestcov
+
+      - name: Upload backend coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage-report
+          path: app/backend/htmlcov/
