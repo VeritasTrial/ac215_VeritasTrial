@@ -5,7 +5,7 @@
 
 ## Solution architecture
 
-TODO: 2nd image
+<img width="742" alt="8e56709f3f5c7044a3e64889bbd83f9" src="https://github.com/user-attachments/assets/a7a53cd4-e2f8-4d76-92ff-d9926b033666">
 
 ### Process
 
@@ -31,7 +31,7 @@ TODO: 2nd image
 
 ## Technical architecture
 
-TODO: 3rd image
+<img width="740" alt="ea0cbf5d4e63f549fc148dc9bc25d58" src="https://github.com/user-attachments/assets/7d0c0fa5-4b7d-4fd1-92b3-75efb1977ccb">
 
 ## API & Frontend Implementation
 
@@ -54,7 +54,10 @@ make devfrontend  # Supports live reload via Vite
 
 Our backend is built with [FastAPI](https://fastapi.tiangolo.com/) in Python. To see the API specifications, start the backend server and visit http://localhost:8001/.
 
-TODO: images of openapi
+![3e725c2d56915c5498715bdbb4dbb77](https://github.com/user-attachments/assets/9867b2cf-f0e5-4376-9339-5b247b07a2a6)
+![993d09a705a4d79b42e3448f2d76f0f](https://github.com/user-attachments/assets/c5adecf4-2f36-4b4e-84f9-034392b57e19)
+![9d6c2e387d7b385672bf5acdf0abbca](https://github.com/user-attachments/assets/600153e6-565a-4693-9a96-ca3279eabcf9)
+![3588f8c7e28f6d92de1b5f73e249a2c](https://github.com/user-attachments/assets/f5152b71-9311-42f4-9172-f0157de6cee1)
 
 Our frontend is built in React and TypeScript with the [Vite](https://vite.dev/) framework. As follows is the structure of our frontend:
 
@@ -87,7 +90,17 @@ frontend/src
 └── vite-env.d.ts
 ```
 
-TODO: frontend screenshots
+Trial retrieval panel:
+
+![4048c4e3ca8518afe3618319b3fc493](https://github.com/user-attachments/assets/8c3521ac-4294-482f-a8f1-f838767f720e)
+
+Chat panel:
+
+![69a3bf11b423ba4fa47ff0df566b9a4](https://github.com/user-attachments/assets/2fd1d542-8c22-49b1-a98f-011e93c7e521)
+
+Support for dark/light theme:
+
+![88df7f4b4cc8eee3bb2fe09ee902787](https://github.com/user-attachments/assets/3393c49a-da36-42a1-85ac-48cd1fce8634)
 
 ## Continuous Integration Setup
 
@@ -97,7 +110,17 @@ We have continuous integration triggered per pull request targeting the main bra
 - [Formatting and Linting](https://github.com/VeritasTrial/ac215_VeritasTrial/actions/workflows/lint.yaml): Check formatting and linting of the codebase to ensure code quality. This applies to both the frontend and the backend. The backend uses [black](https://black.readthedocs.io/en/stable/) for formatting, [ruff](https://docs.astral.sh/ruff/) for linting, and [mypy](https://mypy.readthedocs.io/en/stable/) for static type checking. The frontend uses [prettier](https://prettier.io/) for formatting, and [eslint](https://eslint.org/) and [typescript-eslint](https://typescript-eslint.io/) for linting and type checking.
 - [Testing](https://github.com/VeritasTrial/ac215_VeritasTrial/actions/workflows/test.yaml): Test the codebase (backend only) and generate coverage report.
 
+CI success on merged commits to the main branch:
+
+![3aad8e54105929421e7b67ceeb2370d](https://github.com/user-attachments/assets/48d2b329-d43f-41e5-b99c-b2eac8cab7fe)
+
+CI success on pull requests targeting the main branch:
+
+![2f56489e8d7674bf0a61451b42b5c34](https://github.com/user-attachments/assets/7263602c-457a-4bb6-aca4-f5fdf366a669)
+
 We have also configured the dependabot to automatically update the dependencies of our codebase and perform security checks.
+
+![53deadd17b42ecc4d29e1be1eb78ea7](https://github.com/user-attachments/assets/af97a9cd-e519-463b-abf7-6864bfe7194f)
 
 ## Automated Test Implementation
 
@@ -112,5 +135,4 @@ make devtestcov  # Also generate coverage report
 
 We use [pytest](https://docs.pytest.org/en/stable/) for testing and [coverage.py](https://coverage.readthedocs.io/en/7.6.7/) for coverage report.
 
-TODO: coverage report
-
+![4d17e66373660490959fedc0c468e0f](https://github.com/user-attachments/assets/819de5ce-d0f1-4df7-b883-9e36ea41f510)
