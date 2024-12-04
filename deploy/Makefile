@@ -1,7 +1,7 @@
 # Docker settings
 DOCKER_CMD := docker
-IMAGE_NAME := veritas-trial-app-deploy
-CONTAINER_NAME := veritas-trial-app-deploy
+IMAGE_NAME := veritas-trial-deployment
+CONTAINER_NAME := veritas-trial-deployment
 
 all: build
 
@@ -20,5 +20,15 @@ run:
 		--volume $(PWD)/../app/frontend:/app/frontend:ro \
 		--volume /var/run/docker.sock:/var/run/docker.sock \
 		--name $(CONTAINER_NAME) $(IMAGE_NAME)
+
+# Used by Github Actions
+gh-actions:
+	$(DOCKER_CMD) container run --rm \
+		--env GCP_PROJECT_ID=veritastrial \
+		--env GCP_REGION=us-central1 \
+		--volume $(PWD)/../app/backend:/app/backend:ro \
+		--volume $(PWD)/../app/frontend:/app/frontend:ro \
+		--volume /var/run/docker.sock:/var/run/docker.sock \
+		--name $(CONTAINER_NAME) $(IMAGE_NAME) ./deploy-app.sh
 
 .PHONY: build run
