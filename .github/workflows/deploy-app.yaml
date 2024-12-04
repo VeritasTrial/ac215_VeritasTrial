@@ -1,0 +1,29 @@
+name: Deploy app
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-app:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Google authentification
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+
+      - name: Set up gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker client
+        run: gcloud auth configure-docker
+
+      - name: Build deployment container
+        run: cd deploy && make build
+
+      - name: Deploy app
+        run: cd deploy && make exec CMD=./deploy-app.sh
