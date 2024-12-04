@@ -21,7 +21,7 @@ run:
 		--volume /var/run/docker.sock:/var/run/docker.sock \
 		--name $(CONTAINER_NAME) $(IMAGE_NAME)
 
-# Run the Docker container and execute the given CMD="command"
+# Run the Docker container and execute the given command
 exec:
 	$(DOCKER_CMD) container run --rm \
 		--env GOOGLE_APPLICATION_CREDENTIALS=/secrets/veritas-trial-deployment.json \
@@ -31,6 +31,6 @@ exec:
 		--volume $(PWD)/../app/backend:/app/backend:ro \
 		--volume $(PWD)/../app/frontend:/app/frontend:ro \
 		--volume /var/run/docker.sock:/var/run/docker.sock \
-		--name $(CONTAINER_NAME) $(IMAGE_NAME) $(CMD)
+		--name $(CONTAINER_NAME) $(IMAGE_NAME) $(command)
 
 .PHONY: build run
