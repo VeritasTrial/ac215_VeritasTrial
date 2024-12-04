@@ -25,7 +25,7 @@ run:
 # variable is set by the authentication action in the workflow and will be
 # remapped inside the container
 gh-actions:
-	$(DOCKER_CMD) container run --rm \
+	$(DOCKER_CMD) container run -it --rm \
 		--env GOOGLE_APPLICATION_CREDENTIALS=/secrets/veritas-trial-deployment.json \
 		--env GCP_PROJECT_ID=veritastrial \
 		--env GCP_REGION=us-central1 \
