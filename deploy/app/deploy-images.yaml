@@ -22,14 +22,27 @@
     community.docker.docker_image:
       name: "{{ registry_base }}/{{ frontend_name }}:{{ docker_tag.stdout }}"
       repository: "{{ registry_base }}/{{ frontend_name }}:{{ docker_tag.stdout }}"
-      push: yes
+      push: true
       source: local
+
+  - name: Tag frontend image as latest
+    shell: |
+      docker tag {{ registry_base }}/{{ frontend_name }}:{{ docker_tag.stdout }} {{ registry_base }}/{{ frontend_name }}:latest
+      docker push {{ registry_base }}/{{ frontend_name }}:latest
 
   - name: Remove frontend image locally
     community.docker.docker_image:
       name: "{{ registry_base }}/{{ frontend_name }}:{{ docker_tag.stdout }}"
       source: local
       state: absent
+      force_absent: true
+
+  - name: Remove latest tagged frontend image locally
+    community.docker.docker_image:
+      name: "{{ registry_base }}/{{ frontend_name }}:latest"
+      source: local
+      state: absent
+      force_absent: true
 
   - name: Build backend image
     community.docker.docker_image:
@@ -43,14 +56,27 @@
     community.docker.docker_image:
       name: "{{ registry_base }}/{{ backend_name }}:{{ docker_tag.stdout }}"
       repository: "{{ registry_base }}/{{ backend_name }}:{{ docker_tag.stdout }}"
-      push: yes
+      push: true
       source: local
+
+  - name: Tag backend image as latest
+    shell: |
+      docker tag {{ registry_base }}/{{ backend_name }}:{{ docker_tag.stdout }} {{ registry_base }}/{{ backend_name }}:latest
+      docker push {{ registry_base }}/{{ backend_name }}:latest
 
   - name: Remove backend image locally
     community.docker.docker_image:
       name: "{{ registry_base }}/{{ backend_name }}:{{ docker_tag.stdout }}"
       source: local
       state: absent
+      force_absent: true
+
+  - name: Remove latest tagged backend image locally
+    community.docker.docker_image:
+      name: "{{ registry_base }}/{{ backend_name }}:latest"
+      source: local
+      state: absent
+      force_absent: true
 
   - name: Save Docker tag
     shell: echo {{ docker_tag.stdout }} > .docker-tag

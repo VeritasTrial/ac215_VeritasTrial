@@ -26,12 +26,4 @@ jobs:
         run: cd deploy && make build
 
       - name: Deploy app
-        run: |
-          cd deploy
-          docker container run --rm \
-            --env GCP_PROJECT_ID=veritastrial \
-            --env GCP_REGION=us-central1 \
-            --volume ${{ github.workspace }}/app/backend:/app/backend:ro \
-            --volume ${{ github.workspace }}/app/frontend:/app/frontend:ro \
-            --volume /var/run/docker.sock:/var/run/docker.sock \
-            --name veritas-trial-deployment veritas-trial-deployment ./deploy-app.sh
+        run: cd deploy && make gh-actions
