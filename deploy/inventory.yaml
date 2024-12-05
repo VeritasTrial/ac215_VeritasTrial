@@ -1,7 +1,10 @@
 all:
   vars:
+    google_application_credentials: "{{ lookup('env', 'GOOGLE_APPLICATION_CREDENTIALS') }}"
     gcp_project_id: "{{ lookup('env', 'GCP_PROJECT_ID') }}"
     gcp_region: "{{ lookup('env', 'GCP_REGION') }}"
+    gcp_zone: "{{ lookup('env', 'GCP_ZONE') }}"
+    gcp_auth_kind: serviceaccount
     frontend_name: veritas-trial-frontend
     backend_name: veritas-trial-backend
 

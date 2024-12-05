@@ -1,0 +1,3 @@
+chromadb/.terraform/
+chromadb/*.tfstate
+chromadb/*.tfstate.backup
