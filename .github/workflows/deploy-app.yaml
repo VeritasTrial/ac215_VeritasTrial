@@ -53,7 +53,7 @@ jobs:
             Check the workflow run at: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: Enable auto-merge
-        run: gh pr merge --squash --auto --delete-branch "$PR_NUMBER"
+        run: gh pr merge --squash --auto "$PR_NUMBER"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ steps.create-pr.outputs.pull-request-number }}
