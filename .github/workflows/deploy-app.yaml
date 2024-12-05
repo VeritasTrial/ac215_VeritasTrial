@@ -27,8 +27,12 @@ jobs:
 
       - name: Deploy app
         env:
-          VERITAS_TRIAL_SERVICE_KEY: ${{ secrets.VERITAS_TRIAL_SERVICE_KEY }}
-        run: cd deploy && make gh-actions command=./deploy-app.sh
+          VERITAS_TRIAL_SERVICE_CREDENTIALS: /tmp/veritas-trial-service.json
+        run: |
+          cd deploy
+          echo ${{ secrets.VERITAS_TRIAL_SERVICE_KEY }} > /tmp/veritas-trial-service.json
+          make gh-actions command=./deploy-app.sh
+          rm /tmp/veritas-trial-service.json
 
       - name: Update Docker tag
         run: |

@@ -7,8 +7,6 @@
     machine_type: n2d-standard-2
     machine_disk_size: 30
     initial_node_count: 2
-    veritas_trial_service_key: "{{ lookup('env', 'VERITAS_TRIAL_SERVICE_KEY') | default('', true) }}"
-    veritas_trial_service_file: "{{ lookup('env', 'VERITAS_TRIAL_SERVICE_FILE') | default('/tmp/veritas-trial-service.json') }}"
 
   tasks:
     - name: Get Docker tag
@@ -87,20 +85,11 @@
         chart_ref: nginx-stable/nginx-ingress
         state: present
 
-    - name: Create GCP service account credentials file
-      when:
-        - cluster_state == "present"
-        - veritas_trial_service_key != ""
-      copy:
-        content: "{{ veritas_trial_service_key }}"
-        dest: /tmp/veritas-trial-service.json
-        mode: 0600
-
     - name: Import GCP service account credentials as secret
       when: cluster_state == "present"
       shell: |
         kubectl create secret generic veritas-trial-service-key \
-          --from-file=veritas-trial-service.json={{ veritas_trial_service_file }} \
+          --from-file=veritas-trial-service.json={{ veritas_trial_service_credentials }} \
           --namespace="{{ cluster_name }}-namespace"
       ignore_errors: true # Ignore "secret already exists" error
 

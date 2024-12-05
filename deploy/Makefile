@@ -13,7 +13,7 @@ build:
 run:
 	$(DOCKER_CMD) container run $(if $(command),,-it) --rm \
 		--env GOOGLE_APPLICATION_CREDENTIALS=/secrets/veritas-trial-deployment.json \
-		--env VERITAS_TRIAL_SERVICE_FILE=/secrets/veritas-trial-service.json \
+		--env VERITAS_TRIAL_SERVICE_CREDENTIALS=/secrets/veritas-trial-service.json \
 		--env GCP_PROJECT_ID=veritastrial \
 		--env GCP_REGION=us-central1 \
 		--env GCP_ZONE=us-central1-a \
@@ -29,12 +29,13 @@ run:
 gh-actions:
 	$(DOCKER_CMD) container run --rm \
 		--env GOOGLE_APPLICATION_CREDENTIALS=/secrets/veritas-trial-deployment.json \
-		--env VERITAS_TRIAL_SERVICE_KEY=$(VERITAS_TRIAL_SERVICE_KEY) \
+		--env VERITAS_TRIAL_SERVICE_CREDENTIALS=/secrets/veritas-trial-service.json \
 		--env GCP_PROJECT_ID=veritastrial \
 		--env GCP_REGION=us-central1 \
 		--env GCP_ZONE=us-central1-a \
 		--volume $(PWD)/.docker-tag-app:/veritastrial/.docker-tag-app \
 		--volume $(GOOGLE_APPLICATION_CREDENTIALS):/secrets/veritas-trial-deployment.json:ro \
+		--volume $(VERITAS_TRIAL_SERVICE_CREDENTIALS):/secrets/veritas-trial-service.json:ro \
 		--volume $(PWD)/../app/backend:/app/backend:ro \
 		--volume $(PWD)/../app/frontend:/app/frontend:ro \
 		--volume /var/run/docker.sock:/var/run/docker.sock \
