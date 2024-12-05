@@ -1,4 +1,4 @@
-chroma_version = "0.5.20"
+chroma_version = "0.5.23"
 project_id="veritastrial"
 region="us-central1"
 zone="us-central1-a"

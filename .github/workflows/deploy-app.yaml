@@ -41,7 +41,7 @@ jobs:
         id: create-pr
         uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.CHARLIE_XIAO_PAT }}
           labels: app, ci/cd
           title: "cd: Update Docker tag for app"
           commit-message: "cd: Update Docker tag for app"
@@ -54,5 +54,5 @@ jobs:
       - name: Enable auto-merge
         run: gh pr merge --squash --auto "$PR_NUMBER"
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.CHARLIE_XIAO_PAT }}
           PR_NUMBER: ${{ steps.create-pr.outputs.pull-request-number }}

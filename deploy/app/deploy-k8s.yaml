@@ -157,7 +157,7 @@
                       - name: GOOGLE_APPLICATION_CREDENTIALS
                         value: /secrets/veritas-trial-service.json
                       - name: CHROMADB_HOST
-                        value: 35.188.136.220
+                        value: 35.226.13.117
                       - name: SERVER_ROOT_PATH
                         value: /api
 
