@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
 
     steps:
       - name: Checkout repository
@@ -36,13 +37,23 @@ jobs:
           make gh-actions command=./deploy-app.sh
           rm /tmp/veritas-trial-service.json
 
-      - name: Update Docker tag
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .
-          git commit -m "cd: Update Docker tag for app
+      - name: Create PR to update Docker tag
+        id: create-pr
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
+          labels: app, ci/cd
+          title: "cd: Update Docker tag for app"
+          commit-message: "cd: Update Docker tag for app"
+          author: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+          committer: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+          body: |
+            This PR was triggered by @${{ github.actor }} in ${{ github.workflow }}.
+            Check the workflow run at: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-          Triggered by ${{ github.actor }} in ${{ github.workflow }}. Workflow run at:
-          https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          git push
+      - name: Enable auto-merge
+        run: gh pr merge --squash --auto --delete-branch "$PR_NUMBER"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.create-pr.outputs.pull-request-number }}
