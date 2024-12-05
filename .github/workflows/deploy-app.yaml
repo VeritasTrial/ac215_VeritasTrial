@@ -30,7 +30,7 @@ jobs:
           VERITAS_TRIAL_SERVICE_CREDENTIALS: /tmp/veritas-trial-service.json
         run: |
           cd deploy
-          echo ${{ secrets.VERITAS_TRIAL_SERVICE_KEY }} > /tmp/veritas-trial-service.json
+          printf "%s" "${{ secrets.VERITAS_TRIAL_SERVICE_KEY }}" > /tmp/veritas-trial-service.json
           make gh-actions command=./deploy-app.sh
           rm /tmp/veritas-trial-service.json
 
