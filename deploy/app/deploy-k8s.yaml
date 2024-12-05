@@ -1,0 +1,262 @@
+- name: Deploy (or delete) Kubernetes cluster
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    cluster_name: veritas-trial-cluster
+    machine_type: n2d-standard-2
+    machine_disk_size: 30
+    initial_node_count: 2
+    veritas_trial_service_key: "{{ lookup('env', 'VERITAS_TRIAL_SERVICE_KEY') | default('', true) }}"
+    veritas_trial_service_file: "{{ lookup('env', 'VERITAS_TRIAL_SERVICE_FILE') | default('/tmp/veritas-trial-service.json') }}"
+
+  tasks:
+    - name: Get Docker tag
+      shell: cat ../.docker-tag-app
+      register: docker_tag
+
+    - name: Create GKE cluster
+      google.cloud.gcp_container_cluster:
+        name: "{{ cluster_name }}"
+        initial_node_count: "{{ initial_node_count }}"
+        location: "{{ gcp_zone }}"
+        project: "{{ gcp_project_id }}"
+        release_channel:
+          channel: UNSPECIFIED
+        ip_allocation_policy:
+          use_ip_aliases: true
+        auth_kind: "{{ gcp_auth_kind }}"
+        service_account_file: "{{ google_application_credentials }}"
+        state: "{{ cluster_state }}"
+      register: cluster
+
+    - name: Create node pool
+      google.cloud.gcp_container_node_pool:
+        name: veritas-trial-pool
+        initial_node_count: "{{ initial_node_count }}"
+        cluster: "{{ cluster }}"
+        location: "{{ gcp_zone }}"
+        project: "{{ gcp_project_id }}"
+        config:
+          machine_type: "{{ machine_type }}"
+          image_type: cos_containerd
+          disk_size_gb: "{{ machine_disk_size }}"
+          oauth_scopes:
+            - https://www.googleapis.com/auth/devstorage.read_only
+            - https://www.googleapis.com/auth/logging.write
+            - https://www.googleapis.com/auth/monitoring
+            - https://www.googleapis.com/auth/servicecontrol
+            - https://www.googleapis.com/auth/service.management.readonly
+            - https://www.googleapis.com/auth/trace.append
+        autoscaling:
+          enabled: true
+          min_node_count: 1
+          max_node_count: "{{ initial_node_count }}"
+        management:
+          auto_repair: true
+          auto_upgrade: true
+        auth_kind: "{{ gcp_auth_kind }}"
+        service_account_file: "{{ google_application_credentials }}"
+        state: "{{ cluster_state }}"
+
+    - name: Connect to GKE cluster
+      when: cluster_state == "present"
+      shell: |
+        gcloud container clusters get-credentials {{ cluster.name }} \
+          --zone {{ gcp_zone }} --project {{ gcp_project_id }}
+
+    - name: Create Namespace
+      when: cluster_state == "present"
+      kubernetes.core.k8s:
+        name: "{{ cluster_name }}-namespace"
+        api_version: v1
+        kind: Namespace
+        state: present
+
+    - name: Add nginx-ingress helm repository
+      when: cluster_state == "present"
+      kubernetes.core.helm_repository:
+        name: nginx-stable
+        repo_url: https://helm.nginx.com/stable
+
+    - name: Install nginx-ingress
+      when: cluster_state == "present"
+      kubernetes.core.helm:
+        name: nginx-ingress
+        namespace: "{{ cluster_name }}-namespace"
+        chart_ref: nginx-stable/nginx-ingress
+        state: present
+
+    - name: Create GCP service account credentials file
+      when:
+        - cluster_state == "present"
+        - veritas_trial_service_key != ""
+      copy:
+        content: "{{ veritas_trial_service_key }}"
+        dest: /tmp/veritas-trial-service.json
+        mode: 0600
+
+    - name: Import GCP service account credentials as secret
+      when: cluster_state == "present"
+      shell: |
+        kubectl create secret generic veritas-trial-service-key \
+          --from-file=veritas-trial-service.json={{ veritas_trial_service_file }} \
+          --namespace="{{ cluster_name }}-namespace"
+      ignore_errors: true # Ignore "secret already exists" error
+
+    - name: Create frontend deployment
+      when: cluster_state == "present"
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Deployment
+          metadata:
+            name: veritas-trial-frontend
+            namespace: "{{ cluster_name }}-namespace"
+          spec:
+            selector:
+              matchLabels:
+                run: veritas-trial-frontend
+            template:
+              metadata:
+                labels:
+                  run: veritas-trial-frontend
+              spec:
+                containers:
+                  - image: "{{ gcp_region }}-docker.pkg.dev/{{ gcp_project_id }}/docker/veritas-trial-frontend:{{ docker_tag.stdout }}"
+                    imagePullPolicy: IfNotPresent
+                    name: veritas-trial-frontend
+                    ports:
+                      - containerPort: 80
+                        protocol: TCP
+
+    - name: Create backend deployment
+      when: cluster_state == "present"
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Deployment
+          metadata:
+            name: veritas-trial-backend
+            namespace: "{{ cluster_name }}-namespace"
+          spec:
+            selector:
+              matchLabels:
+                run: veritas-trial-backend
+            template:
+              metadata:
+                labels:
+                  run: veritas-trial-backend
+              spec:
+                volumes:
+                  - name: veritas-trial-service-key
+                    secret:
+                      secretName: veritas-trial-service-key
+                containers:
+                  - image: "{{ gcp_region }}-docker.pkg.dev/{{ gcp_project_id }}/docker/veritas-trial-backend:{{ docker_tag.stdout }}"
+                    imagePullPolicy: IfNotPresent
+                    name: veritas-trial-backend
+                    ports:
+                      - containerPort: 8001
+                        protocol: TCP
+                    volumeMounts:
+                      - name: veritas-trial-service-key
+                        mountPath: /secrets
+                    env:
+                      - name: GOOGLE_APPLICATION_CREDENTIALS
+                        value: /secrets/veritas-trial-service.json
+                      - name: CHROMADB_HOST
+                        value: 35.188.136.220
+                      - name: SERVER_ROOT_PATH
+                        value: /api
+
+    - name: Create frontend service
+      when: cluster_state == "present"
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: veritas-trial-frontend
+            namespace: "{{ cluster_name }}-namespace"
+          spec:
+            ports:
+              - port: 8080
+                protocol: TCP
+                targetPort: 80
+            selector:
+              run: veritas-trial-frontend
+            type: NodePort
+
+    - name: Create backend service
+      when: cluster_state == "present"
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: veritas-trial-backend
+            namespace: "{{ cluster_name }}-namespace"
+          spec:
+            ports:
+              - port: 8001
+                protocol: TCP
+                targetPort: 8001
+            selector:
+              run: veritas-trial-backend
+            type: NodePort
+
+    - name: Wait for nginx-ingress to get ready
+      when: cluster_state == "present"
+      shell: |
+        kubectl get service nginx-ingress-controller --namespace="{{ cluster_name }}-namespace" -ojson | \
+          jq -r ".status.loadBalancer.ingress[].ip"
+      register: nginx_ingress
+      delay: 10
+      retries: 20
+      until: nginx_ingress.stderr == ""
+
+    - name: Debug nginx-ingress IP
+      when: cluster_state == "present"
+      debug:
+        msg: "Nginx ingress IP address: {{ nginx_ingress.stdout }}"
+
+    - name: Create ingress controller
+      when: cluster_state == "present"
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: networking.k8s.io/v1
+          kind: Ingress
+          metadata:
+            name: ingress-resource
+            namespace: "{{ cluster_name }}-namespace"
+            annotations:
+              kubernetes.io/ingress.class: nginx
+              nginx.ingress.kubernetes.io/ssl-redirect: "false"
+              nginx.org/rewrites: |
+                serviceName=veritas-trial-frontend rewrite=/;
+                serviceName=veritas-trial-backend rewrite=/
+          spec:
+            rules:
+              - host: "{{ nginx_ingress.stdout }}.sslip.io"
+                http:
+                  paths:
+                    - path: /
+                      pathType: Prefix
+                      backend:
+                        service:
+                          name: veritas-trial-frontend
+                          port:
+                            number: 8080
+                    - path: /api/
+                      pathType: Prefix
+                      backend:
+                        service:
+                          name: veritas-trial-backend
+                          port:
+                            number: 8001

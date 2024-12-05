@@ -13,6 +13,7 @@ services:
     environment:
       - GOOGLE_APPLICATION_CREDENTIALS=/secrets/veritas-trial-service.json
       - FRONTEND_URL=http://localhost:8080
+      - CHROMADB_HOST=chromadb
     ports:
       - "8001:8001"
     volumes:

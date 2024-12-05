@@ -32,7 +32,9 @@ from utils import format_exc_details, get_metadata_from_id
 
 logger = logging.getLogger("uvicorn.error")
 
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:8080")
+FRONTEND_URL = os.getenv("FRONTEND_URL")
+CHROMADB_HOST = os.getenv("CHROMADB_HOST", "localhost")
+SERVER_ROOT_PATH = os.getenv("SERVER_ROOT_PATH", "")
 CHROMADB_COLLECTION_NAME = "veritas-trial-embeddings"
 GCP_PROJECT_ID = "veritastrial"
 GCP_PROJECT_LOCATION = "us-central1"
@@ -48,7 +50,7 @@ async def lifespan(app: FastAPI):  # pragma: no cover
     """Context manager to handle the lifespan of the FastAPI app."""
     global EMBEDDING_MODEL, CHROMADB_COLLECTION
     EMBEDDING_MODEL = FlagModel("BAAI/bge-small-en-v1.5", use_fp16=True)
-    chromadb_client = chromadb.HttpClient(host="chromadb", port=8000)
+    chromadb_client = chromadb.HttpClient(host=CHROMADB_HOST, port=8000)
     CHROMADB_COLLECTION = chromadb_client.get_collection(CHROMADB_COLLECTION_NAME)
     vertexai.init(project=GCP_PROJECT_ID, location=GCP_PROJECT_LOCATION)
 
@@ -60,16 +62,22 @@ async def lifespan(app: FastAPI):  # pragma: no cover
 
 
 # Initialize the FastAPI app
-app = FastAPI(lifespan=lifespan, docs_url=None, redoc_url="/")
+app = FastAPI(
+    lifespan=lifespan,
+    root_path=SERVER_ROOT_PATH,
+    docs_url=None,
+    redoc_url="/",
+)
 
 # Handle cross-origin requests from the frontend
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[FRONTEND_URL],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+if FRONTEND_URL is not None:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[FRONTEND_URL],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 
 def custom_openapi():  # pragma: no cover
@@ -102,9 +110,10 @@ async def custom_exception_handler(
         status_code=500,
         content={"details": format_exc_details(exc)},
     )
-    # Manually set the CORS headers for the error response
-    response.headers["Access-Control-Allow-Origin"] = FRONTEND_URL
-    response.headers["Access-Control-Allow-Credentials"] = "true"
+    if FRONTEND_URL is not None:
+        # Manually set the CORS headers for the error response
+        response.headers["Access-Control-Allow-Origin"] = FRONTEND_URL
+        response.headers["Access-Control-Allow-Credentials"] = "true"
     return response
 
 

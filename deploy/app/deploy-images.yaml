@@ -6,77 +6,55 @@
     registry_base: "{{ gcp_region }}-docker.pkg.dev/{{ gcp_project_id }}/docker"
 
   tasks:
-  - name: Set timestamp as Docker image tag
-    shell: date +%Y%m%d%H%M%S
-    register: docker_tag
+    - name: Set timestamp as Docker image tag
+      shell: date +%Y%m%d%H%M%S
+      register: docker_tag
 
-  - name: Build frontend image
-    community.docker.docker_image:
-      build:
-        path: /app/frontend
-        platform: linux/amd64/v2
-      name: "{{ registry_base }}/{{ frontend_name }}:{{ docker_tag.stdout }}"
-      source: build
+    - name: Build frontend image
+      community.docker.docker_image:
+        build:
+          path: /app/frontend
+          args:
+            VITE_BACKEND_URL: /api
+          platform: linux/amd64/v2
+        name: "{{ registry_base }}/{{ frontend_name }}:{{ docker_tag.stdout }}"
+        source: build
 
-  - name: Push frontend image
-    community.docker.docker_image:
-      name: "{{ registry_base }}/{{ frontend_name }}:{{ docker_tag.stdout }}"
-      repository: "{{ registry_base }}/{{ frontend_name }}:{{ docker_tag.stdout }}"
-      push: true
-      source: local
+    - name: Push frontend image
+      community.docker.docker_image:
+        name: "{{ registry_base }}/{{ frontend_name }}:{{ docker_tag.stdout }}"
+        repository: "{{ registry_base }}/{{ frontend_name }}:{{ docker_tag.stdout }}"
+        push: true
+        source: local
 
-  - name: Tag frontend image as latest
-    shell: |
-      docker tag {{ registry_base }}/{{ frontend_name }}:{{ docker_tag.stdout }} {{ registry_base }}/{{ frontend_name }}:latest
-      docker push {{ registry_base }}/{{ frontend_name }}:latest
+    - name: Remove frontend image locally
+      community.docker.docker_image:
+        name: "{{ registry_base }}/{{ frontend_name }}:{{ docker_tag.stdout }}"
+        source: local
+        state: absent
+        force_absent: true
 
-  - name: Remove frontend image locally
-    community.docker.docker_image:
-      name: "{{ registry_base }}/{{ frontend_name }}:{{ docker_tag.stdout }}"
-      source: local
-      state: absent
-      force_absent: true
+    - name: Build backend image
+      community.docker.docker_image:
+        build:
+          path: /app/backend
+          platform: linux/amd64/v2
+        name: "{{ registry_base }}/{{ backend_name }}:{{ docker_tag.stdout }}"
+        source: build
 
-  - name: Remove latest tagged frontend image locally
-    community.docker.docker_image:
-      name: "{{ registry_base }}/{{ frontend_name }}:latest"
-      source: local
-      state: absent
-      force_absent: true
+    - name: Push backend image
+      community.docker.docker_image:
+        name: "{{ registry_base }}/{{ backend_name }}:{{ docker_tag.stdout }}"
+        repository: "{{ registry_base }}/{{ backend_name }}:{{ docker_tag.stdout }}"
+        push: true
+        source: local
 
-  - name: Build backend image
-    community.docker.docker_image:
-      build:
-        path: /app/backend
-        platform: linux/amd64/v2
-      name: "{{ registry_base }}/{{ backend_name }}:{{ docker_tag.stdout }}"
-      source: build
+    - name: Remove backend image locally
+      community.docker.docker_image:
+        name: "{{ registry_base }}/{{ backend_name }}:{{ docker_tag.stdout }}"
+        source: local
+        state: absent
+        force_absent: true
 
-  - name: Push backend image
-    community.docker.docker_image:
-      name: "{{ registry_base }}/{{ backend_name }}:{{ docker_tag.stdout }}"
-      repository: "{{ registry_base }}/{{ backend_name }}:{{ docker_tag.stdout }}"
-      push: true
-      source: local
-
-  - name: Tag backend image as latest
-    shell: |
-      docker tag {{ registry_base }}/{{ backend_name }}:{{ docker_tag.stdout }} {{ registry_base }}/{{ backend_name }}:latest
-      docker push {{ registry_base }}/{{ backend_name }}:latest
-
-  - name: Remove backend image locally
-    community.docker.docker_image:
-      name: "{{ registry_base }}/{{ backend_name }}:{{ docker_tag.stdout }}"
-      source: local
-      state: absent
-      force_absent: true
-
-  - name: Remove latest tagged backend image locally
-    community.docker.docker_image:
-      name: "{{ registry_base }}/{{ backend_name }}:latest"
-      source: local
-      state: absent
-      force_absent: true
-
-  - name: Save Docker tag
-    shell: echo {{ docker_tag.stdout }} > .docker-tag
+    - name: Save Docker tag
+      shell: echo {{ docker_tag.stdout }} > ../.docker-tag-app

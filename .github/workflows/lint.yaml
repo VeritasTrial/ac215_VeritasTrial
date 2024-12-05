@@ -23,7 +23,7 @@ jobs:
       - name: Python setup
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
           cache: pipenv
           cache-dependency-path: app/backend/Pipfile.lock
 
