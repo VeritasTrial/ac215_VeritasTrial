@@ -42,7 +42,6 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
           labels: app, ci/cd
           title: "cd: Update Docker tag for app"
           commit-message: "cd: Update Docker tag for app"
