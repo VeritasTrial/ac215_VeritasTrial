@@ -4,6 +4,11 @@ dist/
 *.tsbuildinfo
 .coverage
 
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+
 # Data files
 data/
 

@@ -26,4 +26,4 @@ jobs:
         run: cd deploy && make build
 
       - name: Deploy app
-        run: cd deploy && make gh-actions
+        run: cd deploy && make gh-actions command=./deploy-app.sh
