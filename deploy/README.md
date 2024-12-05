@@ -27,4 +27,4 @@ The deployment uses Terraform, as suggested in [ChromaDB docs](https://docs.tryc
 ./destroy-chromadb.sh # Destroy ChromaDB instance
 ```
 
-Both commands are not automated and need to be run manually when necessary.
+Both commands are not automated and need to be run manually when necessary. After a new deployment, one must update the `CHROMADB_HOST` environment variable in the "Create backend deployment" step in `app/deploy-k8s.yaml` and trigger the app deployment workflow.
