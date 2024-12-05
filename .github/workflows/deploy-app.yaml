@@ -26,4 +26,21 @@ jobs:
         run: cd deploy && make build
 
       - name: Deploy app
-        run: cd deploy && make gh-actions command=./deploy-app.sh
+        env:
+          VERITAS_TRIAL_SERVICE_CREDENTIALS: /tmp/veritas-trial-service.json
+        run: |
+          cd deploy
+          printf "%s" "${{ secrets.VERITAS_TRIAL_SERVICE_KEY }}" > /tmp/veritas-trial-service.json
+          make gh-actions command=./deploy-app.sh
+          rm /tmp/veritas-trial-service.json
+
+      - name: Update Docker tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "cd: Update Docker tag for app
+
+          Triggered by ${{ github.actor }} in ${{ github.workflow }}. Workflow run at:
+          https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          git push

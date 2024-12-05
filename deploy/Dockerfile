@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN set -ex; \
   apt-get update && \
   apt-get upgrade -y && \
-  apt-get install -y build-essential curl software-properties-common apt-transport-https ca-certificates gnupg
+  apt-get install -y apt-transport-https build-essential ca-certificates curl gnupg jq software-properties-common
 
 # Install gcloud
 # https://cloud.google.com/sdk/docs/install#deb
@@ -17,7 +17,7 @@ RUN set -ex; \
   echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | \
     tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
   apt-get update && \
-  apt-get install -y google-cloud-cli
+  apt-get install -y google-cloud-cli google-cloud-cli-gke-gcloud-auth-plugin
 
 # Install Terraform
 # https://developer.hashicorp.com/terraform/install?product_intent=terraform#linux
@@ -28,6 +28,29 @@ RUN set -ex; \
     tee /etc/apt/sources.list.d/hashicorp.list && \
   apt-get update && \
   apt-get install -y terraform
+
+# Install Kubernetes
+# https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-using-native-package-management
+RUN set -ex; \
+  curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key | \
+    gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg && \
+  chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg && \
+  echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /" | \
+    tee /etc/apt/sources.list.d/kubernetes.list && \
+  chmod 644 /etc/apt/sources.list.d/kubernetes.list && \
+  apt-get update && \
+  apt-get install -y kubectl
+
+# Install Helm
+# https://helm.sh/docs/intro/install/#from-apt-debianubuntu
+RUN set -ex; \
+  curl https://baltocdn.com/helm/signing.asc | \
+    gpg --dearmor | \
+    tee /usr/share/keyrings/helm.gpg && \
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | \
+    tee /etc/apt/sources.list.d/helm-stable-debian.list && \
+  apt-get update && \
+  apt-get install -y helm
 
 # Install Docker
 # https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository
@@ -50,8 +73,8 @@ RUN set -ex; \
 
 # Install Ansible
 RUN set -ex; \
-  python3.11 -m pip install requests ansible && \
-  ansible-galaxy collection install community.docker google.cloud
+  python3.11 -m pip install ansible google-auth kubernetes requests && \
+  ansible-galaxy collection install community.docker google.cloud kubernetes.core
 
 # Clean up
 RUN set -ex; \
