@@ -44,8 +44,9 @@ def pipeline():
     embedding_model_task = (
         embedding_model()
         .set_display_name("Embedding model")
-        .set_accelerator_type("NVIDIA_TESLA_T4")
-        .set_accelerator_limit(1)
+        # TODO: Use GPU when quota is available
+        # .set_accelerator_type("NVIDIA_TESLA_T4")
+        # .set_accelerator_limit(1)
         .after(data_pipeline_task)
     )
 
