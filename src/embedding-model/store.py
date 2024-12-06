@@ -67,8 +67,9 @@ def main():
         # Upsert embeddings and the corresponding metadata to the vector database
         task = progress.add_task("Upserting data to ChromaDB...", total=1)
         client = chromadb.HttpClient(host=CHROMADB_HOST, port=CHROMADB_PORT)
-        collection = client.get_or_create_collection(CHROMADB_COLLECTION_NAME)
-        collection.upsert(
+        client.reset()  # Remove all collections and entries
+        collection = client.create_collection(CHROMADB_COLLECTION_NAME)
+        collection.add(
             ids=study_ids,
             embeddings=embeddings.tolist(),
             documents=study_titles,
