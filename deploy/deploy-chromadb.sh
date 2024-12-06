@@ -15,3 +15,4 @@ terraform import \
   veritastrial/chroma-allow-ssh-http || true
 
 terraform apply -var-file chroma.tfvars
+echo "$(terraform output -raw chroma_instance_ip)" > .instance-ip

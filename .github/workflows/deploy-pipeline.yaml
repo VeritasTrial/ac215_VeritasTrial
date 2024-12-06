@@ -1,10 +1,10 @@
-name: Deploy app
+name: Deploy pipeline
 
 on:
   workflow_dispatch:
 
 jobs:
-  deploy-app:
+  deploy-pipeline:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -28,13 +28,13 @@ jobs:
       - name: Build deployment container
         run: cd deploy && make build
 
-      - name: Deploy app
+      - name: Deploy pipeline
         env:
           VERITAS_TRIAL_SERVICE_CREDENTIALS: /tmp/veritas-trial-service.json
         run: |
           cd deploy
           printf "%s" "${{ secrets.VERITAS_TRIAL_SERVICE_KEY }}" > /tmp/veritas-trial-service.json
-          make gh-actions command=./deploy-app.sh
+          make gh-actions command=./deploy-pipeline.sh
           rm /tmp/veritas-trial-service.json
 
       - name: Create PR
@@ -42,9 +42,9 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.CHARLIE_XIAO_PAT }}
-          labels: app, ci/cd
-          title: "cd: updates of app deployment"
-          commit-message: "cd: updates of app deployment"
+          labels: ci/cd
+          title: "cd: updates of pipeline deployment"
+          commit-message: "cd: updates of pipeline deployment"
           author: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
           committer: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
           body: |

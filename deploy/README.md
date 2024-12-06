@@ -1,6 +1,6 @@
 # Deploy
 
-Make sure you have `veritas-trial-deployment.json` and `veritas-trial-service.json` under the `/secrets/` directory if you will deploy manually. Now enter this directory, then build and run the container:
+The deployment commands are automated with GitHub Actions. It is preffered to trigger the corresponding workflow instead of running the command manually. The following are only for demonstration purposes. Make sure you have `veritas-trial-deployment.json` and `veritas-trial-service.json` under the `/secrets/` directory if you are deploying manually. Now enter this directory, then build and run the container:
 
 ```bash
 make build
@@ -9,22 +9,27 @@ make run
 
 ## App
 
-The deployment uses Ansible. Inside the container:
+The deployment uses Ansible. It will deploy the Docker images of the application and create/update the Kubernetes cluster to run the application. Inside the container, run:
 
 ```bash
-./deploy-app.sh  # Deploy app images and K8S cluster
-./destroy-app.sh # Destroy K8S cluster
+./deploy-app.sh  # Deploy app (preferred to trigger GitHub Actions workflow)
+./destroy-app.sh # Destroy app
 ```
 
-The deployment command is automated with GitHub Actions. It is preferred to trigger the corresponding workflow instead of running the command manually. The destruction command is not automated and needs to be run manually when necessary.
+## Pipeline
+
+The deployment uses Ansible and Vertex AI pipeline. It will deploy the Docker images of the pipeline and run `/src/data-pipeline/` and `/src/embedding-model/` steps. Inside the container, run:
+
+```bash
+./deploy-pipeline.sh # Deploy pipeline (preferred to trigger GitHub Actions workflow)
+```
+
 
 ## ChromaDB
 
-The deployment uses Terraform, as suggested in [ChromaDB docs](https://docs.trychroma.com/deployment/gcp). Inside the container:
+The deployment uses Terraform, as suggested in [ChromaDB docs](https://docs.trychroma.com/deployment/gcp). It will deploy a VM instance that runs ChromaDB service. Note that redeploying ChromaDB requires redeploying the app and the pipeline as well. The following script will not do that, but the corresponding workflow in GitHub Actions will. Inside the container, run:
 
 ```bash
-./deploy-chromadb.sh  # Deploy ChromaDB instance
+./deploy-chromadb.sh  # Deploy ChromaDB instance (preferred to trigger GitHub Actions workflow)
 ./destroy-chromadb.sh # Destroy ChromaDB instance
 ```
-
-Both commands are not automated and need to be run manually when necessary. After a new deployment, one must update the `CHROMADB_HOST` environment variable in the "Create backend deployment" step in `app/deploy-k8s.yaml` and trigger the app deployment workflow.

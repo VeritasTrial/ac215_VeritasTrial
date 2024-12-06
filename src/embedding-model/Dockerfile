@@ -33,7 +33,7 @@ RUN pipenv sync --clear && \
 
 # Add the rest of the source code; this is done last to take advantage of
 # Docker's layer caching mechanism
-COPY --chown=veritastrial:veritastrial *.py Makefile /veritastrial/
+COPY --chown=veritastrial:veritastrial *.py *.sh Makefile /veritastrial/
 
-# Activate the virtual environment on container startup
-ENTRYPOINT [ "pipenv", "shell" ]
+# Run the entrypoint script on container startup
+ENTRYPOINT [ "/bin/bash", "docker-entrypoint.sh" ]
