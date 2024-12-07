@@ -11,6 +11,8 @@ import { RetrievePanelFilterStudyType } from "./RetrievePanelFilterStudyType";
 import { RetrievePanelFilterStudyPhases } from "./RetrievePanelFilterStudyPhases";
 import { RetrievePanelFilterAgeRange } from "./RetrievePanelFilterAgeRange";
 import { RetrievePanelFilterEligibleSex } from "./RetrievePanelFilterEligibleSex";
+import { RetrievePanelFilterLastUpdateDate } from "./RetrievePanelFilterLastUpdateDate";
+import { RetrievePanelFilterResultsDate } from "./RetrievePanelFilterResultsDate";
 
 interface RetrievePanelFiltersProps {
   filters: TrialFilters;
@@ -64,6 +66,26 @@ export const RetrievePanelFilters = ({
         <DataList.Label minWidth="0">Eligible Sex</DataList.Label>
         <DataList.Value>
           <RetrievePanelFilterEligibleSex
+            filters={filters}
+            setFilters={setFilters}
+          />
+        </DataList.Value>
+      </DataList.Item>
+
+      <DataList.Item>
+        <DataList.Label minWidth="0">Last Update Date</DataList.Label>
+        <DataList.Value>
+          <RetrievePanelFilterLastUpdateDate
+            filters={filters}
+            setFilters={setFilters}
+          />
+        </DataList.Value>
+      </DataList.Item>
+
+      <DataList.Item>
+        <DataList.Label minWidth="0">Results Date</DataList.Label>
+        <DataList.Value>
+          <RetrievePanelFilterResultsDate
             filters={filters}
             setFilters={setFilters}
           />

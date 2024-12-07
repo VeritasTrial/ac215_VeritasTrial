@@ -48,6 +48,8 @@ export interface TrialFilters {
   minAge?: number;
   maxAge?: number;
   eligibleSex?: string;
+  resultsDate?:string;
+  lastUpdateDate?:string;
 }
 
 /* ==========================================================================

@@ -5,7 +5,7 @@
  */
 
 import { Dispatch, SetStateAction, useState } from "react";
-import { Slider } from "@radix-ui/themes";
+import { Slider, Flex} from "@radix-ui/themes";
 import { TrialFilters } from "../types";
 
 interface RetrievePanelFilterAgeRangeProps {
@@ -32,20 +32,26 @@ export const RetrievePanelFilterAgeRange = ({
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <label style={{ display: "block", marginBottom: "8px" }}>
-        Age Range: {values[0]} - {values[1]} years
-      </label>
-      <Slider
-        min={0}
-        max={100}
-        step={1}
-        defaultValue={[values[0], values[1]]}
-        value={values}
-        onValueChange={handleValueChange}
-        orientation="horizontal"
-        style={{ width: "100%" }}
-      />
-    </div>
+    <Flex align="center" gap="4">
+      <div style={{ flex: 1 }}> 
+        <label style={{ display: "block", marginBottom: "8px" }}>
+          {values[0]} - {values[1]} years old
+        </label>
+        <Slider
+          min={0}
+          max={100}
+          step={1}
+          defaultValue={[values[0], values[1]]}
+          value={values}
+          onValueChange={handleValueChange}
+          orientation="horizontal"
+          style={{
+            height: "20px", 
+            padding: "10px 0",
+            width: "300px", 
+          }}
+        />
+      </div>
+    </Flex>
   );
 };
