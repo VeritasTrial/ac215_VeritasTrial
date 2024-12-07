@@ -25,6 +25,12 @@ devlock:
 	pipenv sync -d
 	pipenv clean
 
+# [DEV] Install development dependencies on the host machine based on the lock
+# file without modifying it
+devinstall:
+	pipenv sync -d
+	pipenv clean
+
 # [DEV] Format the codebase
 devlint:
 	pipenv run bash -c "black . && ruff check --select I --fix . && ruff format . && mypy ."
