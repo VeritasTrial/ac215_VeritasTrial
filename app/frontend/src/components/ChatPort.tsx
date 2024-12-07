@@ -26,7 +26,7 @@ export const ChatPort = forwardRef(
         css={{ "[data-radix-scroll-area-viewport] > div": { width: "100%" } }}
       >
         {/* List of chat messages, bots on left and user on right */}
-        <Flex direction="column" justify="end" gap="4" pr="4" height="100%">
+        <Flex direction="column" justify="end" gap="5" pr="4" height="100%">
           {messages.map(({ fromUser, element, text }, index) => (
             <Flex
               key={index}

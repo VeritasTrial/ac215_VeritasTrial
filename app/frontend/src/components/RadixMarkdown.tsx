@@ -6,14 +6,22 @@
 
 import {
   Blockquote,
+  BlockquoteProps,
   Box,
+  BoxProps,
   Code,
+  CodeProps,
   Em,
+  EmProps,
   Heading,
+  HeadingProps,
   Link,
+  LinkProps,
   ScrollArea,
   Separator,
+  SeparatorProps,
   Strong,
+  StrongProps,
   Table,
   Text,
   TextProps,
@@ -33,6 +41,7 @@ const headingCss = {
   paddingBottom: "var(--space-3)",
   ":first-child": { paddingTop: 0 },
 };
+
 const boxCss = {
   marginBottom: "var(--space-3)",
   ":first-child": { marginTop: 0 },
@@ -49,38 +58,38 @@ export const RadixMarkdown = ({ text, size }: RadixMarkdownProps) => {
           // Text-based components
           span: (props) => {
             const { node: _, ...rest } = props;
-            return <Text {...rest}></Text>;
+            return <Text {...(rest as TextProps)}></Text>;
           },
           a: (props) => {
             const { node: _, ...rest } = props;
-            return <Link {...rest}></Link>;
+            return <Link {...(rest as LinkProps)}></Link>;
           },
           em: (props) => {
             const { node: _, ...rest } = props;
-            return <Em {...rest}></Em>;
+            return <Em {...(rest as EmProps)}></Em>;
           },
           strong: (props) => {
             const { node: _, ...rest } = props;
-            return <Strong {...rest}></Strong>;
+            return <Strong {...(rest as StrongProps)}></Strong>;
           },
           code: (props) => {
             const { node: _, ...rest } = props;
-            return <Code variant="ghost" {...rest}></Code>;
+            return <Code variant="ghost" {...(rest as CodeProps)}></Code>;
           },
           label: (props) => {
             const { node: _, ...rest } = props;
-            return <Text as="label" {...rest}></Text>;
+            return <Text as="label" {...(rest as TextProps)}></Text>;
           },
           // Block-based components
           div: (props) => {
             const { node: _, ...rest } = props;
-            return <Text as="div" {...rest}></Text>;
+            return <Text as="div" {...(rest as TextProps)}></Text>;
           },
           p: (props) => {
             const { node: _, ...rest } = props;
             return (
               <Box css={boxCss} asChild>
-                <Text as="p" {...rest}></Text>
+                <Text as="p" {...(rest as TextProps)}></Text>
               </Box>
             );
           },
@@ -88,7 +97,7 @@ export const RadixMarkdown = ({ text, size }: RadixMarkdownProps) => {
             const { node: _, ...rest } = props;
             return (
               <Box css={boxCss} asChild>
-                <Blockquote {...rest}></Blockquote>
+                <Blockquote {...(rest as BlockquoteProps)}></Blockquote>
               </Box>
             );
           },
@@ -97,7 +106,6 @@ export const RadixMarkdown = ({ text, size }: RadixMarkdownProps) => {
             return (
               <ScrollArea scrollbars="horizontal" asChild>
                 <Box
-                  as="pre"
                   p="2"
                   css={{
                     whiteSpace: "pre",
@@ -105,7 +113,7 @@ export const RadixMarkdown = ({ text, size }: RadixMarkdownProps) => {
                     borderRadius: "var(--radius-3)",
                     ...boxCss,
                   }}
-                  {...rest}
+                  {...(rest as BoxProps)}
                 ></Box>
               </ScrollArea>
             );
@@ -113,72 +121,109 @@ export const RadixMarkdown = ({ text, size }: RadixMarkdownProps) => {
           // Heading components
           h1: (props) => {
             const { node: _, ...rest } = props;
-            return <Heading as="h1" css={headingCss} {...rest}></Heading>;
+            return (
+              <Heading
+                as="h1"
+                css={headingCss}
+                {...(rest as HeadingProps)}
+              ></Heading>
+            );
           },
           h2: (props) => {
             const { node: _, ...rest } = props;
-            return <Heading as="h2" css={headingCss} {...rest}></Heading>;
+            return (
+              <Heading
+                as="h2"
+                css={headingCss}
+                {...(rest as HeadingProps)}
+              ></Heading>
+            );
           },
           h3: (props) => {
             const { node: _, ...rest } = props;
-            return <Heading as="h3" css={headingCss} {...rest}></Heading>;
+            return (
+              <Heading
+                as="h3"
+                css={headingCss}
+                {...(rest as HeadingProps)}
+              ></Heading>
+            );
           },
           h4: (props) => {
             const { node: _, ...rest } = props;
-            return <Heading as="h4" css={headingCss} {...rest}></Heading>;
+            return (
+              <Heading
+                as="h4"
+                css={headingCss}
+                {...(rest as HeadingProps)}
+              ></Heading>
+            );
           },
           h5: (props) => {
             const { node: _, ...rest } = props;
-            return <Heading as="h5" css={headingCss} {...rest}></Heading>;
+            return (
+              <Heading
+                as="h5"
+                css={headingCss}
+                {...(rest as HeadingProps)}
+              ></Heading>
+            );
           },
           h6: (props) => {
             const { node: _, ...rest } = props;
-            return <Heading as="h6" css={headingCss} {...rest}></Heading>;
-          },
-          // List components
-          ul: (props) => {
-            const { node: _, ...rest } = props;
-            return <Box as="ul" pl="3" css={boxCss} {...rest}></Box>;
-          },
-          ol: (props) => {
-            const { node: _, ...rest } = props;
-            return <Box as="ol" pl="3" css={boxCss} {...rest}></Box>;
+            return (
+              <Heading
+                as="h6"
+                css={headingCss}
+                {...(rest as HeadingProps)}
+              ></Heading>
+            );
           },
           // Table components
           table: (props) => {
             const { node: _, ...rest } = props;
             return (
               <Box css={boxCss} asChild>
-                <Table.Root size="1" variant="ghost" {...rest}></Table.Root>
+                <Table.Root
+                  size="1"
+                  variant="ghost"
+                  {...(rest as Table.RootProps)}
+                ></Table.Root>
               </Box>
             );
           },
           thead: (props) => {
             const { node: _, ...rest } = props;
-            return <Table.Header {...rest}></Table.Header>;
+            return (
+              <Table.Header {...(rest as Table.HeaderProps)}></Table.Header>
+            );
           },
           tbody: (props) => {
             const { node: _, ...rest } = props;
-            return <Table.Body {...rest}></Table.Body>;
+            return <Table.Body {...(rest as Table.BodyProps)}></Table.Body>;
           },
           tr: (props) => {
             const { node: _, ...rest } = props;
-            return <Table.Row {...rest}></Table.Row>;
+            return <Table.Row {...(rest as Table.RowProps)}></Table.Row>;
           },
           th: (props) => {
             const { node: _, ...rest } = props;
-            return <Table.ColumnHeaderCell {...rest}></Table.ColumnHeaderCell>;
+            return (
+              <Table.ColumnHeaderCell
+                {...(rest as Table.ColumnHeaderCellProps)}
+              ></Table.ColumnHeaderCell>
+            );
           },
           td: (props) => {
             const { node: _, ...rest } = props;
-            return <Table.Cell {...rest}></Table.Cell>;
+            return <Table.Cell {...(rest as Table.CellProps)}></Table.Cell>;
           },
           // Misc components
           hr: (props) => {
             const { node: _, ...rest } = props;
             return (
               <Box css={boxCss} asChild>
-                <Separator size="4" {...rest}></Separator>
+                <Separator size="4" {...(rest as SeparatorProps)}></Separator>
               </Box>
             );
           },

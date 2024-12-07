@@ -48,9 +48,9 @@ export const ChatInput = ({
           boxShadow: "none",
           backgroundColor: "transparent",
         }}
-        placeholder="Enter your query here (markdown supported):"
+        placeholder="Enter your query here..."
         value={query}
-        rows={5}
+        rows={4}
         onChange={(e) => setQuery(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
