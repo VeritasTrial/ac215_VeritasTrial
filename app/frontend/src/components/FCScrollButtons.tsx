@@ -11,7 +11,7 @@ import { GoMoveToBottom, GoMoveToTop } from "react-icons/go";
 import { scrollToBottom, scrollToTop } from "../utils";
 
 interface FCScrollButtonsProps {
-  containerRef: RefObject<HTMLElement>;
+  containerRef: RefObject<HTMLElement | null>;
 }
 
 export const FCScrollButtons = ({ containerRef }: FCScrollButtonsProps) => {

@@ -73,7 +73,11 @@ export const Sidebar = ({
               <RadioCards.Item
                 key={tab}
                 value={tab}
-                ref={(el) => el !== null && tabRefs.current.set(tab, el)}
+                ref={(el) => {
+                  if (el !== null) {
+                    tabRefs.current.set(tab, el);
+                  }
+                }}
               >
                 <Text
                   size="2"

@@ -33,7 +33,7 @@ export const addMessageUtilities = (
 /**
  * Scroll to the bottom of a React ref object.
  */
-export const scrollToBottom = (ref: RefObject<HTMLElement>) => {
+export const scrollToBottom = (ref: RefObject<HTMLElement | null>) => {
   if (ref.current !== null) {
     ref.current.scrollTo({
       top: ref.current.scrollHeight,
@@ -45,7 +45,7 @@ export const scrollToBottom = (ref: RefObject<HTMLElement>) => {
 /**
  * Scroll to the top of a React ref object.
  */
-export const scrollToTop = (ref: RefObject<HTMLElement>) => {
+export const scrollToTop = (ref: RefObject<HTMLElement | null>) => {
   if (ref.current !== null) {
     ref.current.scrollTo({
       top: 0,
