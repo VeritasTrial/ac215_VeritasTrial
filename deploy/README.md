@@ -12,8 +12,8 @@ make run
 The deployment uses Ansible. It will deploy the Docker images of the application and create/update the Kubernetes cluster to run the application. Inside the container, run:
 
 ```bash
-./deploy-app.sh  # Deploy app (preferred to trigger GitHub Actions workflow)
-./destroy-app.sh # Destroy app
+./deploy-app.sh --skip-rebuild-images=false # Deploy app
+./destroy-app.sh                            # Destroy app
 ```
 
 ## Pipeline
@@ -21,7 +21,7 @@ The deployment uses Ansible. It will deploy the Docker images of the application
 The deployment uses Ansible and Vertex AI pipeline. It will deploy the Docker images of the pipeline and run `/src/data-pipeline/` and `/src/embedding-model/` steps. Inside the container, run:
 
 ```bash
-./deploy-pipeline.sh # Deploy pipeline (preferred to trigger GitHub Actions workflow)
+./deploy-pipeline.sh --skip-rebuild-images=false # Deploy pipeline
 ```
 
 
@@ -30,6 +30,6 @@ The deployment uses Ansible and Vertex AI pipeline. It will deploy the Docker im
 The deployment uses Terraform, as suggested in [ChromaDB docs](https://docs.trychroma.com/deployment/gcp). It will deploy a VM instance that runs ChromaDB service. Note that redeploying ChromaDB requires redeploying the app and the pipeline as well. The following script will not do that, but the corresponding workflow in GitHub Actions will. Inside the container, run:
 
 ```bash
-./deploy-chromadb.sh  # Deploy ChromaDB instance (preferred to trigger GitHub Actions workflow)
+./deploy-chromadb.sh  # Deploy ChromaDB instance
 ./destroy-chromadb.sh # Destroy ChromaDB instance
 ```

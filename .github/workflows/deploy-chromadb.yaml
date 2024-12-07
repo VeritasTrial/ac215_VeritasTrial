@@ -2,6 +2,17 @@ name: Deploy ChromaDB
 
 on:
   workflow_dispatch:
+    inputs:
+      skip-rebuild-images-app:
+        description: Whether to skip rebuilding images for app deployment
+        required: false
+        type: boolean
+        default: true
+      skip-rebuild-images-pipeline:
+        description: Whether to skip rebuilding images for pipeline deployment
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   deploy-chromadb:
@@ -36,9 +47,9 @@ jobs:
         run: |
           cd deploy
           printf "%s" "${{ secrets.VERITAS_TRIAL_SERVICE_KEY }}" > /tmp/veritas-trial-service.json
-          make gh-actions command=./deploy-chromadb.sh
-          make gh-actions command=./deploy-pipeline.sh
-          make gh-actions command=./deploy-app.sh
+          make gh-actions command="./deploy-chromadb.sh"
+          make gh-actions command="./deploy-pipeline.sh --skip-rebuild-images=${{ inputs.skip-rebuild-images-pipeline }}"
+          make gh-actions command="./deploy-app.sh --skip-rebuild-images=${{ inputs.skip-rebuild-images-app }}"
           rm /tmp/veritas-trial-service.json
 
       - name: Create PR

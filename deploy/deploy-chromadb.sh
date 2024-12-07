@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -ex
-
 cd chromadb
 terraform init
 
