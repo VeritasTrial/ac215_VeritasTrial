@@ -26,7 +26,7 @@ export const ChatPort = forwardRef(
         css={{ "[data-radix-scroll-area-viewport] > div": { width: "100%" } }}
       >
         {/* List of chat messages, bots on left and user on right */}
-        <Flex direction="column" justify="end" gap="3" pr="4" height="100%">
+        <Flex direction="column" justify="end" gap="4" pr="4" height="100%">
           {messages.map(({ fromUser, element, text }, index) => (
             <Flex
               key={index}
@@ -38,7 +38,7 @@ export const ChatPort = forwardRef(
                 fallback={fromUser ? <FaUser /> : <RiRobot2Line />}
               ></Avatar>
               <Box
-                py="2"
+                py="3"
                 px="4"
                 width="70%"
                 overflowX="hidden"
@@ -47,7 +47,6 @@ export const ChatPort = forwardRef(
                     ? "var(--accent-4)"
                     : "var(--gray-surface)",
                   borderRadius: "var(--radius-3)",
-                  whiteSpace: "pre-wrap",
                 }}
               >
                 {element}

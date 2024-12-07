@@ -48,7 +48,7 @@ export const ChatInput = ({
           boxShadow: "none",
           backgroundColor: "transparent",
         }}
-        placeholder="Enter your query here..."
+        placeholder="Enter your query here (markdown supported):"
         value={query}
         rows={5}
         onChange={(e) => setQuery(e.target.value)}
