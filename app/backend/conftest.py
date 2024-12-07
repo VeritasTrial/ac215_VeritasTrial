@@ -107,6 +107,13 @@ class MockChromadbCollection:
         return self._result(ids, include)
 
 
+class MockChromadbClient:
+    """Mock ChromaDB client."""
+
+    def get_collection(self, name):
+        return MockChromadbCollection()
+
+
 @pytest.fixture
 def sample_metadata():
     """Return a fixed sample metadata."""
@@ -120,13 +127,13 @@ def embedding_model():
 
 
 @pytest.fixture
-def chromadb_collection():
-    """Return a mock ChromaDB collection."""
-    return MockChromadbCollection()
+def chromadb_client():
+    """Return a mock ChromaDB client."""
+    return MockChromadbClient()
 
 
 @pytest.fixture(autouse=True)
 def setup(monkeypatch):
     monkeypatch.setattr("vertexai.init", lambda: None)
     monkeypatch.setattr("main.EMBEDDING_MODEL", MockEmbeddingModel())
-    monkeypatch.setattr("main.CHROMADB_COLLECTION", MockChromadbCollection())
+    monkeypatch.setattr("main.CHROMADB_CLIENT", MockChromadbClient())

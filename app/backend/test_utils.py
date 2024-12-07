@@ -31,8 +31,9 @@ def test_format_exc_details():
 
 
 @pytest.mark.parametrize("item_id", ["id0", "id1", "id2"])
-def test_get_metadata_from_id(item_id, chromadb_collection, sample_metadata):
-    metadata = get_metadata_from_id(chromadb_collection, item_id)
+def test_get_metadata_from_id(item_id, chromadb_client, sample_metadata):
+    collection = chromadb_client.get_collection("test")
+    metadata = get_metadata_from_id(collection, item_id)
     assert metadata["shortTitle"] == f"Sample Metadata {item_id}"
 
     for key, value in sample_metadata.items():
