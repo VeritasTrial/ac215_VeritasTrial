@@ -88,10 +88,13 @@
     - name: Import GCP service account credentials as secret
       when: cluster_state == "present"
       shell: |
-        kubectl create secret generic veritas-trial-service-key \
-          --from-file=veritas-trial-service.json={{ veritas_trial_service_credentials }} \
-          --namespace="{{ cluster_name }}-namespace"
-      ignore_errors: true # Ignore "secret already exists" error
+        if kubectl get secret veritas-trial-service-key --namespace="{{ cluster_name }}-namespace"; then
+          echo "Secret already exists"
+        else
+          kubectl create secret generic veritas-trial-service-key \
+            --from-file=veritas-trial-service.json={{ veritas_trial_service_credentials }} \
+            --namespace="{{ cluster_name }}-namespace"
+        fi
 
     - name: Create frontend deployment
       when: cluster_state == "present"
@@ -157,7 +160,7 @@
                       - name: GOOGLE_APPLICATION_CREDENTIALS
                         value: /secrets/veritas-trial-service.json
                       - name: CHROMADB_HOST
-                        value: 35.226.13.117
+                        value: "{{ lookup('env', 'CHROMADB_HOST') }}"
                       - name: SERVER_ROOT_PATH
                         value: /api
 

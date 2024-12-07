@@ -1,10 +1,10 @@
-name: Deploy app
+name: Deploy ChromaDB
 
 on:
   workflow_dispatch:
 
 jobs:
-  deploy-app:
+  deploy-chromadb:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -28,12 +28,16 @@ jobs:
       - name: Build deployment container
         run: cd deploy && make build
 
-      - name: Deploy app
+      # Redeploying the ChromaDB instance would require redeploying the pipeline
+      # and the app as well
+      - name: Deploy ChromaDB
         env:
           VERITAS_TRIAL_SERVICE_CREDENTIALS: /tmp/veritas-trial-service.json
         run: |
           cd deploy
           printf "%s" "${{ secrets.VERITAS_TRIAL_SERVICE_KEY }}" > /tmp/veritas-trial-service.json
+          make gh-actions command=./deploy-chromadb.sh
+          make gh-actions command=./deploy-pipeline.sh
           make gh-actions command=./deploy-app.sh
           rm /tmp/veritas-trial-service.json
 
@@ -43,8 +47,8 @@ jobs:
         with:
           token: ${{ secrets.CHARLIE_XIAO_PAT }}
           labels: app, ci/cd
-          title: "cd: updates of app deployment"
-          commit-message: "cd: updates of app deployment"
+          title: "cd: updates of chromadb deployment"
+          commit-message: "cd: updates of chromadb deployment"
           author: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
           committer: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
           body: |

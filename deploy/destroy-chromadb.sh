@@ -15,3 +15,4 @@ terraform import \
   veritastrial/chroma-allow-ssh-http || true
 
 terraform destroy -var-file chroma.tfvars
+echo -n > .instance-ip

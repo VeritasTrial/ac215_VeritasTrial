@@ -22,8 +22,8 @@ EMBEDDINGS_NPY_PATH = DATA_DIR / "summary_embeddings.npy"
 if not DATA_DIR.exists():
     DATA_DIR.mkdir()
 
-CHROMADB_HOST = os.environ.get("CHROMADB_HOST", "localhost")
-CHROMADB_PORT = os.environ.get("CHROMADB_PORT", 8000)
+CHROMADB_HOST = os.getenv("CHROMADB_HOST", "localhost")
+CHROMADB_PORT = os.getenv("CHROMADB_PORT", 8000)
 CHROMADB_COLLECTION_NAME = "veritas-trial-embeddings"
 
 BUCKET_NAME = "veritas-trial"

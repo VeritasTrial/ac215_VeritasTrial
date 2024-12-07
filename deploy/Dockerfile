@@ -76,6 +76,10 @@ RUN set -ex; \
   python3.11 -m pip install ansible google-auth kubernetes requests && \
   ansible-galaxy collection install community.docker google.cloud kubernetes.core
 
+# Install other Python dependencies
+RUN set -ex; \
+  python3.11 -m pip install google-cloud-aiplatform kfp
+
 # Clean up
 RUN set -ex; \
   rm -rf /var/lib/apt/lists/*
