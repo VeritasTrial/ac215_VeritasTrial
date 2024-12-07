@@ -82,7 +82,6 @@ class TrialFilters(TypedDict, total=False):
     lastUpdateDate: str
 
 
-
 class APIHeartbeatResponseType(TypedDict):
     timestamp: int
 

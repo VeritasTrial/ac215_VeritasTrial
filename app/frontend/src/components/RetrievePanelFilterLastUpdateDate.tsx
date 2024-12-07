@@ -5,7 +5,7 @@
  */
 
 import { useState } from "react";
-import { DayPicker, DateRange } from "react-day-picker";
+import { DateRange, DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { TrialFilters } from "../types";
 
@@ -18,14 +18,17 @@ export const RetrievePanelFilterLastUpdateDate = ({
   filters,
   setFilters,
 }: RetrievePanelFilterLastUpdateDateProps) => {
-  const [range, setRange] = useState<DateRange>({ from: undefined, to: undefined }); 
+  const [range, setRange] = useState<DateRange>({
+    from: undefined,
+    to: undefined,
+  });
 
   const formatDate = (date: Date | undefined): string =>
     date ? date.toISOString().split("T")[0] : "";
 
   const handleSelect = (selectedRange: DateRange | undefined) => {
     if (!selectedRange) {
-      setRange({ from: undefined, to: undefined }); 
+      setRange({ from: undefined, to: undefined });
       setFilters({
         ...filters,
         lastUpdateDate: "",
@@ -36,11 +39,9 @@ export const RetrievePanelFilterLastUpdateDate = ({
     const fromDate = selectedRange.from
       ? formatDate(selectedRange.from)
       : undefined;
-    const toDate = selectedRange.to
-      ? formatDate(selectedRange.to)
-      : undefined;
+    const toDate = selectedRange.to ? formatDate(selectedRange.to) : undefined;
 
-    setRange(selectedRange); 
+    setRange(selectedRange);
 
     // update filters
     setFilters({
@@ -50,23 +51,23 @@ export const RetrievePanelFilterLastUpdateDate = ({
   };
 
   const handleReset = () => {
-    setRange({ from: undefined, to: undefined }); 
+    setRange({ from: undefined, to: undefined });
     setFilters({
       ...filters,
       lastUpdateDate: "",
-    }); 
+    });
   };
 
   return (
     <div style={{ maxWidth: "400px", textAlign: "center" }}>
       <DayPicker
         mode="range"
-        selected={range} 
+        selected={range}
         onSelect={handleSelect}
         captionLayout="dropdown"
       />
 
-      <div style={{ marginTop: "13px", fontSize: "14px"}}>
+      <div style={{ marginTop: "13px", fontSize: "14px" }}>
         {range.from && range.to ? (
           <p>
             Selected: {formatDate(range.from)} to {formatDate(range.to)}

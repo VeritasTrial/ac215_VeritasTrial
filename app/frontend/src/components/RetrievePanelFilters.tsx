@@ -91,7 +91,6 @@ export const RetrievePanelFilters = ({
           />
         </DataList.Value>
       </DataList.Item>
-
     </DataList.Root>
   );
 };

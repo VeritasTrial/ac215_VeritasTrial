@@ -28,7 +28,7 @@ export const RetrievePanelFilterStudyPhases = ({
   ];
 
   const [selectedValues, setSelectedValues] = useState<string[]>(
-    filters.studyPhases?.split(",") || []
+    filters.studyPhases?.split(",") ?? [],
   );
 
   const handleCheckboxChange = (value: string) => {
