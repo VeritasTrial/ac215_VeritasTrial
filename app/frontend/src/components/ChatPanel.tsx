@@ -69,7 +69,7 @@ export const ChatPanel = ({
   const handleSend = async () => {
     setLoading(true);
     setQuery(""); // This will take effect only after the next render
-    addUserMessage(<RadixMarkdown text={query} size="2" />, query);
+    addUserMessage(<RadixMarkdown text={query} />, query);
 
     if (query === "/meta" || query === "/docs") {
       // Special commands where we only need to get metadata
@@ -105,10 +105,7 @@ export const ChatPanel = ({
         );
       } else {
         const data = callResult.payload;
-        addBotMessage(
-          <RadixMarkdown text={data.response} size="2" />,
-          data.response,
-        );
+        addBotMessage(<RadixMarkdown text={data.response} />, data.response);
       }
     }
 
@@ -124,11 +121,11 @@ export const ChatPanel = ({
     />,
     <FCDeleteChatButton key="delete-chat-button" onClick={deleteTab} />,
     <FCScrollButtons key="scroll-buttons" containerRef={chatPortRef} />,
-    <FCModelSelector key="model-selector" model={model} setModel={setModel} />,
   ];
 
   // Persistent right functional components
   const rightFCs = [
+    <FCModelSelector key="model-selector" model={model} setModel={setModel} />,
     <FCSendButton
       key="send-button"
       disabled={query === "" || loading}

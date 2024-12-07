@@ -44,7 +44,7 @@ export const RetrievePanel = ({
   const handleSend = async () => {
     setLoading(true);
     setQuery(""); // This will take effect only after the next render
-    addUserMessage(<RadixMarkdown text={query} size="2" />, query);
+    addUserMessage(<RadixMarkdown text={query} />, query);
 
     const callResult = await callRetrieve(query, topK);
     if ("error" in callResult) {

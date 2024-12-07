@@ -6,7 +6,7 @@
 
 import { Box, Flex, Heading, IconButton, Tooltip } from "@radix-ui/themes";
 import { Dispatch, SetStateAction } from "react";
-import { MdDarkMode, MdLightMode } from "react-icons/md";
+import { MdDarkMode, MdLightMode, MdMenu, MdMenuOpen } from "react-icons/md";
 import { FaGithub, FaUniversity } from "react-icons/fa";
 import { ApperanceType } from "../types";
 import { AC215_URL, GITHUB_URL } from "../consts";
@@ -15,9 +15,18 @@ import { ExternalLink } from "./ExternalLink";
 interface HeaderProps {
   appearance: ApperanceType;
   setAppearance: Dispatch<SetStateAction<ApperanceType>>;
+  isSidebarVisible: boolean;
+  isSidebarPopoverVisible: boolean;
+  setIsSidebarPopoverVisible: Dispatch<SetStateAction<boolean>>;
 }
 
-export const Header = ({ appearance, setAppearance }: HeaderProps) => {
+export const Header = ({
+  appearance,
+  setAppearance,
+  isSidebarVisible,
+  isSidebarPopoverVisible,
+  setIsSidebarPopoverVisible,
+}: HeaderProps) => {
   const switchAppearance = () => {
     if (appearance === "dark") {
       setAppearance("light");
@@ -28,8 +37,29 @@ export const Header = ({ appearance, setAppearance }: HeaderProps) => {
 
   return (
     <Flex justify="between" align="center" pr="3">
-      <Heading size="4">VeritasTrial</Heading>
+      <Box ml="2">
+        <Heading size="4">VeritasTrial</Heading>
+      </Box>
       <Flex align="center" gap="4">
+        {!isSidebarVisible && (
+          <Tooltip content="Toggle sidebar">
+            <Box>
+              <IconButton
+                size="1"
+                variant="ghost"
+                onClick={() =>
+                  setIsSidebarPopoverVisible(!isSidebarPopoverVisible)
+                }
+              >
+                {isSidebarPopoverVisible ? (
+                  <MdMenuOpen size="20" />
+                ) : (
+                  <MdMenu size="20" />
+                )}
+              </IconButton>
+            </Box>
+          </Tooltip>
+        )}
         <Tooltip content="Harvard AC215">
           <Box>
             <IconButton size="1" variant="ghost" asChild>
