@@ -34,7 +34,10 @@ def stringify_metadata(metadata):
     return stringfied
 
 
-def main():
+def main(host):
+    # Check ChromaDB connection in the first place to avoid unnecessary work
+    client = chromadb.HttpClient(host=host or CHROMADB_HOST, port=CHROMADB_PORT)
+
     with default_progress() as progress:
         # Get metadata that will be paired with the embeddings to be stored in the
         # vector database
@@ -64,10 +67,14 @@ def main():
             np.save(EMBEDDINGS_NPY_PATH, embeddings)
         progress.update(task, advance=1)
 
-        # Upsert embeddings and the corresponding metadata to the vector database
-        task = progress.add_task("Upserting data to ChromaDB...", total=1)
-        client = chromadb.HttpClient(host=CHROMADB_HOST, port=CHROMADB_PORT)
-        client.reset()  # Remove all collections and entries
+        # Insert embeddings and metadata to the vector database; we will first delete
+        # the original collection if it exists to avoid conflicting data, then recreate
+        # it with new data
+        task = progress.add_task("Inserting data to ChromaDB...", total=1)
+        for collection in client.list_collections():
+            if collection.name == CHROMADB_COLLECTION_NAME:
+                client.delete_collection(CHROMADB_COLLECTION_NAME)
+                break
         collection = client.create_collection(CHROMADB_COLLECTION_NAME)
         collection.add(
             ids=study_ids,
@@ -78,6 +85,6 @@ def main():
         progress.update(task, advance=1)
 
     rich.print(
-        f"[bold green]->[/] Data upserted to collection {CHROMADB_COLLECTION_NAME!r} "
+        f"[bold green]->[/] Data inserted to collection {CHROMADB_COLLECTION_NAME!r} "
         "in ChromaDB."
     )

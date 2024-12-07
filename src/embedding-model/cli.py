@@ -24,9 +24,18 @@ def upload():
     cli_upload()
 
 
+# The -h/--host option exists because when deploying the pipeline to GCP, we are unable
+# to pass environment variables to the container; the port can just take its default
+# value 8000 when not set in the environment
 @cli.command(help="Store embeddings in ChromaDB.")
-def store():
-    cli_store()
+@click.option(
+    "-h",
+    "--host",
+    default=None,
+    help="Override ChromaDB host obtained from environment variable CHROMADB_HOST.",
+)
+def store(host):
+    cli_store(host)
 
 
 @cli.command(help="Query ChromaDB for top matches.")

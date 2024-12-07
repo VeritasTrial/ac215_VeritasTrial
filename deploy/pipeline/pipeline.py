@@ -10,6 +10,7 @@ from kfp import compiler, dsl
 
 BASE_DIR = Path(__file__).parent.parent
 DOCKER_TAG_PATH = BASE_DIR / ".docker-tag-pipeline"
+CHORMADB_INSTANCE_IP_PATH = BASE_DIR / "chromadb" / ".instance-ip"
 
 # GCP environment variables
 GCP_REGION = os.getenv("GCP_REGION")
@@ -23,6 +24,10 @@ REGISTRY_BASE = f"{GCP_REGION}-docker.pkg.dev/{GCP_PROJECT_ID}/docker"
 DATA_PIPELINE_IMAGE = f"{REGISTRY_BASE}/veritas-trial-data-pipeline:{DOCKER_TAG}"
 EMBEDDING_MODEL_IMAGE = f"{REGISTRY_BASE}/veritas-trial-embedding-model:{DOCKER_TAG}"
 
+# ChromaDB
+with CHORMADB_INSTANCE_IP_PATH.open("r", encoding="utf-8") as f:
+    CHROMADB_INSTANCE_IP = f.read().strip()
+
 # Pipeline
 PIPELINE_ROOT = f"gs://{GCP_PROJECT_ID}/pipeline-root"
 PIPELINE_TEMPLATE = "pipeline.yaml"
@@ -35,7 +40,9 @@ def data_pipeline():
 
 @dsl.container_component
 def embedding_model():
-    return dsl.ContainerSpec(image=EMBEDDING_MODEL_IMAGE, args=["./pipeline.sh"])
+    return dsl.ContainerSpec(
+        image=EMBEDDING_MODEL_IMAGE, args=["./pipeline.sh", CHROMADB_INSTANCE_IP]
+    )
 
 
 @dsl.pipeline
