@@ -12,8 +12,8 @@ make run
 The deployment uses Ansible. It will deploy the Docker images of the application and create/update the Kubernetes cluster to run the application. Inside the container, run:
 
 ```bash
-./deploy-app.sh --skip-rebuild-images=false # Deploy app
-./destroy-app.sh                            # Destroy app
+./deploy-app.sh  # Deploy app (optionally --skip-rebuild-images=true)
+./destroy-app.sh # Destroy app
 ```
 
 ## Pipeline
@@ -21,7 +21,7 @@ The deployment uses Ansible. It will deploy the Docker images of the application
 The deployment uses Ansible and Vertex AI pipeline. It will deploy the Docker images of the pipeline and run `/src/data-pipeline/` and `/src/embedding-model/` steps. Inside the container, run:
 
 ```bash
-./deploy-pipeline.sh --skip-rebuild-images=false # Deploy pipeline
+./deploy-pipeline.sh # Deploy pipeline (optionally --skip-rebuild-images=true)
 ```
 
 

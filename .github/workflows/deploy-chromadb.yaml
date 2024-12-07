@@ -7,12 +7,12 @@ on:
         description: Skip rebuilding app images
         required: false
         type: boolean
-        default: true
+        default: false
       skip-rebuild-images-pipeline:
         description: Skip rebuilding pipeline images
         required: false
         type: boolean
-        default: true
+        default: false
 
 jobs:
   deploy-chromadb:
