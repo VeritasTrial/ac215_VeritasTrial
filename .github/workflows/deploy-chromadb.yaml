@@ -4,12 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       skip-rebuild-images-app:
-        description: Whether to skip rebuilding images for app deployment
+        description: Skip rebuilding app images
         required: false
         type: boolean
         default: true
       skip-rebuild-images-pipeline:
-        description: Whether to skip rebuilding images for pipeline deployment
+        description: Skip rebuilding pipeline images
         required: false
         type: boolean
         default: true

@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       skip-rebuild-images:
-        description: Whether to skip rebuilding images
+        description: Skip rebuilding images
         required: false
         type: boolean
         default: true

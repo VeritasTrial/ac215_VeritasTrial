@@ -7,6 +7,7 @@ import time
 from contextlib import asynccontextmanager
 
 import chromadb
+import chromadb.api
 import vertexai  # type: ignore
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -41,23 +42,22 @@ GCP_PROJECT_LOCATION = "us-central1"
 
 # Global states for the FastAPI app
 EMBEDDING_MODEL: FlagModel | None = None
-CHROMADB_COLLECTION: chromadb.Collection | None = None
+CHROMADB_CLIENT: chromadb.api.ClientAPI | None = None
 CHAT_SESSIONS: dict[str, ChatSession] = {}
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):  # pragma: no cover
     """Context manager to handle the lifespan of the FastAPI app."""
-    global EMBEDDING_MODEL, CHROMADB_COLLECTION
+    global EMBEDDING_MODEL, CHROMADB_CLIENT
     EMBEDDING_MODEL = FlagModel("BAAI/bge-small-en-v1.5", use_fp16=True)
-    chromadb_client = chromadb.HttpClient(host=CHROMADB_HOST, port=8000)
-    CHROMADB_COLLECTION = chromadb_client.get_collection(CHROMADB_COLLECTION_NAME)
+    CHROMADB_CLIENT = chromadb.HttpClient(host=CHROMADB_HOST, port=8000)
     vertexai.init(project=GCP_PROJECT_ID, location=GCP_PROJECT_LOCATION)
 
     yield
 
     EMBEDDING_MODEL = None
-    CHROMADB_COLLECTION = None
+    CHROMADB_CLIENT = None
     CHAT_SESSIONS.clear()
 
 
@@ -128,15 +128,16 @@ async def retrieve(query: str, top_k: int) -> APIRetrieveResponseType:
     """Retrieve items from the ChromaDB collection."""
     if EMBEDDING_MODEL is None:
         raise RuntimeError("Embedding model not initialized")
-    if CHROMADB_COLLECTION is None:
-        raise RuntimeError("ChromaDB not initialized")
+    if CHROMADB_CLIENT is None:
+        raise RuntimeError("ChromaDB not reachable")
 
     if top_k <= 0 or top_k > 30:
         raise HTTPException(status_code=404, detail="Required 0 < top_k <= 30")
 
     # Embed the query and query the collection
     query_embedding = EMBEDDING_MODEL.encode(query)
-    results = CHROMADB_COLLECTION.query(
+    collection = CHROMADB_CLIENT.get_collection(CHROMADB_COLLECTION_NAME)
+    results = collection.query(
         query_embeddings=[query_embedding],
         n_results=top_k,
         include=[chromadb.api.types.IncludeEnum("documents")],
@@ -155,10 +156,11 @@ async def retrieve(query: str, top_k: int) -> APIRetrieveResponseType:
 @app.get("/meta/{item_id}")
 async def meta(item_id: str) -> APIMetaResponseType:
     """Retrieve metadata for a specific item."""
-    if CHROMADB_COLLECTION is None:
-        raise RuntimeError("ChromaDB not initialized")
+    if CHROMADB_CLIENT is None:
+        raise RuntimeError("ChromaDB not reachable")
 
-    metadata = get_metadata_from_id(CHROMADB_COLLECTION, item_id)
+    collection = CHROMADB_CLIENT.get_collection(CHROMADB_COLLECTION_NAME)
+    metadata = get_metadata_from_id(collection, item_id)
     if metadata is None:
         raise HTTPException(status_code=404, detail="Trial metadata not found")
 
@@ -170,10 +172,11 @@ async def chat(
     model: ModelType, item_id: str, payload: APIChatPayloadType
 ) -> APIChatResponseType:
     """Chat with a generative model about a specific item."""
-    if CHROMADB_COLLECTION is None:
-        raise RuntimeError("ChromaDB not initialized")
+    if CHROMADB_CLIENT is None:
+        raise RuntimeError("ChromaDB not reachable")
 
-    metadata = get_metadata_from_id(CHROMADB_COLLECTION, item_id)
+    collection = CHROMADB_CLIENT.get_collection(CHROMADB_COLLECTION_NAME)
+    metadata = get_metadata_from_id(collection, item_id)
     if metadata is None:
         raise HTTPException(status_code=404, detail="Trial metadata not found")
 
