@@ -33,7 +33,6 @@ import rehypeSanitize from "rehype-sanitize";
 
 interface RadixMarkdownProps {
   text: string;
-  size?: TextProps["size"];
 }
 
 const headingCss = {
@@ -48,9 +47,9 @@ const boxCss = {
   ":last-child": { marginBottom: 0 },
 };
 
-export const RadixMarkdown = ({ text, size }: RadixMarkdownProps) => {
+export const RadixMarkdown = ({ text }: RadixMarkdownProps) => {
   return (
-    <Text size={size} as="div">
+    <Text size="2" as="div">
       <Markdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw, rehypeSanitize]}
@@ -124,6 +123,7 @@ export const RadixMarkdown = ({ text, size }: RadixMarkdownProps) => {
             return (
               <Heading
                 as="h1"
+                size="5"
                 css={headingCss}
                 {...(rest as HeadingProps)}
               ></Heading>
@@ -134,6 +134,7 @@ export const RadixMarkdown = ({ text, size }: RadixMarkdownProps) => {
             return (
               <Heading
                 as="h2"
+                size="4"
                 css={headingCss}
                 {...(rest as HeadingProps)}
               ></Heading>
@@ -144,6 +145,7 @@ export const RadixMarkdown = ({ text, size }: RadixMarkdownProps) => {
             return (
               <Heading
                 as="h3"
+                size="3"
                 css={headingCss}
                 {...(rest as HeadingProps)}
               ></Heading>
