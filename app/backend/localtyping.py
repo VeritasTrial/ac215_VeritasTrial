@@ -78,8 +78,9 @@ class TrialFilters(TypedDict, total=False):
     minAge: int
     maxAge: int
     eligibleSex: str
+    resultsDate: str
     lastUpdateDate: str
-    
+
 
 
 class APIHeartbeatResponseType(TypedDict):
