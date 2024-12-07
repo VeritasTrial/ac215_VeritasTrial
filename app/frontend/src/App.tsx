@@ -20,7 +20,10 @@ import { ChatPanel } from "./components/ChatPanel";
 import { Toaster } from "sonner";
 
 export const App = () => {
-  const [appearance, setAppearance] = useState<ApperanceType>("dark");
+  const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const [appearance, setAppearance] = useState<ApperanceType>(
+    isDark ? "dark" : "light",
+  );
   const [model, setModel] = useState<ModelType>("6894888983713546240");
   const [currentTab, setCurrentTab] = useState<string>("default");
   const [messagesMapping, setMessagesMapping] = useState<
@@ -135,8 +138,6 @@ export const App = () => {
             <Header
               appearance={appearance}
               setAppearance={setAppearance}
-              model={model}
-              setModel={setModel}
             ></Header>
           </Box>
           {/* Main body */}
@@ -159,9 +160,10 @@ export const App = () => {
             )}
             {currentTab !== "default" && (
               <ChatPanel
-                model={model}
                 tab={currentTab}
                 metaInfo={metaMapping.get(currentTab)!}
+                model={model}
+                setModel={setModel}
                 messages={messagesMapping.get(currentTab)!}
                 setMessages={(fn: UpdateMessagesFunction) =>
                   setMessagesMapping((prevMessagesMapping) => {

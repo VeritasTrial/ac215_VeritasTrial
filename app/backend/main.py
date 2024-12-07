@@ -40,6 +40,9 @@ CHROMADB_COLLECTION_NAME = "veritas-trial-embeddings"
 GCP_PROJECT_ID = "veritastrial"
 GCP_PROJECT_LOCATION = "us-central1"
 
+GH_URL = "https://raw.githubusercontent.com/VeritasTrial/ac215_VeritasTrial/main"
+LOGO_URL = f"{GH_URL}/app/frontend/public/veritastrial-wide.png"
+
 # Global states for the FastAPI app
 EMBEDDING_MODEL: FlagModel | None = None
 CHROMADB_CLIENT: chromadb.api.ClientAPI | None = None
@@ -90,10 +93,7 @@ def custom_openapi():  # pragma: no cover
         description="OpenAPI specification for the VeritasTrial APIs.",
         routes=app.routes,
     )
-    openapi_schema["info"]["x-logo"] = {
-        # TODO: Change to the VeritasTrial logo
-        "url": "https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png"
-    }
+    openapi_schema["info"]["x-logo"] = {"url": LOGO_URL}
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 

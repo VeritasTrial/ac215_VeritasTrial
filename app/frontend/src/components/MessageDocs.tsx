@@ -21,40 +21,38 @@ interface MessageDocsProps {
 
 export const MessageDocs = ({ references, documents }: MessageDocsProps) => {
   return (
-    <Flex direction="column" gap="3">
+    <Flex direction="column" gap="4">
       {/* References */}
-      {references.length > 0 ? (
-        <Flex direction="column" gap="1">
-          <Text size="2" weight="medium" mb="1">
+      {references.length > 0 && (
+        <Flex direction="column" gap="3">
+          <Text size="2" weight="medium">
             References
           </Text>
           {references.map((ref) => (
-            <Flex align="center" justify="between" gap="2" pr="1">
-              <ExternalLink
-                key={ref.pmid}
-                href={`${PUBMED_URL}/${ref.pmid}`}
-                size="2"
-              >
+            <Flex
+              key={ref.pmid}
+              align="center"
+              justify="between"
+              gap="2"
+              pr="1"
+            >
+              <ExternalLink href={`${PUBMED_URL}/${ref.pmid}`} size="2">
                 {ref.citation}
               </ExternalLink>{" "}
               <CopyButton text={ref.citation} />
             </Flex>
           ))}
         </Flex>
-      ) : (
-        <Text size="2" weight="medium" color="red">
-          No references found.
-        </Text>
       )}
       {/* Related documents */}
-      {documents.length > 0 ? (
-        <Flex direction="column" gap="1">
-          <Text size="2" weight="medium" mb="1">
+      {documents.length > 0 && (
+        <Flex direction="column" gap="3">
+          <Text size="2" weight="medium">
             Related Documents
           </Text>
           {documents.map((doc) => (
-            <Flex align="center" justify="between" gap="2" pr="1">
-              <ExternalLink key={doc.url} href={doc.url} size="2">
+            <Flex key={doc.url} align="center" justify="between" gap="2" pr="1">
+              <ExternalLink href={doc.url} size="2">
                 {doc.url.split("/").pop()}
               </ExternalLink>{" "}
               <Code variant="ghost" color="gray" size="2">
@@ -63,9 +61,10 @@ export const MessageDocs = ({ references, documents }: MessageDocsProps) => {
             </Flex>
           ))}
         </Flex>
-      ) : (
+      )}
+      {references.length === 0 && documents.length === 0 && (
         <Text size="2" weight="medium" color="red">
-          No related documents found.
+          No references found.
         </Text>
       )}
     </Flex>

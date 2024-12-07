@@ -1,5 +1,8 @@
 /**
  * @file FCTopKSelector.tsx
+ *
+ * The functional component for selecting the top-k value in retrieval, used at
+ * the bottom of the chat input.
  */
 
 import { Select } from "@radix-ui/themes";
