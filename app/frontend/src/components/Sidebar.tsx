@@ -37,7 +37,10 @@ export const Sidebar = ({
     <Flex direction="column" justify="between" height="100%">
       {/* Sidebar content */}
       <RadioCards.Root
-        css={{ height: "80%", gridTemplateRows: "auto auto 1fr" }}
+        css={{
+          height: "calc(100% - var(--space-9) - var(--space-3))",
+          gridTemplateRows: "auto auto 1fr",
+        }}
         size="1"
         variant="surface"
         columns="1"
@@ -73,7 +76,11 @@ export const Sidebar = ({
               <RadioCards.Item
                 key={tab}
                 value={tab}
-                ref={(el) => el !== null && tabRefs.current.set(tab, el)}
+                ref={(el) => {
+                  if (el !== null) {
+                    tabRefs.current.set(tab, el);
+                  }
+                }}
               >
                 <Text
                   size="2"
@@ -93,26 +100,28 @@ export const Sidebar = ({
         </ScrollArea>
       </RadioCards.Root>
       {/* Sidebar footer */}
-      <ScrollArea scrollbars="vertical" asChild>
-        <Box height="auto" maxHeight="calc(20% - var(--space-4))">
-          <Flex direction="column" justify="end" gap="2" overflow="hidden">
-            <Button
-              size="2"
-              variant="surface"
-              color="red"
-              onClick={clearTabs}
-              disabled={metaMapping.size === 0}
-            >
-              <MdDeleteOutline size="20" /> Delete all chats
-            </Button>
-            <Text size="1" color="gray" as="div" align="center">
-              © 2024 <Link href="mailto:yaoxiao@g.harvard.edu">Yao Xiao</Link>,{" "}
-              <Link href="mailto:bowenxu@g.harvard.edu">Bowen Xu</Link>,{" "}
-              <Link href="mailto:tongxiao@g.harvard.edu">Tong Xiao</Link>
-            </Text>
-          </Flex>
-        </Box>
-      </ScrollArea>
+      <Flex
+        height="var(--space-9)"
+        direction="column"
+        justify="end"
+        gap="2"
+        overflow="hidden"
+      >
+        <Button
+          size="2"
+          variant="surface"
+          color="red"
+          onClick={clearTabs}
+          disabled={metaMapping.size === 0}
+        >
+          <MdDeleteOutline size="20" /> Clear chats
+        </Button>
+        <Text size="1" color="gray" as="div" align="center">
+          © 2024 <Link href="mailto:yaoxiao@g.harvard.edu">Yao Xiao</Link>,{" "}
+          <Link href="mailto:bowenxu@g.harvard.edu">Bowen Xu</Link>,{" "}
+          <Link href="mailto:tongxiao@g.harvard.edu">Tong Xiao</Link>
+        </Text>
+      </Flex>
     </Flex>
   );
 };

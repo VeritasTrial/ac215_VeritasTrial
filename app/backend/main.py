@@ -7,6 +7,7 @@ import time
 from contextlib import asynccontextmanager
 
 import chromadb
+import chromadb.api
 import vertexai  # type: ignore
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -33,44 +34,54 @@ from utils import format_exc_details, get_metadata_from_id
 
 logger = logging.getLogger("uvicorn.error")
 
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:8080")
+FRONTEND_URL = os.getenv("FRONTEND_URL")
+CHROMADB_HOST = os.getenv("CHROMADB_HOST", "localhost")
+SERVER_ROOT_PATH = os.getenv("SERVER_ROOT_PATH", "")
 CHROMADB_COLLECTION_NAME = "veritas-trial-embeddings"
 GCP_PROJECT_ID = "veritastrial"
 GCP_PROJECT_LOCATION = "us-central1"
 
+GH_URL = "https://raw.githubusercontent.com/VeritasTrial/ac215_VeritasTrial/main"
+LOGO_URL = f"{GH_URL}/app/frontend/public/veritastrial-wide.png"
+
 # Global states for the FastAPI app
 EMBEDDING_MODEL: FlagModel | None = None
-CHROMADB_COLLECTION: chromadb.Collection | None = None
+CHROMADB_CLIENT: chromadb.api.ClientAPI | None = None
 CHAT_SESSIONS: dict[str, ChatSession] = {}
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):  # pragma: no cover
     """Context manager to handle the lifespan of the FastAPI app."""
-    global EMBEDDING_MODEL, CHROMADB_COLLECTION
+    global EMBEDDING_MODEL, CHROMADB_CLIENT
     EMBEDDING_MODEL = FlagModel("BAAI/bge-small-en-v1.5", use_fp16=True)
-    chromadb_client = chromadb.HttpClient(host="chromadb", port=8000)
-    CHROMADB_COLLECTION = chromadb_client.get_collection(CHROMADB_COLLECTION_NAME)
+    CHROMADB_CLIENT = chromadb.HttpClient(host=CHROMADB_HOST, port=8000)
     vertexai.init(project=GCP_PROJECT_ID, location=GCP_PROJECT_LOCATION)
 
     yield
 
     EMBEDDING_MODEL = None
-    CHROMADB_COLLECTION = None
+    CHROMADB_CLIENT = None
     CHAT_SESSIONS.clear()
 
 
 # Initialize the FastAPI app
-app = FastAPI(lifespan=lifespan, docs_url=None, redoc_url="/")
+app = FastAPI(
+    lifespan=lifespan,
+    root_path=SERVER_ROOT_PATH,
+    docs_url=None,
+    redoc_url="/",
+)
 
 # Handle cross-origin requests from the frontend
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[FRONTEND_URL],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+if FRONTEND_URL is not None:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[FRONTEND_URL],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 
 def custom_openapi():  # pragma: no cover
@@ -83,10 +94,7 @@ def custom_openapi():  # pragma: no cover
         description="OpenAPI specification for the VeritasTrial APIs.",
         routes=app.routes,
     )
-    openapi_schema["info"]["x-logo"] = {
-        # TODO: Change to the VeritasTrial logo
-        "url": "https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png"
-    }
+    openapi_schema["info"]["x-logo"] = {"url": LOGO_URL}
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 
@@ -103,9 +111,10 @@ async def custom_exception_handler(
         status_code=500,
         content={"details": format_exc_details(exc)},
     )
-    # Manually set the CORS headers for the error response
-    response.headers["Access-Control-Allow-Origin"] = FRONTEND_URL
-    response.headers["Access-Control-Allow-Credentials"] = "true"
+    if FRONTEND_URL is not None:
+        # Manually set the CORS headers for the error response
+        response.headers["Access-Control-Allow-Origin"] = FRONTEND_URL
+        response.headers["Access-Control-Allow-Credentials"] = "true"
     return response
 
 
@@ -122,8 +131,8 @@ async def retrieve(
     """Retrieve items from the ChromaDB collection."""
     if EMBEDDING_MODEL is None:
         raise RuntimeError("Embedding model not initialized")
-    if CHROMADB_COLLECTION is None:
-        raise RuntimeError("ChromaDB not initialized")
+    if CHROMADB_CLIENT is None:
+        raise RuntimeError("ChromaDB not reachable")
 
     if top_k <= 0 or top_k > 30:
         raise HTTPException(status_code=404, detail="Required 0 < top_k <= 30")
@@ -148,7 +157,8 @@ async def retrieve(
 
     # Embed the query and query the collection
     query_embedding = EMBEDDING_MODEL.encode(query)
-    results = CHROMADB_COLLECTION.query(
+    collection = CHROMADB_CLIENT.get_collection(CHROMADB_COLLECTION_NAME)
+    results = collection.query(
         query_embeddings=[query_embedding],
         n_results=top_k,
         include=[chromadb.api.types.IncludeEnum("documents")],
@@ -168,10 +178,11 @@ async def retrieve(
 @app.get("/meta/{item_id}")
 async def meta(item_id: str) -> APIMetaResponseType:
     """Retrieve metadata for a specific item."""
-    if CHROMADB_COLLECTION is None:
-        raise RuntimeError("ChromaDB not initialized")
+    if CHROMADB_CLIENT is None:
+        raise RuntimeError("ChromaDB not reachable")
 
-    metadata = get_metadata_from_id(CHROMADB_COLLECTION, item_id)
+    collection = CHROMADB_CLIENT.get_collection(CHROMADB_COLLECTION_NAME)
+    metadata = get_metadata_from_id(collection, item_id)
     if metadata is None:
         raise HTTPException(status_code=404, detail="Trial metadata not found")
 
@@ -183,10 +194,11 @@ async def chat(
     model: ModelType, item_id: str, payload: APIChatPayloadType
 ) -> APIChatResponseType:
     """Chat with a generative model about a specific item."""
-    if CHROMADB_COLLECTION is None:
-        raise RuntimeError("ChromaDB not initialized")
+    if CHROMADB_CLIENT is None:
+        raise RuntimeError("ChromaDB not reachable")
 
-    metadata = get_metadata_from_id(CHROMADB_COLLECTION, item_id)
+    collection = CHROMADB_CLIENT.get_collection(CHROMADB_COLLECTION_NAME)
+    metadata = get_metadata_from_id(collection, item_id)
     if metadata is None:
         raise HTTPException(status_code=404, detail="Trial metadata not found")
 

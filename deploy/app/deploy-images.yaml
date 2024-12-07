@@ -1,0 +1,60 @@
+- name: Build and push Docker images to Artifact Registry
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    registry_base: "{{ gcp_region }}-docker.pkg.dev/{{ gcp_project_id }}/docker"
+
+  tasks:
+    - name: Set timestamp as Docker image tag
+      shell: date +%Y%m%d%H%M%S
+      register: docker_tag
+
+    - name: Build frontend image
+      community.docker.docker_image:
+        build:
+          path: /app/frontend
+          args:
+            VITE_BACKEND_URL: /api
+          platform: linux/amd64/v2
+        name: "{{ registry_base }}/{{ frontend_name }}:{{ docker_tag.stdout }}"
+        source: build
+
+    - name: Push frontend image
+      community.docker.docker_image:
+        name: "{{ registry_base }}/{{ frontend_name }}:{{ docker_tag.stdout }}"
+        repository: "{{ registry_base }}/{{ frontend_name }}:{{ docker_tag.stdout }}"
+        push: true
+        source: local
+
+    - name: Remove frontend image locally
+      community.docker.docker_image:
+        name: "{{ registry_base }}/{{ frontend_name }}:{{ docker_tag.stdout }}"
+        source: local
+        state: absent
+        force_absent: true
+
+    - name: Build backend image
+      community.docker.docker_image:
+        build:
+          path: /app/backend
+          platform: linux/amd64/v2
+        name: "{{ registry_base }}/{{ backend_name }}:{{ docker_tag.stdout }}"
+        source: build
+
+    - name: Push backend image
+      community.docker.docker_image:
+        name: "{{ registry_base }}/{{ backend_name }}:{{ docker_tag.stdout }}"
+        repository: "{{ registry_base }}/{{ backend_name }}:{{ docker_tag.stdout }}"
+        push: true
+        source: local
+
+    - name: Remove backend image locally
+      community.docker.docker_image:
+        name: "{{ registry_base }}/{{ backend_name }}:{{ docker_tag.stdout }}"
+        source: local
+        state: absent
+        force_absent: true
+
+    - name: Save Docker tag
+      shell: echo {{ docker_tag.stdout }} > ../.docker-tag-app

@@ -1,0 +1,58 @@
+- name: Build and push Docker images to Artifact Registry
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    registry_base: "{{ gcp_region }}-docker.pkg.dev/{{ gcp_project_id }}/docker"
+
+  tasks:
+    - name: Set timestamp as Docker image tag
+      shell: date +%Y%m%d%H%M%S
+      register: docker_tag
+
+    - name: Build data pipeline image
+      community.docker.docker_image:
+        build:
+          path: /src/data-pipeline
+          platform: linux/amd64/v2
+        name: "{{ registry_base }}/veritas-trial-data-pipeline:{{ docker_tag.stdout }}"
+        source: build
+
+    - name: Push data pipeline image
+      community.docker.docker_image:
+        name: "{{ registry_base }}/veritas-trial-data-pipeline:{{ docker_tag.stdout }}"
+        repository: "{{ registry_base }}/veritas-trial-data-pipeline:{{ docker_tag.stdout }}"
+        push: true
+        source: local
+
+    - name: Remove data pipeline image locally
+      community.docker.docker_image:
+        name: "{{ registry_base }}/veritas-trial-data-pipeline:{{ docker_tag.stdout }}"
+        source: local
+        state: absent
+        force_absent: true
+
+    - name: Build embedding model image
+      community.docker.docker_image:
+        build:
+          path: /src/embedding-model
+          platform: linux/amd64/v2
+        name: "{{ registry_base }}/veritas-trial-embedding-model:{{ docker_tag.stdout }}"
+        source: build
+
+    - name: Push embedding model image
+      community.docker.docker_image:
+        name: "{{ registry_base }}/veritas-trial-embedding-model:{{ docker_tag.stdout }}"
+        repository: "{{ registry_base }}/veritas-trial-embedding-model:{{ docker_tag.stdout }}"
+        push: true
+        source: local
+
+    - name: Remove embedding model image locally
+      community.docker.docker_image:
+        name: "{{ registry_base }}/veritas-trial-embedding-model:{{ docker_tag.stdout }}"
+        source: local
+        state: absent
+        force_absent: true
+
+    - name: Save Docker tag
+      shell: echo {{ docker_tag.stdout }} > ../.docker-tag-pipeline

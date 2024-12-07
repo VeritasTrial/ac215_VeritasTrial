@@ -1,10 +1,12 @@
 all: build run
 
+CHROMADB_HOST := $(shell cat $(PWD)/../deploy/chromadb/.instance-ip)
+
 build:
-	docker-compose build
+	CHROMADB_HOST=$(CHROMADB_HOST) docker-compose build
 
 run:
-	docker-compose up
+	CHROMADB_HOST=$(CHROMADB_HOST) docker-compose up
 
 # [DEV] Update lock files and development environment on the host machine
 devlockbackend:

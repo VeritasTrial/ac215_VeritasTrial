@@ -8,7 +8,14 @@
  */
 
 import { Code, Flex, Text } from "@radix-ui/themes";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import {
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { GoCommandPalette } from "react-icons/go";
 import { callChat, callMeta } from "../api";
 import {
@@ -29,20 +36,25 @@ import { addMessageUtilities, scrollToBottom } from "../utils";
 import { MessageDocs } from "./MessageDocs";
 import { ChatPanelCommandPalette } from "./ChatPanelCommandPalette";
 import { FCDeleteChatButton } from "./FCDeleteChatButton";
+import { FCScrollButtons } from "./FCScrollButtons";
+import { FCModelSelector } from "./FCModelSelector";
+import { RadixMarkdown } from "./RadixMarkdown";
 
 interface ChatPanelProps {
-  model: ModelType;
   tab: string;
   metaInfo: MetaInfo;
+  model: ModelType;
+  setModel: Dispatch<SetStateAction<ModelType>>;
   messages: ChatDisplay[];
   setMessages: (fn: UpdateMessagesFunction) => void;
   deleteTab: () => void;
 }
 
 export const ChatPanel = ({
-  model,
   tab,
   metaInfo,
+  model,
+  setModel,
   messages,
   setMessages,
   deleteTab,
@@ -57,7 +69,7 @@ export const ChatPanel = ({
   const handleSend = async () => {
     setLoading(true);
     setQuery(""); // This will take effect only after the next render
-    addUserMessage(<Text size="2">{query}</Text>, query);
+    addUserMessage(<RadixMarkdown text={query} />, query);
 
     if (query === "/meta" || query === "/docs") {
       // Special commands where we only need to get metadata
@@ -93,7 +105,7 @@ export const ChatPanel = ({
         );
       } else {
         const data = callResult.payload;
-        addBotMessage(<Text size="2">{data.response}</Text>, data.response);
+        addBotMessage(<RadixMarkdown text={data.response} />, data.response);
       }
     }
 
@@ -103,15 +115,22 @@ export const ChatPanel = ({
   // Persistent left functional components
   const leftFCs = [
     <FCClearHistoryButton
+      key="clear-history-button"
       disabled={messages.length === 0 || loading}
       onClick={() => setMessages(() => [])}
     />,
-    <FCDeleteChatButton onClick={deleteTab} />,
+    <FCDeleteChatButton key="delete-chat-button" onClick={deleteTab} />,
+    <FCScrollButtons key="scroll-buttons" containerRef={chatPortRef} />,
   ];
 
   // Persistent right functional components
   const rightFCs = [
-    <FCSendButton disabled={query === "" || loading} onClick={handleSend} />,
+    <FCModelSelector key="model-selector" model={model} setModel={setModel} />,
+    <FCSendButton
+      key="send-button"
+      disabled={query === "" || loading}
+      onClick={handleSend}
+    />,
   ];
 
   // Whenever there are new messages, scroll chat port to the bottom
@@ -123,9 +142,17 @@ export const ChatPanel = ({
   useEffect(() => {
     const newFCs: ReactNode[] = [];
     if (query === "/meta") {
-      newFCs.push(<Code size="2">/meta</Code>);
+      newFCs.push(
+        <Code key="hint-meta" size="2">
+          /meta
+        </Code>,
+      );
     } else if (query === "/docs") {
-      newFCs.push(<Code size="2">/docs</Code>);
+      newFCs.push(
+        <Code key="hint-docs" size="2">
+          /docs
+        </Code>,
+      );
     }
     setExtraRightFCs(() => newFCs);
   }, [query]);

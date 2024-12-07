@@ -6,7 +6,7 @@
  * calling backend API), and displaying the results.
  */
 
-import { Flex, Text } from "@radix-ui/themes";
+import { Flex } from "@radix-ui/themes";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { MdFilterList } from "react-icons/md";
 import { callRetrieve } from "../api";
@@ -25,6 +25,8 @@ import { ChatErrorMessage } from "./ChatErrorMessage";
 import { addMessageUtilities, scrollToBottom } from "../utils";
 import { MessageRetrieved } from "./MessageRetrieved";
 import { FCTopKSelector } from "./FCTopKSelector";
+import { FCScrollButtons } from "./FCScrollButtons";
+import { RadixMarkdown } from "./RadixMarkdown";
 import { RetrievePanelFilters } from "./RetrievePanelFilters";
 
 interface RetrievalPanelProps {
@@ -52,7 +54,7 @@ export const RetrievePanel = ({
   const handleSend = async () => {
     setLoading(true);
     setQuery(""); // This will take effect only after the next render
-    addUserMessage(<Text size="2">{query}</Text>, query);
+    addUserMessage(<RadixMarkdown text={query} />, query);
 
     const callResult = await callRetrieve(query, topK, filters);
     if ("error" in callResult) {
@@ -77,19 +79,26 @@ export const RetrievePanel = ({
   // Persistent left functional components
   const leftFCs = [
     <FCClearHistoryButton
+      key="clear-history-button"
       disabled={messages.length === 0 || loading}
       onClick={() => setMessages(() => [])}
     />,
+    <FCScrollButtons key="scroll-buttons" containerRef={chatPortRef} />,
   ];
 
   // Persistent right functional components
   const rightFCs = [
     <FCTopKSelector
+      key="top-k-selector"
       options={[1, 3, 5, 10, 20, 30]}
       value={topK}
       onValueChange={setTopK}
     />,
-    <FCSendButton disabled={query === "" || loading} onClick={handleSend} />,
+    <FCSendButton
+      key="send-button"
+      disabled={query === "" || loading}
+      onClick={handleSend}
+    />,
   ];
 
   // Whenever there are new messages, scroll chat port to the bottom

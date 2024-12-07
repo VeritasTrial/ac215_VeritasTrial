@@ -21,7 +21,15 @@ import { ChatPanel } from "./components/ChatPanel";
 import { Toaster } from "sonner";
 
 export const App = () => {
-  const [appearance, setAppearance] = useState<ApperanceType>("dark");
+  const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const [appearance, setAppearance] = useState<ApperanceType>(
+    isDark ? "dark" : "light",
+  );
+  const [isSidebarVisible, setIsSidebarVisible] = useState<boolean>(
+    window.innerWidth > 1024,
+  );
+  const [isSidebarPopoverVisible, setIsSidebarPopoverVisible] =
+    useState<boolean>(false);
   const [model, setModel] = useState<ModelType>("6894888983713546240");
   const [currentTab, setCurrentTab] = useState<string>("default");
   const [messagesMapping, setMessagesMapping] = useState<
@@ -83,6 +91,7 @@ export const App = () => {
   // When the current tab changes, scroll to make it visible; note that the
   // "default" tab is not in the scroll area and is always visible
   useEffect(() => {
+    setIsSidebarPopoverVisible(false);
     if (currentTab !== "default" && tabRefs.current.has(currentTab)) {
       tabRefs.current.get(currentTab)!.scrollIntoView({
         behavior: "smooth",
@@ -90,6 +99,18 @@ export const App = () => {
       });
     }
   }, [currentTab]);
+
+  // Listen for window resize events
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSidebarVisible(window.innerWidth > 1024);
+      if (window.innerWidth > 1024) {
+        setIsSidebarPopoverVisible(false);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   return (
     <Theme appearance={appearance} accentColor="indigo" grayColor="slate">
@@ -109,27 +130,28 @@ export const App = () => {
       />
       <Flex css={{ height: "100vh" }}>
         {/* Left-hand sidebar panel */}
-        <Box
-          height="100%"
-          width="20%"
-          p="4"
-          css={{ backgroundColor: "var(--gray-4)" }}
-        >
-          <Sidebar
-            tabRefs={tabRefs}
-            metaMapping={metaMapping}
-            currentTab={currentTab}
-            setCurrentTab={setCurrentTab}
-            clearTabs={clearTabs}
-          ></Sidebar>
-        </Box>
+        {isSidebarVisible && (
+          <Box
+            height="100%"
+            width={{ initial: "25%", lg: "20%" }}
+            p="4"
+            css={{ backgroundColor: "var(--gray-4)" }}
+          >
+            <Sidebar
+              tabRefs={tabRefs}
+              metaMapping={metaMapping}
+              currentTab={currentTab}
+              setCurrentTab={setCurrentTab}
+              clearTabs={clearTabs}
+            ></Sidebar>
+          </Box>
+        )}
         {/* Right-hand main panel */}
         <Flex
           height="100%"
-          width="80%"
+          width={{ initial: "100%", md: "75%", lg: "80%" }}
           direction="column"
           p="4"
-          pl="6"
           css={{ backgroundColor: "var(--gray-1)" }}
         >
           {/* Top header */}
@@ -137,12 +159,38 @@ export const App = () => {
             <Header
               appearance={appearance}
               setAppearance={setAppearance}
-              model={model}
-              setModel={setModel}
+              isSidebarVisible={isSidebarVisible}
+              isSidebarPopoverVisible={isSidebarPopoverVisible}
+              setIsSidebarPopoverVisible={setIsSidebarPopoverVisible}
             ></Header>
           </Box>
           {/* Main body */}
-          <Box height="calc(100% - 50px)">
+          <Box height="calc(100% - 50px)" position="relative">
+            {/* Sidebar popover */}
+            {isSidebarPopoverVisible && (
+              <Box
+                position="absolute"
+                top="0"
+                left="0"
+                right="0"
+                bottom="0"
+                p="2"
+                css={{
+                  backgroundColor: "var(--gray-2)",
+                  borderRadius: "var(--radius-4)",
+                  zIndex: 1000,
+                }}
+              >
+                <Sidebar
+                  tabRefs={tabRefs}
+                  metaMapping={metaMapping}
+                  currentTab={currentTab}
+                  setCurrentTab={setCurrentTab}
+                  clearTabs={clearTabs}
+                ></Sidebar>
+              </Box>
+            )}
+            {/* Main body contents */}
             {currentTab === "default" && (
               <RetrievePanel
                 messages={messagesMapping.get("default")!}
@@ -163,9 +211,10 @@ export const App = () => {
             )}
             {currentTab !== "default" && (
               <ChatPanel
-                model={model}
                 tab={currentTab}
                 metaInfo={metaMapping.get(currentTab)!}
+                model={model}
+                setModel={setModel}
                 messages={messagesMapping.get(currentTab)!}
                 setMessages={(fn: UpdateMessagesFunction) =>
                   setMessagesMapping((prevMessagesMapping) => {

@@ -1,0 +1,74 @@
+name: Deploy ChromaDB
+
+on:
+  workflow_dispatch:
+    inputs:
+      skip-rebuild-images-app:
+        description: Skip rebuilding app images
+        required: false
+        type: boolean
+        default: false
+      skip-rebuild-images-pipeline:
+        description: Skip rebuilding pipeline images
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  deploy-chromadb:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Google authentication
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+
+      - name: Set up gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker client
+        run: gcloud auth configure-docker
+
+      - name: Build deployment container
+        run: cd deploy && make build
+
+      # Redeploying the ChromaDB instance would require redeploying the pipeline
+      # and the app as well
+      - name: Deploy ChromaDB
+        env:
+          VERITAS_TRIAL_SERVICE_CREDENTIALS: /tmp/veritas-trial-service.json
+        run: |
+          cd deploy
+          printf "%s" "${{ secrets.VERITAS_TRIAL_SERVICE_KEY }}" > /tmp/veritas-trial-service.json
+          make gh-actions command="./deploy-chromadb.sh"
+          make gh-actions command="./deploy-pipeline.sh --skip-rebuild-images=${{ inputs.skip-rebuild-images-pipeline }}"
+          make gh-actions command="./deploy-app.sh --skip-rebuild-images=${{ inputs.skip-rebuild-images-app }}"
+          rm /tmp/veritas-trial-service.json
+
+      - name: Create PR
+        id: create-pr
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.CHARLIE_XIAO_PAT }}
+          labels: app, ci/cd
+          title: "cd: updates of chromadb deployment"
+          commit-message: "cd: updates of chromadb deployment"
+          author: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+          committer: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+          body: |
+            This PR was triggered by @${{ github.actor }} in ${{ github.workflow }}.
+            Check the workflow run at: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      - name: Enable auto-merge
+        if: ${{ steps.create-pr.outputs.pull-request-number != '' }}
+        run: gh pr merge --squash --auto "$PR_NUMBER"
+        env:
+          GH_TOKEN: ${{ secrets.CHARLIE_XIAO_PAT }}
+          PR_NUMBER: ${{ steps.create-pr.outputs.pull-request-number }}
