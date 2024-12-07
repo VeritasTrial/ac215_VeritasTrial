@@ -28,7 +28,7 @@ CHROMADB_COLLECTION_NAME = "veritas-trial-embeddings"
 
 BUCKET_NAME = "veritas-trial"
 BUCKET_CLEANED_JSONL_PATH = "data-pipeline/cleaned_data.jsonl"
-BUCKET_EMBEDDINGS_NPY_PATH = f"embedding-model/summary_embeddings.npy"
+BUCKET_EMBEDDINGS_NPY_PATH = f"embedding-model/bge_base_embedding.npy"
 
 
 def default_progress():

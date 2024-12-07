@@ -8,6 +8,9 @@ import { DataList } from "@radix-ui/themes";
 import { Dispatch, SetStateAction } from "react";
 import { TrialFilters } from "../types";
 import { RetrievePanelFilterStudyType } from "./RetrievePanelFilterStudyType";
+import { RetrievePanelFilterStudyPhases } from "./RetrievePanelFilterStudyPhases";
+import { RetrievePanelFilterAgeRange } from "./RetrievePanelFilterAgeRange";
+import { RetrievePanelFilterEligibleSex } from "./RetrievePanelFilterEligibleSex";
 
 interface RetrievePanelFiltersProps {
   filters: TrialFilters;
@@ -36,6 +39,37 @@ export const RetrievePanelFilters = ({
           />
         </DataList.Value>
       </DataList.Item>
+
+      <DataList.Item>
+        <DataList.Label minWidth="0">Study phases</DataList.Label>
+        <DataList.Value>
+          <RetrievePanelFilterStudyPhases
+            filters={filters}
+            setFilters={setFilters}
+          />
+        </DataList.Value>
+      </DataList.Item>
+
+      <DataList.Item>
+        <DataList.Label minWidth="0">Age range</DataList.Label>
+        <DataList.Value>
+          <RetrievePanelFilterAgeRange
+            filters={filters}
+            setFilters={setFilters}
+          />
+        </DataList.Value>
+      </DataList.Item>
+
+      <DataList.Item>
+        <DataList.Label minWidth="0">Eligible Sex</DataList.Label>
+        <DataList.Value>
+          <RetrievePanelFilterEligibleSex
+            filters={filters}
+            setFilters={setFilters}
+          />
+        </DataList.Value>
+      </DataList.Item>
+
     </DataList.Root>
   );
 };

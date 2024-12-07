@@ -74,6 +74,10 @@ class TrialMetadataType(TypedDict):
 
 class TrialFilters(TypedDict, total=False):
     studyType: str
+    studyPhases: str
+    minAge: int
+    maxAge: int
+    eligibleSex: str
 
 
 class APIHeartbeatResponseType(TypedDict):
