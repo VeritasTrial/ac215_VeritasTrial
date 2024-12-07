@@ -57,7 +57,7 @@ devtestcov:
 # [DEV] Run the backend server only; this should be run in a separate terminal
 # window before running `devfrontend`
 devbackend:
-	CHROMADB_HOST=$(CHROMADB_HOST) docker-compose up chromadb backend --build
+	CHROMADB_HOST=$(CHROMADB_HOST) docker-compose up backend --build
 
 # [DEV] Run the frontend in development mode; this should be run in a separate
 # terminal window when `devbackend` is running
