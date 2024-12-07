@@ -110,10 +110,6 @@ export const App = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  useEffect(() => {
-    console.log("isSidebarPopoverVisible", isSidebarPopoverVisible);
-  }, [isSidebarPopoverVisible]);
-
   return (
     <Theme appearance={appearance} accentColor="indigo" grayColor="slate">
       <Toaster
