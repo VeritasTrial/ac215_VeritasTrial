@@ -100,27 +100,28 @@ def custom_openapi():  # pragma: no cover
     return app.openapi_schema
 
 
-def filter_by_date(results, date_key, from_date, to_date):
+def filter_by_date(results_full, date_key, from_date, to_date):
     filtered_documents = []
     filtered_ids = []
-    documents = results["documents"][0]  
-    ids = results["ids"][0] 
+    
+    metadata = results_full["metadatas"][0]  
+    documents = results_full["documents"][0]  
+    ids = results_full["ids"][0]  
 
-    for idx, document in enumerate(documents):  
+    for idx, meta in enumerate(metadata): 
         try:
-            doc_json = json.loads(document)
-            date_str = doc_json.get(date_key) 
+            date_str = meta.get(date_key) 
             if date_str:
                 date_obj = datetime.strptime(date_str, "%Y-%m-%d")
                 if from_date <= date_obj <= to_date:
-                    filtered_documents.append(document) 
+                    filtered_documents.append(documents[idx])  
                     filtered_ids.append(ids[idx]) 
-        except (json.JSONDecodeError, ValueError) as e:
-            print(f"Error processing document: {document}. Error: {e}")
+        except (ValueError, KeyError) as e:
+            print(f"Error processing metadata: {meta}. Error: {e}")
 
     return {
-        "ids": [filtered_ids],  
-        "documents": [filtered_documents],  
+        "ids": [filtered_ids], 
+        "documents": [filtered_documents]  
     }
 
 
@@ -242,19 +243,29 @@ async def retrieve(
         where=where,
     )
 
-    if "lastUpdateDate" in filters and filters["lastUpdateDate"]:
-        date_range = filters["lastUpdateDate"].split(" to ")
-        if len(date_range) == 2:
-            from_date = datetime.strptime(date_range[0], "%Y-%m-%d")
-            to_date = datetime.strptime(date_range[1], "%Y-%m-%d")
-            results = filter_by_date(results, "last_update_date_posted", from_date, to_date)
+    results_full = collection.query(
+    query_embeddings=[query_embedding],
+    n_results=top_k,
+    include=[
+        chromadb.api.types.IncludeEnum("documents"),
+        chromadb.api.types.IncludeEnum("metadatas"),
+    ],
+    where=where,
+)
 
-    if "resultsDate" in filters and filters["resultsDate"]:
-        date_range = filters["resultsDate"].split(" to ")
+    if "lastUpdateDatePosted" in filters and filters["lastUpdateDatePosted"]:
+        date_range = filters["lastUpdateDatePosted"].split(" to ")
         if len(date_range) == 2:
             from_date = datetime.strptime(date_range[0], "%Y-%m-%d")
             to_date = datetime.strptime(date_range[1], "%Y-%m-%d")
-            results = filter_by_date(results, "results_date_posted", from_date, to_date)
+            results = filter_by_date(results_full, "last_update_date_posted", from_date, to_date)
+
+    if "resultsDatePosted" in filters and filters["resultsDatePosted"]:
+        date_range = filters["resultsDatePosted"].split(" to ")
+        if len(date_range) == 2:
+            from_date = datetime.strptime(date_range[0], "%Y-%m-%d")
+            to_date = datetime.strptime(date_range[1], "%Y-%m-%d")
+            results = filter_by_date(results_full, "results_date_posted", from_date, to_date)
             
     # Retrieve the results
     ids = results["ids"][0]
