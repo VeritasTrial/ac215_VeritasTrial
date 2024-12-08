@@ -11,6 +11,7 @@ import {
   APIMetaResponseType,
   APIRetrieveResponseType,
   ModelType,
+  TrialFilters,
   WrapAPI,
 } from "./types";
 
@@ -66,8 +67,13 @@ const formatNonOkResponse = async (response: Response) => {
 export const callRetrieve = async (
   query: string,
   topK: number,
+  filters: TrialFilters,
 ): Promise<WrapAPI<APIRetrieveResponseType>> => {
-  const params = queryString.stringify({ query, top_k: topK });
+  const params = queryString.stringify({
+    query,
+    top_k: topK,
+    filters_serialized: JSON.stringify(filters),
+  });
   const url = `${import.meta.env.VITE_BACKEND_URL}/retrieve?${params}`;
   try {
     const response = await getResponse(url);
