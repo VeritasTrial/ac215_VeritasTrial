@@ -75,11 +75,12 @@ class TrialMetadataType(TypedDict):
 class TrialFilters(TypedDict, total=False):
     studyType: str
     studyPhases: str
+    acceptsHealthy: bool
     minAge: int
     maxAge: int
     eligibleSex: str
-    resultsDate: str
-    lastUpdateDate: str
+    resultsDatePosted: str
+    lastUpdateDatePosted: str
 
 
 class APIHeartbeatResponseType(TypedDict):

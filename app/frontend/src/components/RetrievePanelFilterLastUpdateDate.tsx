@@ -9,15 +9,15 @@ import { DateRange, DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { TrialFilters } from "../types";
 
-interface RetrievePanelFilterLastUpdateDateProps {
+interface RetrievePanelFilterLastUpdateDatePostedProps {
   filters: TrialFilters;
   setFilters: (filters: TrialFilters) => void;
 }
 
-export const RetrievePanelFilterLastUpdateDate = ({
+export const RetrievePanelFilterLastUpdateDatePosted = ({
   filters,
   setFilters,
-}: RetrievePanelFilterLastUpdateDateProps) => {
+}: RetrievePanelFilterLastUpdateDatePostedProps) => {
   const [range, setRange] = useState<DateRange>({
     from: undefined,
     to: undefined,
@@ -31,7 +31,7 @@ export const RetrievePanelFilterLastUpdateDate = ({
       setRange({ from: undefined, to: undefined });
       setFilters({
         ...filters,
-        lastUpdateDate: "",
+        lastUpdateDatePosted: "",
       });
       return;
     }
@@ -46,7 +46,7 @@ export const RetrievePanelFilterLastUpdateDate = ({
     // update filters
     setFilters({
       ...filters,
-      lastUpdateDate: fromDate && toDate ? `${fromDate} to ${toDate}` : "",
+      lastUpdateDatePosted: fromDate && toDate ? `${fromDate} to ${toDate}` : "",
     });
   };
 
@@ -54,7 +54,7 @@ export const RetrievePanelFilterLastUpdateDate = ({
     setRange({ from: undefined, to: undefined });
     setFilters({
       ...filters,
-      lastUpdateDate: "",
+      lastUpdateDatePosted: "",
     });
   };
 

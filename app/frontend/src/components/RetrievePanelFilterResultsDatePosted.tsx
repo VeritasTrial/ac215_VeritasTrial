@@ -9,15 +9,15 @@ import { DateRange, DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { TrialFilters } from "../types";
 
-interface RetrievePanelFilterResultsDateProps {
+interface RetrievePanelFilterResultsDatePostedProps {
   filters: TrialFilters;
   setFilters: (filters: TrialFilters) => void;
 }
 
-export const RetrievePanelFilterResultsDate = ({
+export const RetrievePanelFilterResultsDatePosted = ({
   filters,
   setFilters,
-}: RetrievePanelFilterResultsDateProps) => {
+}: RetrievePanelFilterResultsDatePostedProps) => {
   const [range, setRange] = useState<DateRange>({
     from: undefined,
     to: undefined,
@@ -31,7 +31,7 @@ export const RetrievePanelFilterResultsDate = ({
       setRange({ from: undefined, to: undefined });
       setFilters({
         ...filters,
-        resultsDate: "",
+        resultsDatePosted: "",
       });
       return;
     }
@@ -46,7 +46,7 @@ export const RetrievePanelFilterResultsDate = ({
     // update filters
     setFilters({
       ...filters,
-      resultsDate: fromDate && toDate ? `${fromDate} to ${toDate}` : "",
+      resultsDatePosted: fromDate && toDate ? `${fromDate} to ${toDate}` : "",
     });
   };
 
@@ -54,7 +54,7 @@ export const RetrievePanelFilterResultsDate = ({
     setRange({ from: undefined, to: undefined });
     setFilters({
       ...filters,
-      resultsDate: "",
+      resultsDatePosted: "",
     });
   };
 

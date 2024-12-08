@@ -5,6 +5,7 @@ import logging
 import os
 import time
 from contextlib import asynccontextmanager
+from datetime import datetime
 
 import chromadb
 import chromadb.api
@@ -99,7 +100,28 @@ def custom_openapi():  # pragma: no cover
     return app.openapi_schema
 
 
-app.openapi = custom_openapi  # type: ignore
+def filter_by_date(results, date_key, from_date, to_date):
+    filtered_documents = []
+    filtered_ids = []
+    documents = results["documents"][0]  
+    ids = results["ids"][0] 
+
+    for idx, document in enumerate(documents):  
+        try:
+            doc_json = json.loads(document)
+            date_str = doc_json.get(date_key) 
+            if date_str:
+                date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+                if from_date <= date_obj <= to_date:
+                    filtered_documents.append(document) 
+                    filtered_ids.append(ids[idx]) 
+        except (json.JSONDecodeError, ValueError) as e:
+            print(f"Error processing document: {document}. Error: {e}")
+
+    return {
+        "ids": [filtered_ids],  
+        "documents": [filtered_documents],  
+    }
 
 
 @app.exception_handler(Exception)
@@ -146,6 +168,61 @@ async def retrieve(
         elif filters["studyType"] == "observational":
             processed_filters.append({"study_type": "OBSERVATIONAL"})
 
+    if "acceptsHealthy" in filters:
+        if filters["acceptsHealthy"] == "True":
+            processed_filters.append({"accepts_healthy": True})
+        elif filters["acceptsHealthy"] == "False":
+            processed_filters.append({"accepts_healthy": False})
+
+    if "eligibleSex" in filters:
+        if filters["eligibleSex"] == "female":
+            processed_filters.append({"eligible_sex": "FEMALE"})
+        elif filters["eligibleSex"] == "observational":
+            processed_filters.append({"eligible_sex": "MALE"})
+        
+    if "studyPhases" in filters:
+        processed_filters.append({"study_phases": filters["studyPhases"]})
+
+    if "minAge" in filters or "maxAge" in filters:     # if two age ranges have overlaps
+        age_filters = []
+        if "minAge" in filters:
+            age_filters.append({"max_age": {"$gte": filters["minAge"]}})
+        if "maxAge" in filters:
+            age_filters.append({"min_age": {"$lte": filters["maxAge"]}})
+
+        if len(age_filters) > 0:
+            processed_filters.append({"$and": age_filters})
+
+    # if "lastUpdateDate" in filters and filters["lastUpdateDate"]:   # TODO: How to compare two date strings
+    #     try:
+    #         date_range = filters["lastUpdateDate"].split(" to ")
+    #         if len(date_range) == 2:
+    #             from_date, to_date = date_range
+    #             processed_filters.append({
+    #                 "$and": [
+    #                     {"last_update_date": {"$gte": from_date}},
+    #                     {"last_update_date": {"$lte": to_date}}
+    #                 ]
+    #             })
+    #     except Exception as e:
+    #         print(f"Error processing lastUpdateDate: {e}")
+
+    # if "resultsDate" in filters and filters["resultsDate"]:        # TODO: How to compare two date strings
+    #     try:
+    #         date_range = filters["resultsDate"].split(" to ")
+    #         if len(date_range) == 2:
+    #             from_date, to_date = date_range
+    #             processed_filters.append({
+    #                 "$and": [
+    #                     {"results_date": {"$gte": from_date}},
+    #                     {"results_date": {"$lte": to_date}}
+    #                 ]
+    #             })
+    #     except Exception as e:
+    #         print(f"Error processing lastUpdateDate: {e}")
+
+        
+
     # Construct the where clause
     where: chromadb.Where | None
     if len(processed_filters) == 0:
@@ -165,6 +242,20 @@ async def retrieve(
         where=where,
     )
 
+    if "lastUpdateDate" in filters and filters["lastUpdateDate"]:
+        date_range = filters["lastUpdateDate"].split(" to ")
+        if len(date_range) == 2:
+            from_date = datetime.strptime(date_range[0], "%Y-%m-%d")
+            to_date = datetime.strptime(date_range[1], "%Y-%m-%d")
+            results = filter_by_date(results, "last_update_date_posted", from_date, to_date)
+
+    if "resultsDate" in filters and filters["resultsDate"]:
+        date_range = filters["resultsDate"].split(" to ")
+        if len(date_range) == 2:
+            from_date = datetime.strptime(date_range[0], "%Y-%m-%d")
+            to_date = datetime.strptime(date_range[1], "%Y-%m-%d")
+            results = filter_by_date(results, "results_date_posted", from_date, to_date)
+            
     # Retrieve the results
     ids = results["ids"][0]
     if results["documents"] is not None:

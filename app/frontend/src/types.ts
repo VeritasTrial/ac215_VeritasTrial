@@ -45,11 +45,12 @@ export type UpdateMessagesFunction = (
 export interface TrialFilters {
   studyType?: string;
   studyPhases?: string;
+  acceptsHealthy?: boolean;
   minAge?: number;
   maxAge?: number;
   eligibleSex?: string;
-  resultsDate?: string;
-  lastUpdateDate?: string;
+  resultsDatePosted?: string;
+  lastUpdateDatePosted?: string;
 }
 
 /* ==========================================================================

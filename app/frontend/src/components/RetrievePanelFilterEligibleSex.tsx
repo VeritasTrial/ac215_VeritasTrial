@@ -17,13 +17,13 @@ export const RetrievePanelFilterEligibleSex = ({
   filters,
   setFilters,
 }: RetrievePanelFilterEligibleSexProps) => {
-  const value = filters.studyType ?? "all";
+  const value = filters.eligibleSex ?? "all";
 
   // Handler for the filter change
   const handler = (value: string) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
-      studyType: value === "all" ? undefined : value,
+      eligibleSex: value === "all" ? undefined : value,
     }));
   };
 

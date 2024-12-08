@@ -11,8 +11,9 @@ import { RetrievePanelFilterStudyType } from "./RetrievePanelFilterStudyType";
 import { RetrievePanelFilterStudyPhases } from "./RetrievePanelFilterStudyPhases";
 import { RetrievePanelFilterAgeRange } from "./RetrievePanelFilterAgeRange";
 import { RetrievePanelFilterEligibleSex } from "./RetrievePanelFilterEligibleSex";
-import { RetrievePanelFilterLastUpdateDate } from "./RetrievePanelFilterLastUpdateDate";
-import { RetrievePanelFilterResultsDate } from "./RetrievePanelFilterResultsDate";
+import { RetrievePanelFilterLastUpdateDatePosted } from "./RetrievePanelFilterLastUpdateDate";
+import { RetrievePanelFilterResultsDatePosted } from "./RetrievePanelFilterResultsDatePosted";
+import { RetrievePanelFilterAcceptsHealthy } from "./RetrievePanelFilterAcceptsHealthy";
 
 interface RetrievePanelFiltersProps {
   filters: TrialFilters;
@@ -53,6 +54,16 @@ export const RetrievePanelFilters = ({
       </DataList.Item>
 
       <DataList.Item>
+        <DataList.Label minWidth="0">Accepts Healthy Patients</DataList.Label>
+        <DataList.Value>
+          <RetrievePanelFilterAcceptsHealthy
+            filters={filters}
+            setFilters={setFilters}
+          />
+        </DataList.Value>
+      </DataList.Item>
+
+      <DataList.Item>
         <DataList.Label minWidth="0">Age range</DataList.Label>
         <DataList.Value>
           <RetrievePanelFilterAgeRange
@@ -75,7 +86,7 @@ export const RetrievePanelFilters = ({
       <DataList.Item>
         <DataList.Label minWidth="0">Last Update Date</DataList.Label>
         <DataList.Value>
-          <RetrievePanelFilterLastUpdateDate
+          <RetrievePanelFilterLastUpdateDatePosted
             filters={filters}
             setFilters={setFilters}
           />
@@ -85,7 +96,7 @@ export const RetrievePanelFilters = ({
       <DataList.Item>
         <DataList.Label minWidth="0">Results Date</DataList.Label>
         <DataList.Value>
-          <RetrievePanelFilterResultsDate
+          <RetrievePanelFilterResultsDatePosted
             filters={filters}
             setFilters={setFilters}
           />
