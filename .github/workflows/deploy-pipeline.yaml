@@ -37,6 +37,8 @@ jobs:
       - name: Deploy pipeline
         env:
           VERITAS_TRIAL_SERVICE_CREDENTIALS: /tmp/veritas-trial-service.json
+          SSL_CERTIFICATE_CRT: /tmp/certificate.crt
+          SSL_PRIVATE_KEY: /tmp/private.key
         run: |
           cd deploy
           printf "%s" "${{ secrets.VERITAS_TRIAL_SERVICE_KEY }}" > /tmp/veritas-trial-service.json
