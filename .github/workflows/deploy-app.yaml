@@ -42,8 +42,8 @@ jobs:
         run: |
           cd deploy
           printf "%s" "${{ secrets.VERITAS_TRIAL_SERVICE_KEY }}" > /tmp/veritas-trial-service.json
-          printf "%s" "${{ secrets.SSL_CERTIFICATE_CRT }}" > /tmp/certificate.crt"
-          printf "%s" "${{ secrets.SSL_PRIVATE_KEY }}" > /tmp/private.key"
+          printf "%s" "${{ secrets.SSL_CERTIFICATE_CRT }}" > /tmp/certificate.crt
+          printf "%s" "${{ secrets.SSL_PRIVATE_KEY }}" > /tmp/private.key
           make gh-actions command="./deploy-app.sh --skip-rebuild-images=${{ inputs.skip-rebuild-images }}"
           rm /tmp/veritas-trial-service.json
           rm /tmp/certificate.crt
