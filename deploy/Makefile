@@ -23,6 +23,8 @@ run:
 		--volume $(PWD)/chromadb/.instance-ip:/veritastrial/chromadb/.instance-ip \
 		--volume $(PWD)/../secrets/veritas-trial-deployment.json:/secrets/veritas-trial-deployment.json:ro \
 		--volume $(PWD)/../secrets/veritas-trial-service.json:/secrets/veritas-trial-service.json:ro \
+		--volume $(PWD)/../secrets/certificate.crt:/secrets/certificate.crt:ro \
+		--volume $(PWD)/../secrets/private.key:/secrets/private.key:ro \
 		--volume $(PWD)/../app/backend:/app/backend:ro \
 		--volume $(PWD)/../app/frontend:/app/frontend:ro \
 		--volume $(PWD)/../src/data-pipeline:/src/data-pipeline:ro \
@@ -44,6 +46,8 @@ gh-actions:
 		--volume $(PWD)/chromadb/.instance-ip:/veritastrial/chromadb/.instance-ip \
 		--volume $(GOOGLE_APPLICATION_CREDENTIALS):/secrets/veritas-trial-deployment.json:ro \
 		--volume $(VERITAS_TRIAL_SERVICE_CREDENTIALS):/secrets/veritas-trial-service.json:ro \
+		--volume $(SSL_CERTIFICATE_CRT):/secrets/certificate.crt:ro \
+		--volume $(SSL_PRIVATE_KEY):/secrets/private.key:ro \
 		--volume $(PWD)/../app/backend:/app/backend:ro \
 		--volume $(PWD)/../app/frontend:/app/frontend:ro \
 		--volume $(PWD)/../src/data-pipeline:/src/data-pipeline:ro \

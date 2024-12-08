@@ -217,6 +217,21 @@
       debug:
         msg: "Nginx ingress IP address: {{ nginx_ingress.stdout }}"
 
+    - name: Create SSL secret
+      when: cluster_state == "present"
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: veritas-trial-ssl
+            namespace: "{{ cluster_name }}-namespace"
+          type: kubernetes.io/tls
+          data:
+            tls.crt: "{{ lookup('file', '/secrets/certificate.crt') | b64encode }}"
+            tls.key: "{{ lookup('file', '/secrets/private.key') | b64encode }}"
+
     - name: Create ingress controller
       when: cluster_state == "present"
       kubernetes.core.k8s:
@@ -229,11 +244,15 @@
             namespace: "{{ cluster_name }}-namespace"
             annotations:
               kubernetes.io/ingress.class: nginx
-              nginx.ingress.kubernetes.io/ssl-redirect: "false"
+              nginx.ingress.kubernetes.io/ssl-redirect: "true"
               nginx.org/rewrites: |
                 serviceName=veritas-trial-frontend rewrite=/;
                 serviceName=veritas-trial-backend rewrite=/
           spec:
+            tls:
+              - hosts:
+                  - "{{ nginx_ingress.stdout }}.sslip.io"
+                secretName: veritas-trial-ssl
             rules:
               - host: "{{ nginx_ingress.stdout }}.sslip.io"
                 http:
