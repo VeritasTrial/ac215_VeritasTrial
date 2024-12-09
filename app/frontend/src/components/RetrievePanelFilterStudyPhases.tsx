@@ -20,11 +20,11 @@ export const RetrievePanelFilterStudyPhases = ({
 }: RetrievePanelFilterStudyPhasesProps) => {
   const options = [
     { value: "all", label: "All" },
-    { value: "EARLY_PHASE1", label: "Early Phase 1" },
-    { value: "PHASE1", label: "Phase 1" },
-    { value: "PHASE2", label: "Phase 2" },
-    { value: "PHASE3", label: "Phase 3" },
-    { value: "PHASE4", label: "Phase 4" },
+    { value: "EARLY_PHASE1", label: "Early Phase I" },
+    { value: "PHASE1", label: "Phase I" },
+    { value: "PHASE2", label: "Phase II" },
+    { value: "PHASE3", label: "Phase III" },
+    { value: "PHASE4", label: "Phase IV" },
   ];
 
   const [selectedValues, setSelectedValues] = useState<string[]>(
