@@ -194,35 +194,6 @@ async def retrieve(
         if len(age_filters) > 0:
             processed_filters.append({"$and": age_filters})
 
-    # if "lastUpdateDate" in filters and filters["lastUpdateDate"]:   # TODO: How to compare two date strings
-    #     try:
-    #         date_range = filters["lastUpdateDate"].split(" to ")
-    #         if len(date_range) == 2:
-    #             from_date, to_date = date_range
-    #             processed_filters.append({
-    #                 "$and": [
-    #                     {"last_update_date": {"$gte": from_date}},
-    #                     {"last_update_date": {"$lte": to_date}}
-    #                 ]
-    #             })
-    #     except Exception as e:
-    #         print(f"Error processing lastUpdateDate: {e}")
-
-    # if "resultsDate" in filters and filters["resultsDate"]:        # TODO: How to compare two date strings
-    #     try:
-    #         date_range = filters["resultsDate"].split(" to ")
-    #         if len(date_range) == 2:
-    #             from_date, to_date = date_range
-    #             processed_filters.append({
-    #                 "$and": [
-    #                     {"results_date": {"$gte": from_date}},
-    #                     {"results_date": {"$lte": to_date}}
-    #                 ]
-    #             })
-    #     except Exception as e:
-    #         print(f"Error processing lastUpdateDate: {e}")
-
-        
 
     # Construct the where clause
     where: chromadb.Where | None

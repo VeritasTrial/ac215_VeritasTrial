@@ -11,7 +11,7 @@ import { RetrievePanelFilterStudyType } from "./RetrievePanelFilterStudyType";
 import { RetrievePanelFilterStudyPhases } from "./RetrievePanelFilterStudyPhases";
 import { RetrievePanelFilterAgeRange } from "./RetrievePanelFilterAgeRange";
 import { RetrievePanelFilterEligibleSex } from "./RetrievePanelFilterEligibleSex";
-import { RetrievePanelFilterLastUpdateDatePosted } from "./RetrievePanelFilterLastUpdateDate";
+import { RetrievePanelFilterLastUpdateDatePosted } from "./RetrievePanelFilterLastUpdateDatePosted";
 import { RetrievePanelFilterResultsDatePosted } from "./RetrievePanelFilterResultsDatePosted";
 import { RetrievePanelFilterAcceptsHealthy } from "./RetrievePanelFilterAcceptsHealthy";
 
