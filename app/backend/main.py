@@ -199,9 +199,6 @@ async def retrieve(
         processed_filters.append({"min_age": {"$lte": max_age}})  # type: ignore  # TODO: Fix this
         processed_filters.append({"max_age": {"$gte": min_age}})  # type: ignore  # TODO: Fix this
 
-    print(filters)
-    print(processed_filters)
-
     # Construct the where clause
     where: chromadb.Where | None
     if len(processed_filters) == 0:

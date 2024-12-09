@@ -106,11 +106,6 @@ export const RetrievePanel = ({
     scrollToBottom(chatPortRef);
   }, [messages]);
 
-  // TODO: Remove
-  useEffect(() => {
-    console.log(filters);
-  }, [filters]);
-
   return (
     <Flex direction="column" justify="end" gap="5" px="3" height="100%">
       <ChatPort ref={chatPortRef} messages={messages} loading={loading} />
