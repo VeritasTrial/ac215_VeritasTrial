@@ -35,7 +35,7 @@ export const RetrievePanelFilters = ({
       }}
     >
       <DataList.Item>
-        <DataList.Label minWidth="0">Eligible Sex</DataList.Label>
+        <DataList.Label minWidth="0">Eligible sex</DataList.Label>
         <DataList.Value>
           <RetrievePanelFilterEligibleSex
             filters={filters}
@@ -80,7 +80,7 @@ export const RetrievePanelFilters = ({
         </DataList.Value>
       </DataList.Item>
       <DataList.Item>
-        <DataList.Label minWidth="0">Last Update Date</DataList.Label>
+        <DataList.Label minWidth="0">Last update date</DataList.Label>
         <DataList.Value>
           <RetrievePanelFilterLastUpdateDatePosted
             filters={filters}
@@ -89,7 +89,7 @@ export const RetrievePanelFilters = ({
         </DataList.Value>
       </DataList.Item>
       <DataList.Item>
-        <DataList.Label minWidth="0">Results Date</DataList.Label>
+        <DataList.Label minWidth="0">Results date</DataList.Label>
         <DataList.Value>
           <RetrievePanelFilterResultsDatePosted
             filters={filters}

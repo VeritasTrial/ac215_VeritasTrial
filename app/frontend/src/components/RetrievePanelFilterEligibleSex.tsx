@@ -19,7 +19,6 @@ export const RetrievePanelFilterEligibleSex = ({
 }: RetrievePanelFilterEligibleSexProps) => {
   const value = filters.eligibleSex ?? "all";
 
-  // Handler for the filter change
   const handler = (value: string) => {
     setFilters((prevFilters) => ({
       ...prevFilters,

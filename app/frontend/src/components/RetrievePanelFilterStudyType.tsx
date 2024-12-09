@@ -19,7 +19,6 @@ export const RetrievePanelFilterStudyType = ({
 }: RetrievePanelFilterStudyTypeProps) => {
   const value = filters.studyType ?? "all";
 
-  // Handler for the filter change
   const handler = (value: string) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
