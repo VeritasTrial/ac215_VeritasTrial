@@ -172,7 +172,7 @@ async def retrieve(
         # NOTE: If this filter is True, it means to accept healthy participants,
         # and unhealthy participants are always accepted so it is equivalent to
         # not having this filter at all
-        processed_filters.append({"accepts_healthy": False})
+        processed_filters.append({"accepts_healthy": False})  # type: ignore  # TODO: Fix this
 
     if "eligibleSex" in filters:
         if filters["eligibleSex"] == "female":
@@ -191,13 +191,13 @@ async def retrieve(
             for combo in permutations(all_phases, r + 1):
                 if any(phase in combo for phase in filters["studyPhases"]):
                     possible_values.append(", ".join(combo))
-        processed_filters.append({"study_phases": {"$in": possible_values}})
+        processed_filters.append({"study_phases": {"$in": possible_values}})  # type: ignore  # TODO: Fix this
 
     if "ageRange" in filters:
         # NOTE: We want the age range to intersect with the desired range
         min_age, max_age = filters["ageRange"]
-        processed_filters.append({"min_age": {"$lte": max_age}})
-        processed_filters.append({"max_age": {"$gte": min_age}})
+        processed_filters.append({"min_age": {"$lte": max_age}})  # type: ignore  # TODO: Fix this
+        processed_filters.append({"max_age": {"$gte": min_age}})  # type: ignore  # TODO: Fix this
 
     print(filters)
     print(processed_filters)

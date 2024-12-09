@@ -20,13 +20,16 @@ export const RetrievePanelFilterResultsDatePosted = ({
   filters,
   setFilters,
 }: RetrievePanelFilterResultsDatePostedProps) => {
-  const range = filters.resultsDatePosted === undefined ? undefined : {
-    from: new Date(filters.resultsDatePosted[0]),
-    to: new Date(filters.resultsDatePosted[1]),
-  }
+  const range =
+    filters.resultsDatePosted === undefined
+      ? undefined
+      : {
+          from: new Date(filters.resultsDatePosted[0]),
+          to: new Date(filters.resultsDatePosted[1]),
+        };
 
   const handler = (selectedRange?: DateRange) => {
-    if (selectedRange === undefined || selectedRange.from === undefined || selectedRange.to === undefined) {
+    if (selectedRange?.from === undefined || selectedRange.to === undefined) {
       setFilters((prevFilters) => ({
         ...prevFilters,
         resultsDatePosted: undefined,
@@ -48,7 +51,9 @@ export const RetrievePanelFilterResultsDatePosted = ({
         <Flex gap="2" height="var(--line-height-2)" asChild>
           <Button size="1" variant="outline">
             <MdCalendarMonth />
-            {(range === undefined) ? "All" : `${range.from.toLocaleDateString()} ~ ${range.to.toLocaleDateString()}`}
+            {range === undefined
+              ? "All"
+              : `${range.from.toLocaleDateString()} ~ ${range.to.toLocaleDateString()}`}
           </Button>
         </Flex>
       </Popover.Trigger>
