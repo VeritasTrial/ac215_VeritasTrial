@@ -19,7 +19,6 @@ export const RetrievePanelFilterStudyPhases = ({
   setFilters,
 }: RetrievePanelFilterStudyPhasesProps) => {
   const options = [
-    { value: "all", label: "All" },
     { value: "EARLY_PHASE1", label: "Early Phase 1" },
     { value: "PHASE1", label: "Phase 1" },
     { value: "PHASE2", label: "Phase 2" },
@@ -28,32 +27,20 @@ export const RetrievePanelFilterStudyPhases = ({
   ];
 
   const [selectedValues, setSelectedValues] = useState<string[]>(
-    filters.studyPhases?.split(",") ?? [],
+    filters.studyPhases?.split(", ") ?? [],
   );
 
   const handleCheckboxChange = (value: string) => {
-    if (value === "all") {
-      if (!selectedValues.includes("all")) {
-        setSelectedValues(["all"]);
-        setFilters((prevFilters) => ({
-          ...prevFilters,
-          studyPhases: undefined,
-        }));
-      } else {
-        setSelectedValues([]);
-      }
-    } else {
-      const newValues = selectedValues.includes(value)
-        ? selectedValues.filter((v) => v !== value)
-        : [...selectedValues.filter((v) => v !== "all"), value];
+    const newValues = selectedValues.includes(value)
+      ? selectedValues.filter((v) => v !== value) // cancel selection
+      : [...selectedValues, value]; // add selection
 
-      setSelectedValues(newValues);
+    setSelectedValues(newValues);
 
-      setFilters((prevFilters) => ({
-        ...prevFilters,
-        studyPhases: newValues.length > 0 ? newValues.join(", ") : undefined,
-      }));
-    }
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      studyPhases: newValues.length > 0 ? newValues.join(", ") : undefined, 
+    }));
   };
 
   return (

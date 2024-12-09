@@ -5,6 +5,7 @@ import logging
 import os
 import time
 from contextlib import asynccontextmanager
+from itertools import permutations
 from datetime import datetime
 
 import chromadb
@@ -170,9 +171,9 @@ async def retrieve(
             processed_filters.append({"study_type": "OBSERVATIONAL"})
 
     if "acceptsHealthy" in filters:
-        if filters["acceptsHealthy"] == "True":
+        if filters["acceptsHealthy"] is True:  
             processed_filters.append({"accepts_healthy": True})
-        elif filters["acceptsHealthy"] == "False":
+        elif filters["acceptsHealthy"] is False:  
             processed_filters.append({"accepts_healthy": False})
 
     if "eligibleSex" in filters:
@@ -181,8 +182,19 @@ async def retrieve(
         elif filters["eligibleSex"] == "observational":
             processed_filters.append({"eligible_sex": "MALE"})
         
-    if "studyPhases" in filters:
-        processed_filters.append({"study_phases": filters["studyPhases"]})
+
+    if "studyPhases" in filters and filters["studyPhases"]:
+        all_phases = ["EARLY_PHASE1", "PHASE1", "PHASE2", "PHASE3", "PHASE4"]
+        selected_phases = [phase.strip() for phase in filters["studyPhases"].split(",")]
+
+        possible_values = []
+        for r in range(1, len(all_phases) + 1):  
+            for combo in permutations(all_phases, r):
+                if any(phase in combo for phase in selected_phases):  
+                    possible_values.append(", ".join(combo))
+    
+        processed_filters.append({"study_phases": {"$in": possible_values}})
+
 
     if "minAge" in filters or "maxAge" in filters:     # if two age ranges have overlaps
         age_filters = []
