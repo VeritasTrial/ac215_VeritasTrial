@@ -13,7 +13,7 @@ import { RetrievePanelFilterAgeRange } from "./RetrievePanelFilterAgeRange";
 import { RetrievePanelFilterEligibleSex } from "./RetrievePanelFilterEligibleSex";
 import { RetrievePanelFilterLastUpdateDatePosted } from "./RetrievePanelFilterLastUpdateDate";
 import { RetrievePanelFilterResultsDatePosted } from "./RetrievePanelFilterResultsDatePosted";
-import { RetrievePanelFilterAcceptsHealthy } from "./RetrievePanelFilterAcceptsHealthy";
+import { RetrievePanelFilterPatientType } from "./RetrievePanelFilterPatientType";
 
 interface RetrievePanelFiltersProps {
   filters: TrialFilters;
@@ -27,52 +27,13 @@ export const RetrievePanelFilters = ({
   return (
     <DataList.Root
       size="2"
+      orientation={{ initial: "vertical", sm: "horizontal" }}
       css={{
         rowGap: "var(--space-2)",
         columnGap: "var(--space-6)",
         padding: "var(--space-1) 0",
       }}
     >
-      <DataList.Item>
-        <DataList.Label minWidth="0">Study type</DataList.Label>
-        <DataList.Value>
-          <RetrievePanelFilterStudyType
-            filters={filters}
-            setFilters={setFilters}
-          />
-        </DataList.Value>
-      </DataList.Item>
-
-      <DataList.Item>
-        <DataList.Label minWidth="0">Study phases</DataList.Label>
-        <DataList.Value>
-          <RetrievePanelFilterStudyPhases
-            filters={filters}
-            setFilters={setFilters}
-          />
-        </DataList.Value>
-      </DataList.Item>
-
-      <DataList.Item>
-        <DataList.Label minWidth="0">Accepts Healthy Patients</DataList.Label>
-        <DataList.Value>
-          <RetrievePanelFilterAcceptsHealthy
-            filters={filters}
-            setFilters={setFilters}
-          />
-        </DataList.Value>
-      </DataList.Item>
-
-      <DataList.Item>
-        <DataList.Label minWidth="0">Age range</DataList.Label>
-        <DataList.Value>
-          <RetrievePanelFilterAgeRange
-            filters={filters}
-            setFilters={setFilters}
-          />
-        </DataList.Value>
-      </DataList.Item>
-
       <DataList.Item>
         <DataList.Label minWidth="0">Eligible Sex</DataList.Label>
         <DataList.Value>
@@ -82,7 +43,42 @@ export const RetrievePanelFilters = ({
           />
         </DataList.Value>
       </DataList.Item>
-
+      <DataList.Item>
+        <DataList.Label minWidth="0">Study type</DataList.Label>
+        <DataList.Value>
+          <RetrievePanelFilterStudyType
+            filters={filters}
+            setFilters={setFilters}
+          />
+        </DataList.Value>
+      </DataList.Item>
+      <DataList.Item>
+        <DataList.Label minWidth="0">Study phases</DataList.Label>
+        <DataList.Value>
+          <RetrievePanelFilterStudyPhases
+            filters={filters}
+            setFilters={setFilters}
+          />
+        </DataList.Value>
+      </DataList.Item>
+      <DataList.Item>
+        <DataList.Label minWidth="0">Patient Types</DataList.Label>
+        <DataList.Value>
+          <RetrievePanelFilterPatientType
+            filters={filters}
+            setFilters={setFilters}
+          />
+        </DataList.Value>
+      </DataList.Item>
+      <DataList.Item>
+        <DataList.Label minWidth="0">Age range</DataList.Label>
+        <DataList.Value>
+          <RetrievePanelFilterAgeRange
+            filters={filters}
+            setFilters={setFilters}
+          />
+        </DataList.Value>
+      </DataList.Item>
       <DataList.Item>
         <DataList.Label minWidth="0">Last Update Date</DataList.Label>
         <DataList.Value>
@@ -92,7 +88,6 @@ export const RetrievePanelFilters = ({
           />
         </DataList.Value>
       </DataList.Item>
-
       <DataList.Item>
         <DataList.Label minWidth="0">Results Date</DataList.Label>
         <DataList.Value>

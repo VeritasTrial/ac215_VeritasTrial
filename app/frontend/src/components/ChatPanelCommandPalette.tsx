@@ -22,6 +22,7 @@ export const ChatPanelCommandPalette = ({
   return (
     <DataList.Root
       size="2"
+      orientation={{ initial: "vertical", sm: "horizontal" }}
       css={{ rowGap: "var(--space-2)", columnGap: "var(--space-6)" }}
     >
       {/* Full title */}

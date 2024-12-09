@@ -34,7 +34,7 @@ export const RetrievePanelFilterStudyType = ({
       value={value}
       onValueChange={handler}
     >
-      <Flex direction="row" gap="4">
+      <Flex direction="row" gapX="4">
         <RadioGroup.Item value="all">All</RadioGroup.Item>
         <RadioGroup.Item value="interventional">Interventional</RadioGroup.Item>
         <RadioGroup.Item value="observational">Observational</RadioGroup.Item>

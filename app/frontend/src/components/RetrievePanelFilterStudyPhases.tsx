@@ -28,7 +28,7 @@ export const RetrievePanelFilterStudyPhases = ({
   ];
 
   const [selectedValues, setSelectedValues] = useState<string[]>(
-    filters.studyPhases?.split(",") ?? []
+    filters.studyPhases?.split(",") ?? [],
   );
 
   const handleCheckboxChange = (value: string) => {
@@ -57,7 +57,7 @@ export const RetrievePanelFilterStudyPhases = ({
   };
 
   return (
-    <Flex direction="row" gap="4" wrap="wrap">
+    <Flex direction="row" gapX="4" wrap="wrap">
       {options.map((option) => (
         <Flex key={option.value} align="center" gap="2">
           <Checkbox
