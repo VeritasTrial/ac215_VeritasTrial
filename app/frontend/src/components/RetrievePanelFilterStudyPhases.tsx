@@ -39,7 +39,7 @@ export const RetrievePanelFilterStudyPhases = ({
 
     setFilters((prevFilters) => ({
       ...prevFilters,
-      studyPhases: newValues.length > 0 ? newValues.join(", ") : undefined, 
+      studyPhases: newValues.length > 0 ? newValues.join(", ") : undefined,
     }));
   };
 
