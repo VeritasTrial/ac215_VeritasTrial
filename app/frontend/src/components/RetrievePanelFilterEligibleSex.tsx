@@ -34,7 +34,7 @@ export const RetrievePanelFilterEligibleSex = ({
       value={value}
       onValueChange={handler}
     >
-      <Flex direction="row" gap="4">
+      <Flex direction="row" gapX="4">
         <RadioGroup.Item value="all">All</RadioGroup.Item>
         <RadioGroup.Item value="female">Female</RadioGroup.Item>
         <RadioGroup.Item value="male">Male</RadioGroup.Item>

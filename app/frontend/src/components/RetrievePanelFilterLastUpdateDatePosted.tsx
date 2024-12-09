@@ -46,7 +46,8 @@ export const RetrievePanelFilterLastUpdateDatePosted = ({
     // update filters
     setFilters({
       ...filters,
-      lastUpdateDatePosted: fromDate && toDate ? `${fromDate} to ${toDate}` : "",
+      lastUpdateDatePosted:
+        fromDate && toDate ? `${fromDate} to ${toDate}` : "",
     });
   };
 

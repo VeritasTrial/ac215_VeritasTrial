@@ -128,7 +128,7 @@ export const App = () => {
           },
         }}
       />
-      <Flex css={{ height: "100vh" }}>
+      <Flex css={{ height: "100dvh" }}>
         {/* Left-hand sidebar panel */}
         {isSidebarVisible && (
           <Box
