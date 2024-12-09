@@ -1,7 +1,7 @@
 /**
  * @file RetrievePanelFilterStudyPhases.tsx
  *
- * The filter for study phases in the retrieval panel
+ * The filter for study phases in the retrieval panel.
  */
 
 import { CheckboxGroup, Flex } from "@radix-ui/themes";
