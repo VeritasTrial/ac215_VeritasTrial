@@ -161,17 +161,18 @@ async def retrieve(
     # Construct the filters
     filters: TrialFilters = json.loads(filters_serialized)
     processed_filters = []
+
     if "studyType" in filters:
         if filters["studyType"] == "interventional":
             processed_filters.append({"study_type": "INTERVENTIONAL"})
         elif filters["studyType"] == "observational":
             processed_filters.append({"study_type": "OBSERVATIONAL"})
 
-    if "acceptsHealthy" in filters:
-        if filters["acceptsHealthy"] is True:
-            processed_filters.append({"accepts_healthy": True})
-        elif filters["acceptsHealthy"] is False:
-            processed_filters.append({"accepts_healthy": False})
+    if "acceptsHealthy" in filters and not filters["acceptsHealthy"]:
+        # NOTE: If this filter is True, it means to accept healthy participants,
+        # and unhealthy participants are always accepted so it is equivalent to
+        # not having this filter at all
+        processed_filters.append({"accepts_healthy": False})
 
     if "eligibleSex" in filters:
         if filters["eligibleSex"] == "female":
@@ -179,27 +180,27 @@ async def retrieve(
         elif filters["eligibleSex"] == "observational":
             processed_filters.append({"eligible_sex": "MALE"})
 
-    if "studyPhases" in filters and filters["studyPhases"]:
+    # TODO: Change this to a post-filter
+    if "studyPhases" in filters and len(filters["studyPhases"]) > 0:
+        # NOTE: ChromaDB does not support the $contains operator on strings for
+        # metadata fields. Therefore, we need to generate all possible
+        # combinations and do exact matching
         all_phases = ["EARLY_PHASE1", "PHASE1", "PHASE2", "PHASE3", "PHASE4"]
-        selected_phases = [phase.strip() for phase in filters["studyPhases"].split(",")]
-
         possible_values = []
-        for r in range(1, len(all_phases) + 1):
-            for combo in permutations(all_phases, r):
-                if any(phase in combo for phase in selected_phases):
+        for r in range(len(all_phases)):
+            for combo in permutations(all_phases, r + 1):
+                if any(phase in combo for phase in filters["studyPhases"]):
                     possible_values.append(", ".join(combo))
-
         processed_filters.append({"study_phases": {"$in": possible_values}})
 
-    if "minAge" in filters or "maxAge" in filters:  # if two age ranges have overlaps
-        age_filters = []
-        if "minAge" in filters:
-            age_filters.append({"max_age": {"$gte": filters["minAge"]}})
-        if "maxAge" in filters:
-            age_filters.append({"min_age": {"$lte": filters["maxAge"]}})
+    if "ageRange" in filters:
+        # NOTE: We want the age range to intersect with the desired range
+        min_age, max_age = filters["ageRange"]
+        processed_filters.append({"min_age": {"$lte": max_age}})
+        processed_filters.append({"max_age": {"$gte": min_age}})
 
-        if len(age_filters) > 0:
-            processed_filters.append({"$and": age_filters})
+    print(filters)
+    print(processed_filters)
 
     # Construct the where clause
     where: chromadb.Where | None
@@ -230,23 +231,21 @@ async def retrieve(
         where=where,
     )
 
-    if "lastUpdateDatePosted" in filters and filters["lastUpdateDatePosted"]:
-        date_range = filters["lastUpdateDatePosted"].split(" to ")
-        if len(date_range) == 2:
-            from_date = datetime.strptime(date_range[0], "%Y-%m-%d")
-            to_date = datetime.strptime(date_range[1], "%Y-%m-%d")
-            results = filter_by_date(
-                results_full, "last_update_date_posted", from_date, to_date
-            )
+    if "lastUpdateDatePosted" in filters:
+        from_timestamp, to_timestamp = filters["lastUpdateDatePosted"]
+        from_date = datetime.fromtimestamp(from_timestamp / 1000)
+        to_date = datetime.fromtimestamp(to_timestamp / 1000)
+        results = filter_by_date(
+            results_full, "last_update_date_posted", from_date, to_date
+        )
 
-    if "resultsDatePosted" in filters and filters["resultsDatePosted"]:
-        date_range = filters["resultsDatePosted"].split(" to ")
-        if len(date_range) == 2:
-            from_date = datetime.strptime(date_range[0], "%Y-%m-%d")
-            to_date = datetime.strptime(date_range[1], "%Y-%m-%d")
-            results = filter_by_date(
-                results_full, "results_date_posted", from_date, to_date
-            )
+    if "resultsDatePosted" in filters:
+        from_timestamp, to_timestamp = filters["resultsDatePosted"]
+        from_date = datetime.fromtimestamp(from_timestamp / 1000)
+        to_date = datetime.fromtimestamp(to_timestamp / 1000)
+        results = filter_by_date(
+            results_full, "results_date_posted", from_date, to_date
+        )
 
     # Retrieve the results
     ids = results["ids"][0]

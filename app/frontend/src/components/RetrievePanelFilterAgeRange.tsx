@@ -17,31 +17,29 @@ export const RetrievePanelFilterAgeRange = ({
   filters,
   setFilters,
 }: RetrievePanelFilterAgeRangeProps) => {
-  const values = [filters.minAge ?? 0, filters.maxAge ?? 100];
+  const value = filters.ageRange ?? [0, 100];
 
-  const handleValueChange = (newValues: number[]) => {
+  const handler = (value: number[]) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
-      minAge: newValues[0],
-      maxAge: newValues[1],
+      ageRange: [value[0], value[1]],
     }));
   };
 
   return (
-    <Flex align="center" gapX="3" pl={{ initial: "1", sm: "0" }}>
+    <Flex align="center" gapX="3" pl="1">
       <Slider
         min={0}
         max={100}
         step={1}
         size="1"
-        color="gray"
-        value={values}
-        onValueChange={handleValueChange}
+        value={value}
+        onValueChange={handler}
         orientation="horizontal"
-        css={{ width: "150px" }}
+        css={{ width: "200px", opacity: 0.8 }}
       />
       <Text size="2">
-        {values[0]}~{values[1]} years old
+        {value[0]}~{value[1]} years
       </Text>
     </Flex>
   );

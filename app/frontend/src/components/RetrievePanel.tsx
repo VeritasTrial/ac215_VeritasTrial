@@ -28,6 +28,7 @@ import { FCTopKSelector } from "./FCTopKSelector";
 import { FCScrollButtons } from "./FCScrollButtons";
 import { RadixMarkdown } from "./RadixMarkdown";
 import { RetrievePanelFilters } from "./RetrievePanelFilters";
+import { RadixCalendar } from "./RadixCalendar";
 
 interface RetrievalPanelProps {
   messages: ChatDisplay[];
