@@ -177,7 +177,7 @@ async def retrieve(
     if "eligibleSex" in filters:
         if filters["eligibleSex"] == "female":
             processed_filters.append({"eligible_sex": "FEMALE"})
-        elif filters["eligibleSex"] == "observational":
+        elif filters["eligibleSex"] == "male":
             processed_filters.append({"eligible_sex": "MALE"})
 
     # TODO: Change this to a post-filter
