@@ -44,15 +44,9 @@ export const RetrievePanelFilterLastUpdateDatePosted = ({
       lastUpdateDatePosted: [fromDate, toDate],
     }));
   };
-  const handleReset = () => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      lastUpdateDatePosted: undefined,
-    }));
-  };
 
   return (
-    <Flex direction="row" align="center" gap="4" width="100%">
+    <Flex align="center" gap="2">
       <Popover.Root>
         <Popover.Trigger>
           <Flex gap="2" height="var(--line-height-2)" asChild>
@@ -75,12 +69,14 @@ export const RetrievePanelFilterLastUpdateDatePosted = ({
       </Popover.Root>
       <Button
         size="1"
-        variant="ghost"
-        onClick={handleReset}
-        style={{
-          padding: "4px 12px",
-          borderRadius: "4px",
-          fontWeight: "bold",
+        variant="outline"
+        disabled={range === undefined}
+        css={{ height: "var(--line-height-2)", padding: "0 var(--space-2)" }}
+        onClick={() => {
+          setFilters((prevFilters) => ({
+            ...prevFilters,
+            lastUpdateDatePosted: undefined,
+          }));
         }}
       >
         Reset

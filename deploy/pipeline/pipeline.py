@@ -48,12 +48,13 @@ def embedding_model():
 @dsl.pipeline
 def pipeline():
     data_pipeline_task = data_pipeline().set_display_name("Data pipeline")
+
+    # NOTE: This requires GPU quota for custom Vertex AI training jobs
     embedding_model_task = (
         embedding_model()
         .set_display_name("Embedding model")
-        # TODO: Use GPU when quota is available
-        # .set_accelerator_type("NVIDIA_TESLA_T4")
-        # .set_accelerator_limit(1)
+        .set_accelerator_type("NVIDIA_TESLA_T4")
+        .set_accelerator_limit(1)
         .after(data_pipeline_task)
     )
 

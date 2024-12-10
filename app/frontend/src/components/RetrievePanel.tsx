@@ -6,7 +6,7 @@
  * calling backend API), and displaying the results.
  */
 
-import { Flex } from "@radix-ui/themes";
+import { Button, Flex } from "@radix-ui/themes";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { MdFilterList } from "react-icons/md";
 import { callRetrieve } from "../api";
@@ -28,6 +28,7 @@ import { FCTopKSelector } from "./FCTopKSelector";
 import { FCScrollButtons } from "./FCScrollButtons";
 import { RadixMarkdown } from "./RadixMarkdown";
 import { RetrievePanelFilters } from "./RetrievePanelFilters";
+import { toast } from "sonner";
 
 interface RetrievalPanelProps {
   messages: ChatDisplay[];
@@ -81,7 +82,10 @@ export const RetrievePanel = ({
     <FCClearHistoryButton
       key="clear-history-button"
       disabled={messages.length === 0 || loading}
-      onClick={() => setMessages(() => [])}
+      onClick={() => {
+        setMessages(() => []);
+        toast.success("Retrieval history cleared");
+      }}
     />,
     <FCScrollButtons key="scroll-buttons" containerRef={chatPortRef} />,
   ];
@@ -114,6 +118,20 @@ export const RetrievePanel = ({
           onToggleHint={() => scrollToBottom(chatPortRef)}
           hintText="Retrieval filters"
           HintIcon={MdFilterList}
+          rightHintComponent={
+            <Button
+              size="1"
+              variant="ghost"
+              css={{ fontWeight: "var(--font-weight-medium)" }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setFilters({});
+                toast.success("Retrieval filter reset");
+              }}
+            >
+              Reset filters
+            </Button>
+          }
         >
           <RetrievePanelFilters filters={filters} setFilters={setFilters} />
         </ChatCollapsibleHint>

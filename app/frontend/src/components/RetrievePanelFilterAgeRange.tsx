@@ -27,7 +27,7 @@ export const RetrievePanelFilterAgeRange = ({
   };
 
   return (
-    <Flex align="center" gapX="3" pl="1">
+    <Flex align="center" gapX="3">
       <Slider
         min={0}
         max={100}
@@ -36,7 +36,11 @@ export const RetrievePanelFilterAgeRange = ({
         value={value}
         onValueChange={handler}
         orientation="horizontal"
-        css={{ width: "200px", opacity: 0.8 }}
+        css={{
+          width: "150px",
+          opacity: 0.8,
+          "& .rt-SliderThumb::after": { inset: 0 },
+        }}
       />
       <Text size="2">
         {value[0]}~{value[1]} years

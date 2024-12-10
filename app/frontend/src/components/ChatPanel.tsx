@@ -39,6 +39,7 @@ import { FCDeleteChatButton } from "./FCDeleteChatButton";
 import { FCScrollButtons } from "./FCScrollButtons";
 import { FCModelSelector } from "./FCModelSelector";
 import { RadixMarkdown } from "./RadixMarkdown";
+import { toast } from "sonner";
 
 interface ChatPanelProps {
   tab: string;
@@ -117,9 +118,18 @@ export const ChatPanel = ({
     <FCClearHistoryButton
       key="clear-history-button"
       disabled={messages.length === 0 || loading}
-      onClick={() => setMessages(() => [])}
+      onClick={() => {
+        setMessages(() => []);
+        toast.success("Chat history cleared");
+      }}
     />,
-    <FCDeleteChatButton key="delete-chat-button" onClick={deleteTab} />,
+    <FCDeleteChatButton
+      key="delete-chat-button"
+      onClick={() => {
+        deleteTab();
+        toast.success(`Chat deleted: ${tab}`);
+      }}
+    />,
     <FCScrollButtons key="scroll-buttons" containerRef={chatPortRef} />,
   ];
 
