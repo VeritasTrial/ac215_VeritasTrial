@@ -11,6 +11,7 @@ import {
   ChatDisplay,
   MetaInfo,
   ModelType,
+  TrialFilters,
   UpdateMessagesFunction,
 } from "./types";
 import { Header } from "./components/Header";
@@ -37,6 +38,7 @@ export const App = () => {
   const [metaMapping, setMetaMapping] = useState<Map<string, MetaInfo>>(
     new Map(),
   );
+  const [filters, setFilters] = useState<TrialFilters>({});
   const tabRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
 
   // Switch to a different tab, creating a new tab if it does not exist yet
@@ -126,7 +128,7 @@ export const App = () => {
           },
         }}
       />
-      <Flex css={{ height: "100vh" }}>
+      <Flex css={{ height: "100dvh" }}>
         {/* Left-hand sidebar panel */}
         {isSidebarVisible && (
           <Box
@@ -202,6 +204,8 @@ export const App = () => {
                     return newMessagesMapping;
                   })
                 }
+                filters={filters}
+                setFilters={setFilters}
                 switchTab={switchTab}
               ></RetrievePanel>
             )}

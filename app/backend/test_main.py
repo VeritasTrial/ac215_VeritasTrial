@@ -1,5 +1,8 @@
 """Test the main module."""
 
+import json
+from urllib.parse import quote
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -19,7 +22,10 @@ def test_heartbeat():
 @pytest.mark.parametrize("top_k", [1, 3, 5])
 def test_retrieve(top_k):
     """Test the /retrieve endpoint."""
-    response = client.get(f"/retrieve?query=Dummy Query&top_k={top_k}")
+    filters_serialized = quote(json.dumps({}))
+    response = client.get(
+        f"/retrieve?query=Dummy Query&{top_k=}&filters_serialized={filters_serialized}"
+    )
     assert response.status_code == 200
     response_json = response.json()
     assert "ids" in response_json
@@ -31,7 +37,10 @@ def test_retrieve(top_k):
 @pytest.mark.parametrize("top_k", [0, 31])
 def test_retrieve_invalid_top_k(top_k):
     """Test the /retrieve endpoint with invalid top_k."""
-    response = client.get(f"/retrieve?query=Dummy Query&top_k={top_k}")
+    filters_serialized = quote(json.dumps({}))
+    response = client.get(
+        f"/retrieve?query=Dummy Query&{top_k=}&filters_serialized={filters_serialized}"
+    )
     assert response.status_code == 404
     assert "Required 0 < top_k <= 30" in response.text
 

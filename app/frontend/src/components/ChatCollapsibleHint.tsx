@@ -76,7 +76,7 @@ export const ChatCollapsibleHint = ({
         </Collapsible.Trigger>
         <Collapsible.Content
           css={{
-            maxHeight: "20vh",
+            maxHeight: "30dvh",
             '&[data-state="open"]': {
               animation: `${slideDown} 300ms ease-in-out`,
             },

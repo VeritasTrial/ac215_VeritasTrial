@@ -5,6 +5,8 @@ import logging
 import os
 import time
 from contextlib import asynccontextmanager
+from datetime import datetime
+from itertools import permutations
 
 import chromadb
 import chromadb.api
@@ -28,6 +30,7 @@ from localtyping import (
     APIMetaResponseType,
     APIRetrieveResponseType,
     ModelType,
+    TrialFilters,
 )
 from utils import format_exc_details, get_metadata_from_id
 
@@ -98,7 +101,26 @@ def custom_openapi():  # pragma: no cover
     return app.openapi_schema
 
 
-app.openapi = custom_openapi  # type: ignore
+def filter_by_date(results_full, date_key, from_date, to_date):
+    filtered_documents = []
+    filtered_ids = []
+
+    metadata = results_full["metadatas"][0]
+    documents = results_full["documents"][0]
+    ids = results_full["ids"][0]
+
+    for idx, meta in enumerate(metadata):
+        try:
+            date_str = meta.get(date_key)
+            if date_str:
+                date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+                if from_date <= date_obj <= to_date:
+                    filtered_documents.append(documents[idx])
+                    filtered_ids.append(ids[idx])
+        except (ValueError, KeyError) as e:
+            print(f"Error processing metadata: {meta}. Error: {e}")
+
+    return {"ids": [filtered_ids], "documents": [filtered_documents]}
 
 
 @app.exception_handler(Exception)
@@ -124,7 +146,9 @@ async def heartbeat() -> APIHeartbeatResponseType:
 
 
 @app.get("/retrieve")
-async def retrieve(query: str, top_k: int) -> APIRetrieveResponseType:
+async def retrieve(
+    query: str, top_k: int, filters_serialized: str
+) -> APIRetrieveResponseType:
     """Retrieve items from the ChromaDB collection."""
     if EMBEDDING_MODEL is None:
         raise RuntimeError("Embedding model not initialized")
@@ -134,6 +158,56 @@ async def retrieve(query: str, top_k: int) -> APIRetrieveResponseType:
     if top_k <= 0 or top_k > 30:
         raise HTTPException(status_code=404, detail="Required 0 < top_k <= 30")
 
+    # Construct the filters
+    filters: TrialFilters = json.loads(filters_serialized)
+    processed_filters = []
+
+    if "studyType" in filters:
+        if filters["studyType"] == "interventional":
+            processed_filters.append({"study_type": "INTERVENTIONAL"})
+        elif filters["studyType"] == "observational":
+            processed_filters.append({"study_type": "OBSERVATIONAL"})
+
+    if "acceptsHealthy" in filters and not filters["acceptsHealthy"]:
+        # NOTE: If this filter is True, it means to accept healthy participants,
+        # and unhealthy participants are always accepted so it is equivalent to
+        # not having this filter at all
+        processed_filters.append({"accepts_healthy": False})  # type: ignore  # TODO: Fix this
+
+    if "eligibleSex" in filters:
+        if filters["eligibleSex"] == "female":
+            processed_filters.append({"eligible_sex": "FEMALE"})
+        elif filters["eligibleSex"] == "observational":
+            processed_filters.append({"eligible_sex": "MALE"})
+
+    # TODO: Change this to a post-filter
+    if "studyPhases" in filters and len(filters["studyPhases"]) > 0:
+        # NOTE: ChromaDB does not support the $contains operator on strings for
+        # metadata fields. Therefore, we need to generate all possible
+        # combinations and do exact matching
+        all_phases = ["EARLY_PHASE1", "PHASE1", "PHASE2", "PHASE3", "PHASE4"]
+        possible_values = []
+        for r in range(len(all_phases)):
+            for combo in permutations(all_phases, r + 1):
+                if any(phase in combo for phase in filters["studyPhases"]):
+                    possible_values.append(", ".join(combo))
+        processed_filters.append({"study_phases": {"$in": possible_values}})  # type: ignore  # TODO: Fix this
+
+    if "ageRange" in filters:
+        # NOTE: We want the age range to intersect with the desired range
+        min_age, max_age = filters["ageRange"]
+        processed_filters.append({"min_age": {"$lte": max_age}})  # type: ignore  # TODO: Fix this
+        processed_filters.append({"max_age": {"$gte": min_age}})  # type: ignore  # TODO: Fix this
+
+    # Construct the where clause
+    where: chromadb.Where | None
+    if len(processed_filters) == 0:
+        where = None
+    elif len(processed_filters) == 1:
+        where = processed_filters[0]  # type: ignore  # TODO: Fix this
+    else:
+        where = {"$and": processed_filters}  # type: ignore  # TODO: Fix this
+
     # Embed the query and query the collection
     query_embedding = EMBEDDING_MODEL.encode(query)
     collection = CHROMADB_CLIENT.get_collection(CHROMADB_COLLECTION_NAME)
@@ -141,7 +215,34 @@ async def retrieve(query: str, top_k: int) -> APIRetrieveResponseType:
         query_embeddings=[query_embedding],
         n_results=top_k,
         include=[chromadb.api.types.IncludeEnum("documents")],
+        where=where,
     )
+
+    results_full = collection.query(
+        query_embeddings=[query_embedding],
+        n_results=top_k,
+        include=[
+            chromadb.api.types.IncludeEnum("documents"),
+            chromadb.api.types.IncludeEnum("metadatas"),
+        ],
+        where=where,
+    )
+
+    if "lastUpdateDatePosted" in filters:
+        from_timestamp, to_timestamp = filters["lastUpdateDatePosted"]
+        from_date = datetime.fromtimestamp(from_timestamp / 1000)
+        to_date = datetime.fromtimestamp(to_timestamp / 1000)
+        results = filter_by_date(
+            results_full, "last_update_date_posted", from_date, to_date
+        )
+
+    if "resultsDatePosted" in filters:
+        from_timestamp, to_timestamp = filters["resultsDatePosted"]
+        from_date = datetime.fromtimestamp(from_timestamp / 1000)
+        to_date = datetime.fromtimestamp(to_timestamp / 1000)
+        results = filter_by_date(
+            results_full, "results_date_posted", from_date, to_date
+        )
 
     # Retrieve the results
     ids = results["ids"][0]

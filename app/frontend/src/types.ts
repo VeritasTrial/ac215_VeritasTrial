@@ -42,6 +42,16 @@ export type UpdateMessagesFunction = (
   prevMessages: ChatDisplay[],
 ) => ChatDisplay[];
 
+export interface TrialFilters {
+  studyType?: string;
+  studyPhases?: string[];
+  acceptsHealthy?: boolean;
+  ageRange?: [number, number];
+  eligibleSex?: string;
+  resultsDatePosted?: [number, number];
+  lastUpdateDatePosted?: [number, number];
+}
+
 /* ==========================================================================
  *   THE FOLLOWING ARE MIRROR DEFINITIONS OF BACKEND TYPES. CHECK OUT THE
  *   BACKEND API FOR REFERENCE.

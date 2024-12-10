@@ -7,10 +7,15 @@
  */
 
 import { Flex } from "@radix-ui/themes";
-import { useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { MdFilterList } from "react-icons/md";
 import { callRetrieve } from "../api";
-import { ChatDisplay, MetaInfo, UpdateMessagesFunction } from "../types";
+import {
+  ChatDisplay,
+  MetaInfo,
+  TrialFilters,
+  UpdateMessagesFunction,
+} from "../types";
 import { ChatPort } from "./ChatPort";
 import { ChatInput } from "./ChatInput";
 import { FCSendButton } from "./FCSendButton";
@@ -22,16 +27,21 @@ import { MessageRetrieved } from "./MessageRetrieved";
 import { FCTopKSelector } from "./FCTopKSelector";
 import { FCScrollButtons } from "./FCScrollButtons";
 import { RadixMarkdown } from "./RadixMarkdown";
+import { RetrievePanelFilters } from "./RetrievePanelFilters";
 
 interface RetrievalPanelProps {
   messages: ChatDisplay[];
   setMessages: (fn: UpdateMessagesFunction) => void;
+  filters: TrialFilters;
+  setFilters: Dispatch<SetStateAction<TrialFilters>>;
   switchTab: (tab: string, metaInfo: MetaInfo) => void;
 }
 
 export const RetrievePanel = ({
   messages,
   setMessages,
+  filters,
+  setFilters,
   switchTab,
 }: RetrievalPanelProps) => {
   const chatPortRef = useRef<HTMLDivElement>(null);
@@ -46,7 +56,7 @@ export const RetrievePanel = ({
     setQuery(""); // This will take effect only after the next render
     addUserMessage(<RadixMarkdown text={query} />, query);
 
-    const callResult = await callRetrieve(query, topK);
+    const callResult = await callRetrieve(query, topK, filters);
     if ("error" in callResult) {
       addBotMessage(
         <ChatErrorMessage error={callResult.error} />,
@@ -105,7 +115,7 @@ export const RetrievePanel = ({
           hintText="Retrieval filters"
           HintIcon={MdFilterList}
         >
-          TODO: FILTERS HERE!
+          <RetrievePanelFilters filters={filters} setFilters={setFilters} />
         </ChatCollapsibleHint>
         <ChatInput
           query={query}

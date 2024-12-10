@@ -72,6 +72,16 @@ class TrialMetadataType(TypedDict):
     documents: list[TrialMetadataDocumentType]
 
 
+class TrialFilters(TypedDict, total=False):
+    studyType: str
+    studyPhases: list[str]
+    acceptsHealthy: bool
+    ageRange: tuple[int, int]
+    eligibleSex: str
+    resultsDatePosted: tuple[int, int]
+    lastUpdateDatePosted: tuple[int, int]
+
+
 class APIHeartbeatResponseType(TypedDict):
     timestamp: int
 

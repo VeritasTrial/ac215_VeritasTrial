@@ -1,0 +1,16 @@
+.rdp-root {
+  --rdp-nav-height: var(--space-6);
+  --rdp-weekday-padding: var(--space-3) 0 var(--space-1) 0;
+  --rdp-day-height: var(--space-6);
+  --rdp-day-width: var(--space-6);
+  --rdp-day_button-height: var(--space-6);
+  --rdp-day_button-width: var(--space-6);
+  --rdp-day_button-border-radius: var(--radius-4);
+  --rdp-today-color: inherit;
+  --rdp-selected-border: 2px solid var(--accent-11);
+  --rdp-range_start-date-background-color: var(--accent-3);
+  --rdp-range_start-color: var(--gray-12);
+  --rdp-range_end-date-background-color: var(--accent-3);
+  --rdp-range_end-color: var(--gray-12);
+  --rdp-range_middle-background-color: var(--accent-a3);
+}

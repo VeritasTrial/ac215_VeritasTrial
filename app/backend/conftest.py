@@ -97,13 +97,13 @@ class MockChromadbCollection:
                 result["metadatas"].append(metadata)
         return result
 
-    def query(self, *, query_embeddings, n_results, include):
+    def query(self, *, query_embeddings, n_results, include, where=None):
         result = self._result(list(self.RECORDS)[:n_results], include)
         for k in result:
             result[k] = [result[k] for _ in range(len(query_embeddings))]
         return result
 
-    def get(self, *, ids, include):
+    def get(self, *, ids, include, where=None):
         return self._result(ids, include)
 
 

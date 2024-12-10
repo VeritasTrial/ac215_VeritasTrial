@@ -1,7 +1,7 @@
 /**
- * @file RetrievalPanelCommandPalette.tsx
+ * @file ChatPanelCommandPalette.tsx
  *
- * The command palette component in the retrieval panel.
+ * The command palette component in the chat panel.
  */
 
 import { Code, DataList, Flex, Text } from "@radix-ui/themes";
@@ -10,18 +10,19 @@ import { PUBMED_URL } from "../consts";
 import { MetaInfo } from "../types";
 import { CopyButton } from "./CopyButton";
 
-interface RetrievalPanelCommandPaletteProps {
+interface ChatPanelCommandPaletteProps {
   metaInfo: MetaInfo;
 }
 
-export const RetrievalPanelCommandPalette = ({
+export const ChatPanelCommandPalette = ({
   metaInfo,
-}: RetrievalPanelCommandPaletteProps) => {
+}: ChatPanelCommandPaletteProps) => {
   const { title } = metaInfo;
 
   return (
     <DataList.Root
       size="2"
+      orientation={{ initial: "vertical", sm: "horizontal" }}
       css={{ rowGap: "var(--space-2)", columnGap: "var(--space-6)" }}
     >
       {/* Full title */}
