@@ -44,27 +44,47 @@ export const RetrievePanelFilterLastUpdateDatePosted = ({
       lastUpdateDatePosted: [fromDate, toDate],
     }));
   };
+    const handleReset = () => {
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        lastUpdateDatePosted: undefined,
+      }));
+    };
 
-  return (
-    <Popover.Root>
-      <Popover.Trigger>
-        <Flex gap="2" height="var(--line-height-2)" asChild>
-          <Button size="1" variant="outline">
-            <MdCalendarMonth />
-            {range === undefined
-              ? "All"
-              : `${range.from.toLocaleDateString()} ~ ${range.to.toLocaleDateString()}`}
-          </Button>
-        </Flex>
-      </Popover.Trigger>
-      <Popover.Content size="1">
-        <RadixCalendar
-          mode="range"
-          selected={range}
-          onSelect={handler}
-          captionLayout="dropdown"
-        />
-      </Popover.Content>
-    </Popover.Root>
-  );
+    return (
+      <Flex direction="row" align="center" gap="4" width="100%">
+        <Popover.Root>
+          <Popover.Trigger>
+            <Flex gap="2" height="var(--line-height-2)" asChild>
+              <Button size="1" variant="outline">
+                <MdCalendarMonth />
+                {range === undefined
+                  ? "All"
+                  : `${range.from.toLocaleDateString()} ~ ${range.to.toLocaleDateString()}`}
+              </Button>
+            </Flex>
+          </Popover.Trigger>
+          <Popover.Content size="1">
+            <RadixCalendar
+              mode="range"
+              selected={range}
+              onSelect={handler}
+              captionLayout="dropdown"
+            />
+          </Popover.Content>
+        </Popover.Root>
+          <Button
+          size="1"
+          variant="ghost"
+          onClick={handleReset}
+          style={{
+            padding: "4px 12px",
+            borderRadius: "4px",
+            fontWeight: "bold",
+          }}
+        >
+          Reset
+        </Button>
+      </Flex>
+    );
 };
