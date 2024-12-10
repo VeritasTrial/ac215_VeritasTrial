@@ -26,11 +26,11 @@ export const FCModelSelector = ({ model, setModel }: FCModelSelectorProps) => {
         css={{ margin: "0 var(--space-1)" }}
       ></Select.Trigger>
       <Select.Content position="popper" sideOffset={5}>
-        <Select.Item key="6894888983713546240" value="6894888983713546240">
-          VeritasTrial
-        </Select.Item>
         <Select.Item key="gemini-1.5-flash-001" value="gemini-1.5-flash-001">
           Gemini 1.5 Flash
+        </Select.Item>
+        <Select.Item key="6894888983713546240" value="6894888983713546240">
+          6894888983713546240
         </Select.Item>
       </Select.Content>
     </Select.Root>

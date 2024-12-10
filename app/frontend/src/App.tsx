@@ -30,7 +30,7 @@ export const App = () => {
   );
   const [isSidebarPopoverVisible, setIsSidebarPopoverVisible] =
     useState<boolean>(false);
-  const [model, setModel] = useState<ModelType>("6894888983713546240");
+  const [model, setModel] = useState<ModelType>("gemini-1.5-flash-001");
   const [currentTab, setCurrentTab] = useState<string>("default");
   const [messagesMapping, setMessagesMapping] = useState<
     Map<string, ChatDisplay[]>

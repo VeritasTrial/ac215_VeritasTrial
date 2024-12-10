@@ -1,7 +1,7 @@
 /**
  * @file ChatInput.tsx
  *
- * TODO(!)
+ * The chat input box component.
  */
 
 import { Box, Flex, TextArea } from "@radix-ui/themes";

@@ -4,7 +4,14 @@
  * The header component in the body.
  */
 
-import { Box, Flex, Heading, IconButton, Tooltip } from "@radix-ui/themes";
+import {
+  Box,
+  Flex,
+  Heading,
+  IconButton,
+  Link,
+  Tooltip,
+} from "@radix-ui/themes";
 import { Dispatch, SetStateAction } from "react";
 import { MdDarkMode, MdLightMode, MdMenu, MdMenuOpen } from "react-icons/md";
 import { FaGithub, FaUniversity } from "react-icons/fa";
@@ -38,7 +45,11 @@ export const Header = ({
   return (
     <Flex justify="between" align="center" pr="3">
       <Box ml="2">
-        <Heading size="4">VeritasTrial</Heading>
+        <Heading size="4">
+          <Link href="/" color="gray" highContrast>
+            VeritasTrial
+          </Link>
+        </Heading>
       </Box>
       <Flex align="center" gap="4">
         {!isSidebarVisible && (

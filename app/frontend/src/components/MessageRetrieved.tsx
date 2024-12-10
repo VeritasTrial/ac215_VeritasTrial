@@ -10,6 +10,7 @@ import { ExternalLink } from "./ExternalLink";
 import { MdChat } from "react-icons/md";
 import { CTGOV_URL } from "../consts";
 import { MetaInfo } from "../types";
+import { toast } from "sonner";
 
 interface MessageRetrievedProps {
   ids: string[];
@@ -41,7 +42,10 @@ export const MessageRetrieved = ({
                 <IconButton
                   size="1"
                   variant="ghost"
-                  onClick={() => switchTab(id, { title: titles[index] })}
+                  onClick={() => {
+                    switchTab(id, { title: titles[index] });
+                    toast.success(`Chat started: ${id}`);
+                  }}
                 >
                   <MdChat />
                 </IconButton>
