@@ -135,7 +135,7 @@ def construct_filters(filters: TrialFilters) -> tuple[bool, chromadb.Where | Non
 
     if (
         accepts_healthy := filters.get("acceptsHealthy")
-    ) is not None and accepts_healthy:
+    ) is not None and not accepts_healthy:
         # NOTE: The accepts_healthy filter being True means that the study accepts
         # healthy participants; yet unhealthy participants are always accepted, so it is
         # equivalent to not having this filter at all

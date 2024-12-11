@@ -121,19 +121,18 @@ def sample_metadata():
 
 
 @pytest.fixture
-def embedding_model():
-    """Return a mock embedding model."""
-    return MockEmbeddingModel()
-
-
-@pytest.fixture
 def chromadb_client():
     """Return a mock ChromaDB client."""
     return MockChromadbClient()
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture()
 def setup(monkeypatch):
-    monkeypatch.setattr("vertexai.init", lambda: None)
-    monkeypatch.setattr("main.EMBEDDING_MODEL", MockEmbeddingModel())
-    monkeypatch.setattr("main.CHROMADB_CLIENT", MockChromadbClient())
+    def _setup(init_embedding_model=True, init_chromadb_client=True):
+        monkeypatch.setattr("vertexai.init", lambda: None)
+        if init_embedding_model:
+            monkeypatch.setattr("main.EMBEDDING_MODEL", MockEmbeddingModel())
+        if init_chromadb_client:
+            monkeypatch.setattr("main.CHROMADB_CLIENT", MockChromadbClient())
+
+    return _setup
