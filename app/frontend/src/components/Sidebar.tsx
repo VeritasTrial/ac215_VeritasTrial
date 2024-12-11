@@ -17,6 +17,7 @@ import { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { TbDatabaseSearch } from "react-icons/tb";
 import { MetaInfo } from "../types";
 import { MdDeleteOutline } from "react-icons/md";
+import { toast } from "sonner";
 
 interface SidebarProps {
   tabRefs: MutableRefObject<Map<string, HTMLButtonElement>>;
@@ -111,8 +112,11 @@ export const Sidebar = ({
           size="2"
           variant="surface"
           color="red"
-          onClick={clearTabs}
           disabled={metaMapping.size === 0}
+          onClick={() => {
+            clearTabs();
+            toast.success("All chats deleted");
+          }}
         >
           <MdDeleteOutline size="20" /> Clear chats
         </Button>
