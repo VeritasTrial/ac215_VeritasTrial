@@ -1,6 +1,9 @@
 # QA Construction
 
-Make sure you are in this directory. Also make sure to put `veritas-trial-service.json` that contains credentials for the VeritasTrial data service account under the `secrets/` folder in the root directory. To run the QA construction:
+> [!WARNING]
+> This step is legacy and not included in the final pipeline. Curating a sufficiently large and high-quality QA dataset and the subsequent LLM finetuning step costs too much which does not fit well into our pipeline.
+
+Make sure you are in this directory. Also make sure to put `veritas-trial-deployment.json` under the `secrets/` folder in the root directory. To run the QA construction:
 
 ```bash
 make build

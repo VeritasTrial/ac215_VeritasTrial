@@ -9,12 +9,12 @@ all: build
 build:
 	$(DOCKER_CMD) build -t $(IMAGE_NAME) .
 
-# Run the Docker container and enter its interactive shell
+# Run the Docker container and enter its interactive shell or run a command
 run:
-	$(DOCKER_CMD) container run -it --rm \
-		--env GOOGLE_APPLICATION_CREDENTIALS=/veritastrial/veritas-trial-service.json \
-		--volume $(PWD)/../../secrets/veritas-trial-service.json:/veritastrial/veritas-trial-service.json:ro \
-		--name $(CONTAINER_NAME) $(IMAGE_NAME)
+	$(DOCKER_CMD) container run $(if $(command),,-it) --rm \
+		--env GOOGLE_APPLICATION_CREDENTIALS=/secrets/veritas-trial-deployment.json \
+		--volume $(PWD)/../../secrets/veritas-trial-deployment.json:/secrets/veritas-trial-deployment.json:ro \
+		--name $(CONTAINER_NAME) $(IMAGE_NAME) $(command)
 
 # [DEV] Update lock file and development environment on the host machine
 devlock:
@@ -30,8 +30,6 @@ devinstall:
 
 # [DEV] Format the codebase
 devlint:
-	black .
-	ruff check --select I --fix .
-	ruff format .
+	pipenv run bash -c "black . && ruff check --select I --fix . && ruff format . && mypy ."
 
 .PHONY: build run
