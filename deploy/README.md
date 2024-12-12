@@ -1,6 +1,16 @@
 # Deploy
 
-The deployment commands are automated with GitHub Actions. It is preffered to trigger the corresponding workflow instead of running the command manually. The following are only for demonstration purposes. Make sure you have `veritas-trial-deployment.json` and `veritas-trial-service.json` under the `/secrets/` directory if you are deploying manually. You should also have `certificate.crt` and `private.key` under the `/secrets/` directory, which are for SSL certification (e.g., from ZeroSSL). Now enter this directory, then build and run the container:
+The deployment commands are automated with GitHub Actions. It is preferred to trigger the corresponding workflow instead of running the command manually. Go to the "Actions" tab on GitHub and choose "Deploy App", "Deploy pipeline", or "Deploy ChromaDB", and click "Run workflow". Note that each such workflow run may further create a pull request because it may update infomation like Docker tags. Such pull requests will be auto-merged into main on CI success.
+
+Example of a workflow trigger:
+
+![image](https://github.com/user-attachments/assets/998c4b0b-4e82-4af0-92e7-ef68f778368f)
+
+Example of a pull request created by the workflow:
+
+![image](https://github.com/user-attachments/assets/11debd70-629a-48e8-985e-d1b99dd37ef1)
+
+Next we will show the manual deployment instructions, but they are only for demonstration purposes. Make sure you have `veritas-trial-deployment.json` and `veritas-trial-service.json` under the `/secrets/` directory if you are deploying manually. You should also have `certificate.crt` and `private.key` under the `/secrets/` directory, which are for SSL certification (e.g., from ZeroSSL, see the [Others](#others) section). Now enter this directory, then build and run the deployment container:
 
 ```bash
 make build
@@ -16,6 +26,17 @@ The deployment uses Ansible. It will deploy the Docker images of the application
 ./destroy-app.sh # Destroy app
 ```
 
+The frontend and backend Docker images will be upload to GCP artifact registry `us-central1-docker.pkg.dev`. The Docker tag pointing to the latest version of the images will be updated via an automatic PR.
+
+| Frontend | Backend |
+|:--------:|:-------:|
+| ![image](https://github.com/user-attachments/assets/b048f6f9-68a8-40bc-b984-fb71f2b11fbb) | ![image](https://github.com/user-attachments/assets/f370c95f-b041-427c-8f8d-f52f2408a7b6) |
+
+The Kubernetes cluster will be automatically deployed or updated on GCP Kubernetes engine:
+
+![image](https://github.com/user-attachments/assets/81ada5f1-d374-4228-adfd-a893f0a9f96a)
+
+
 ## Pipeline
 
 The deployment uses Ansible and Vertex AI pipeline. It will deploy the Docker images of the pipeline and run `/src/data-pipeline/` and `/src/embedding-model/` steps. Inside the container, run:
@@ -24,15 +45,26 @@ The deployment uses Ansible and Vertex AI pipeline. It will deploy the Docker im
 ./deploy-pipeline.sh # Deploy pipeline (optionally --skip-rebuild-images=true)
 ```
 
+A new pipeline run will be created in Vertex AI:
+
+![image](https://github.com/user-attachments/assets/2d8e03cf-0336-431d-864e-491d255c689e)
+
+Example of a successful pipeline run with Vertex AI pipelines:
+
+![image](https://github.com/user-attachments/assets/39a19548-d171-4a40-97d8-d7c8adb2a9a6)
 
 ## ChromaDB
 
-The deployment uses Terraform, as suggested in [ChromaDB docs](https://docs.trychroma.com/deployment/gcp). It will deploy a VM instance that runs ChromaDB service. Note that redeploying ChromaDB requires redeploying the app and the pipeline as well. The following script will not do that, but the corresponding workflow in GitHub Actions will. Inside the container, run:
+The deployment uses Terraform, as suggested in [ChromaDB docs](https://docs.trychroma.com/deployment/gcp). It will deploy a VM instance that runs ChromaDB service. Note that redeploying ChromaDB will destroy the old VM instance and create a new one, so the IP address to access the service will change. The IP is tracked in the `/deploy/chromadb/.instance-ip` file and will be automatically used by other parts of the system, but a redeployment of both the app and the pipeline is required for the changes to take effect. The following script will not do that automatically, but the corresponding workflow in GitHub Actions will. Inside the container, run:
 
 ```bash
 ./deploy-chromadb.sh  # Deploy ChromaDB instance
 ./destroy-chromadb.sh # Destroy ChromaDB instance
 ```
+
+The ChromaDB service deployed on GCP compute engine:
+
+![image](https://github.com/user-attachments/assets/31d49990-3596-4228-9946-6919e40e15ae)
 
 ## Others
 
