@@ -24,10 +24,19 @@ Team Members: [Yao Xiao](mailto:yaoxiao@g.harvard.edu), [Bowen Xu](mailto:bowenx
 - [Data Pipeline](#data-pipeline)
 - [Model Training & Optimization](#model-training--optimization)
 - [Frontend Interface](#frontend-interface)
-- [Backend APIs](#backend-apis)
+- [Backend Service](#backend-service)
 - [Deployment](#deployment)
 - [Future Steps](#future-steps)
 - [References](#references)
+
+Subdirectory READMEs:
+
+- [/app](./app/README.md)
+- [/deploy](./deploy/README.md)
+- [/src/data-pipeline](./src/data-pipeline/README.md)
+- [/src/embedding-model](./src/embedding-model/README.md)
+- [/src/construct-qa](./src/construct-qa/README.md)
+- [/src/finetune-model](./src/finetune-model/README.md)
 
 ## Introduction
 
@@ -126,7 +135,7 @@ After selecting a specific trial from the retrieval results, users can proceed t
 
 There are many more UI/UX designs to enhance user experience that we will not cover here. Some of them include: responsive design for mobile devices, copy button for queries and responses, automatic scroll-into-view for sidebars and chat panels, GitHub-flavored markdown support, etc.
 
-## Backend APIs
+## Backend Service
 
 See [/app](./app/README.md) for details about the application.
 
