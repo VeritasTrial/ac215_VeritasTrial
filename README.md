@@ -18,6 +18,17 @@ Team Members: [Yao Xiao](mailto:yaoxiao@g.harvard.edu), [Bowen Xu](mailto:bowenx
 
 </div>
 
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Data Pipeline](#data-pipeline)
+- [Model Training & Optimization](#model-training--optimization)
+- [Frontend Interface](#frontend-interface)
+- [Backend APIs](#backend-apis)
+- [Deployment](#deployment)
+- [Future Steps](#future-steps)
+- [References](#references)
+
 ## Introduction
 
 Clinical trial data includes structured information collected during research studies designed to evaluate the safety, efficacy, and outcomes of medical interventions, treatments, or devices on human participants. In recent years, this type of data has expanded rapidly, especially in large repositories like [ClinicalTrials.gov](https://clinicaltrials.gov/), creating immense opportunities to advance healthcare research and improve patient outcomes. However, the large volume and complexity of such data create challenges for researchers, clinicians, and patients in finding and understanding trials relevant to their specific needs.
@@ -25,6 +36,8 @@ Clinical trial data includes structured information collected during research st
 One key limitation lies in the search functionality of platforms like [ClinicalTrials.gov](https://clinicaltrials.gov/). The current search is based on fuzzy string matching, which struggles to deliver accurate results when user queries are not precise or involve long, complex sentences. Additionally, even when users locate a specific trial, understanding its details can be challenging due to the technical language and dense structure of the information.
 
 **Solution:** To overcome these challenges, we aim to develop an AI-powered application that improves the information retrieval process for clinical trials. By leveraging state-of-the-art embedding models, our system will retrieve the most relevant trials from [ClinicalTrials.gov](https://clinicaltrials.gov/) based on user queries, even if those queries are less structured or precise. After retrieval, an intuitive conversational AI chatbot will enable users to explore specific details of a trial, such as endpoints, results, and eligibility criteria. Our app can benefit a lot of different user groups. For clinical trial researchers, they can find trials to their needs more accurately and interpret the result more efficiently. For patients, it might help them identify target recruiting clinical trials that they can participate in. This interactive approach streamlines access to critical information, empowering users to make more informed decisions in clinical research and patient care.
+
+![image](https://github.com/user-attachments/assets/2293ba20-303a-47a0-86c1-64429ecf5f3b)
 
 <details>
 <summary>Project organization</summary>
