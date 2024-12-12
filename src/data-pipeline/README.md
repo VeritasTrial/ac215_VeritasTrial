@@ -18,3 +18,4 @@ python cli.py upload
 > [!NOTE]
 > - See [clean.py](./clean.py) for the structure of the cleaned data.
 > - Use `--help` on `cli.py` to get an overview of what each subcommand does.
+> - This step is automated in the "Deploy pipeline" workflow with GitHub Actions.
