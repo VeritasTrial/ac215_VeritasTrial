@@ -12,11 +12,14 @@ Team Members: [Yao Xiao](mailto:yaoxiao@g.harvard.edu), [Bowen Xu](mailto:bowenx
 
 |         |          |
 |---------|----------|
-| Project | [![license](https://img.shields.io/github/license/VeritasTrial/ac215_VeritasTrial)](https://github.com/VeritasTrial/ac215_VeritasTrial/blob/main/LICENSE) [![app](https://img.shields.io/badge/app-VeritasTrial-blue.svg)](https://34.57.211.196.sslip.io/) [![api](https://img.shields.io/badge/api-VeritasTrial-blue.svg)](https://34.57.211.196.sslip.io/api/) [![blog](https://img.shields.io/badge/blog-Medium-12100E.svg)](https://medium.com/@bowenxu_47157/veritastrial-an-ai-driven-app-for-clinical-trial-search-and-interpretation-4b9c281e3548) [![video](https://img.shields.io/youtube/views/MO-pGNcg3QI?style=flat&label=video)](https://youtu.be/MO-pGNcg3QI) |
+| Project | [![license](https://img.shields.io/github/license/VeritasTrial/ac215_VeritasTrial)](https://github.com/VeritasTrial/ac215_VeritasTrial/blob/main/LICENSE.md) [![app](https://img.shields.io/badge/app-VeritasTrial-blue.svg)](https://34.57.211.196.sslip.io/) [![api](https://img.shields.io/badge/api-VeritasTrial-blue.svg)](https://34.57.211.196.sslip.io/api/) [![blog](https://img.shields.io/badge/blog-Medium-12100E.svg)](https://medium.com/@bowenxu_47157/veritastrial-an-ai-driven-app-for-clinical-trial-search-and-interpretation-4b9c281e3548) [![video](https://img.shields.io/youtube/views/MO-pGNcg3QI?style=flat&label=video)](https://youtu.be/MO-pGNcg3QI) |
 | Repository | [![black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) [![ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff) [![prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier) [![eslint](https://img.shields.io/badge/code%20style-eslint-brightgreen.svg)](http://standardjs.com) [![ts](https://badgen.net/badge/-/TypeScript?icon=typescript&label&labelColor=blue&color=555555)](https://www.typescriptlang.org/) |
 | Workflow | [![build](https://img.shields.io/github/actions/workflow/status/VeritasTrial/ac215_VeritasTrial/build.yaml?label=build&logo=github)](https://github.com/VeritasTrial/ac215_VeritasTrial/actions/workflows/build.yaml) [![test](https://img.shields.io/github/actions/workflow/status/VeritasTrial/ac215_VeritasTrial/test.yaml?label=test&logo=github)](https://github.com/VeritasTrial/ac215_VeritasTrial/actions/workflows/test.yaml) [![deploy-app](https://img.shields.io/github/actions/workflow/status/VeritasTrial/ac215_VeritasTrial/deploy-app.yaml?label=app&logo=github)](https://github.com/VeritasTrial/ac215_VeritasTrial/actions/workflows/deploy-app.yaml) [![deploy-pipeline](https://img.shields.io/github/actions/workflow/status/VeritasTrial/ac215_VeritasTrial/deploy-pipeline.yaml?label=pipeline&logo=github)](https://github.com/VeritasTrial/ac215_VeritasTrial/actions/workflows/deploy-pipeline.yaml) [![deploy-chromadb](https://img.shields.io/github/actions/workflow/status/VeritasTrial/ac215_VeritasTrial/deploy-chromadb.yaml?label=chroma&logo=github)](https://github.com/VeritasTrial/ac215_VeritasTrial/actions/workflows/deploy-chromadb.yaml) |
 
 </div>
+
+> [!WARNING]
+> This project is no longer live online because it it not cheap to host the project on Google Cloud in the long term. If one is interested in creating a similar project, see the [Recreating from Scratch](#recreating-from-scratch) section.
 
 ## Table of Contents
 
@@ -28,6 +31,7 @@ Team Members: [Yao Xiao](mailto:yaoxiao@g.harvard.edu), [Bowen Xu](mailto:bowenx
 - [Deployment](#deployment)
 - [Future Steps](#future-steps)
 - [References](#references)
+- [Recreating from Scratch](#recreating-from-scratch)
 
 Subdirectory READMEs:
 
@@ -75,7 +79,7 @@ One key limitation lies in the search functionality of platforms like [ClinicalT
 │  ├── construct-qa/         > QA construction (legacy)
 │  └── finetune-model/       > Model finetuning (legacy)
 ├── .gitignore
-├── LICENSE
+├── LICENSE.md
 └── README.md
 ```
 
@@ -171,3 +175,19 @@ Taking our goals and objectives into consideration, we aim to expand our project
 - Chen J, Xiao S, Zhang P, et al. Bge m3-embedding: Multi-lingual, multi-functionality, multi-granularity text embeddings through self-knowledge distillation[J]. arXiv preprint arXiv:2402.03216, 2024. https://arxiv.org/abs/2402.03216
 - Jin Q, Dhingra B, Liu Z, et al. Pubmedqa: A dataset for biomedical research question answering[J]. arXiv preprint arXiv:1909.06146, 2019. https://arxiv.org/abs/1909.06146
 - Gao T, Yao X, Chen D. Simcse: Simple contrastive learning of sentence embeddings[J]. arXiv preprint arXiv:2104.08821, 2021. https://arxiv.org/abs/2104.08821
+
+## Recreating from Scratch
+
+In this section we will describe how to recreate a similar from project from scratch. Note that this is not tested to work, but you are welcome to open an issue in the issue tracker if the instructions do not directly work, so that we can refine them gradually.
+
+- Clone this repository. Make sure to have GitHub Actions available.
+- Create a project on [Google Cloud Platform](https://console.cloud.google.com/welcome). Visit your [dashboard](https://console.cloud.google.com/home/dashboard), where you can see your project ID. Replace all occurrences in the codebase of `veritastrial` with your project ID (case-sensitive). Also pick the region and zone for your project. Replace all occurrences of `us-central1-a` with your zone, and `us-central1` with your region. You may want to exclude the `README.md` file in this process.
+- Go to the [APIs & Services dashboard](https://console.cloud.google.com/apis/dashboard) and enable the following APIs: Cloud Monitoring API, Compute Engine API, Cloud Logging API, Vertex AI API, Kubernetes Engine API, Artifact Registry API, Cloud Resource Manager API, Cloud Run Admin API, Network Connectivity API, Notebooks API. Note that this list may not be complete, and you may enable other APIs when needed.
+- Go to [IAM & Admin> Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts) and create two service accounts. Let `your-project-name` be a project name which you can choose at random. The first service account should be named `your-project-name-service` and granted the following accesses: Storage Admin, Vertex AI Administrator. The second service account should be named `your-project-name-deployment` and granted the following accesses: Artifact Registry Administrator, Compute Admin, Compute OS Admin, Kubernetes Engine Admin, Service Account User, Storage Admin, Vertex AI Administrator. Click into your service acccounts after creation, go to "Keys", click "Add key" then "Create new key" and download as JSON file. Name the downloaded JSON files `your-project-name-service.json` and `your-project-name-deployment.json`, respectively. Put them under the `/secrets/` directory - they will be automatically git ignored. Then change all occurrences in the codebase of `veritas-trial` with `your-project-name` (case sensitive).
+- Go to [Cloud Storage > Buckets](https://console.cloud.google.com/storage/browser) and create a bucket named `your-project-name`. Inside the bucket create the following folders: `data-pipeline`, `embedding-model`. Make sure the region and zone is correct.
+- Go to [Artifact Registry](https://console.cloud.google.com/artifacts) and create a repository named `docker`. Make sure that the region and zone is correct.
+- On your forked repository in GitHub, go to "Actions", choose "Deploy ChromaDB", and click "Run workflow" with both checkboxes unchecked (which is the default). This should take a long time. After it succeeds, click into the workflow run, click into the job `deploy-chromadb`, and search in the logs `Nginx ingress IP address` (supose it says `1.2.3.4`), then your deployment should be ready at `http://1.2.3.4.sslip.io/` in a few minutes. If you want `https` (so as to activate the clipboard API in the app), see [Obtaining SSL certificate from ZeroSSL](./deploy/README.md#others). The backend service will be ready at `http://1.2.3.4.sslip.io/api/`.
+- A little bit more details about the previous step: the "Deploy ChromaDB" workflow actually deploys a ChromaDB service via GCP Compute Engine. Then it (1) deploys the pipeline, i.e. uploads some Docker images to repository you created in the artifact registry, prepares the data in the created buckets, and adds vector embeddings into the deployed ChromaDB database, (2) deploys the app, i.e., deploys some Docker images to the repository you created in the artifact registry, and deploys a Kubernetes cluster in GKE hosting the frontend and the backend. Normally "Deploy ChromaDB" should be run only once. In the future if you make changes to the pipeline (`/src/`) you should run the "Deploy Pipeline" workflow, and if you make changes to the app (`/app/`) you should run the "Deploy App" workflow. See [/deploy](./deploy/README.md) for more details in deployment.
+- After the deployment a pull request will be created and it will be auto-merged (unless CI fails). That will update `/deploy/.docker-tag-app`, `/deploy/.docker-tag-pipeline`, and `/deploy/chromadb/.instance-ip`. `/deploy/chromadb/.instance-ip` contains the IP address where your deployed ChromaDB service is accessible.
+
+For details of local development, check out the [subdirectory READMEs](#table-of-contents). Again, feel free to open an issue in our issue tracker if you see anything wrong in the instructions, or if you have questions. Happy coding!
