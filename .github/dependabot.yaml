@@ -5,7 +5,7 @@ updates:
     directories:
       - /app/frontend
     schedule:
-      interval: daily
+      interval: monthly
     labels:
       - dependencies
     groups:
@@ -22,7 +22,7 @@ updates:
       - /src/construct-qa
       - /src/finetune-model
     schedule:
-      interval: daily
+      interval: monthly
     labels:
       - dependencies
     groups:
